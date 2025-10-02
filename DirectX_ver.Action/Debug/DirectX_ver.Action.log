@@ -1,4 +1,28 @@
-﻿  main.cpp
+﻿  input.cpp
+  main.cpp
   player.cpp
+  C/C++ のコード分析を実行しています...
   コードを生成中...
-  DirectX_ver.Action.vcxproj -> C:\Users\student\source\repos\DirectX_ver.Action\Debug\DirectX_ver.Action.exe
+  DirectX_ver.Action.vcxproj -> C:\Users\student\Desktop\DesktopFile\2DActionGame\2DActionGame\DirectX_ver.Action\Debug\DirectX_ver.Action.exe
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3dx9math.h(59): warning C26495: 変数 'D3DXFLOAT16::value' が初期化されていません。メンバー変数は必ず初期化してください (type.6)。
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3dx9math.h(91): warning C26495: 変数 'D3DXVECTOR2::y' が初期化されていません。メンバー変数は必ず初期化してください (type.6)。
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3dx9math.h(240): warning C26495: 変数 'D3DXVECTOR4::y' が初期化されていません。メンバー変数は必ず初期化してください (type.6)。
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3dx9math.h(429): warning C26495: 変数 'D3DXQUATERNION::w' が初期化されていません。メンバー変数は必ず初期化してください (type.6)。
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3dx9math.h(475): warning C26495: 変数 'D3DXPLANE::d' が初期化されていません。メンバー変数は必ず初期化してください (type.6)。
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3dx9math.h(516): warning C26495: 変数 'D3DXCOLOR::a' が初期化されていません。メンバー変数は必ず初期化してください (type.6)。
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3dx9math.inl(26): warning C26495: 変数 'D3DXFLOAT16::value' が初期化されていません。メンバー変数は必ず初期化してください (type.6)。
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3dx9math.inl(77): warning C26495: 変数 'D3DXVECTOR2::y' が初期化されていません。メンバー変数は必ず初期化してください (type.6)。
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3dx9math.inl(517): warning C26495: 変数 'D3DXVECTOR4::y' が初期化されていません。メンバー変数は必ず初期化してください (type.6)。
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3dx9math.inl(1068): warning C26495: 変数 'D3DXQUATERNION::w' が初期化されていません。メンバー変数は必ず初期化してください (type.6)。
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3dx9math.inl(1241): warning C26495: 変数 'D3DXPLANE::d' が初期化されていません。メンバー変数は必ず初期化してください (type.6)。
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3dx9math.inl(1376): warning C26495: 変数 'D3DXCOLOR::a' が初期化されていません。メンバー変数は必ず初期化してください (type.6)。
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\dinput.h(4321): warning C28251: 'joyConfigChanged' に対する整合性のない注釈: このインスタンスには 注釈なし が含まれます。c:\program files (x86)\windows kits\10\include\10.0.19041.0\um\joystickapi.h(431) を参照してください。
+C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\xaudio2.h(1228): warning C26812: 列挙型 'XAUDIO2_WINDOWS_PROCESSOR_SPECIFIER' は対象範囲外です。'enum' (Enum.3) より 'enum class' を優先します。
+C:\Users\student\Desktop\DesktopFile\2DActionGame\2DActionGame\DirectX_ver.Action\input.cpp(335): warning C26812: 列挙型 'JOYKEY' は対象範囲外です。'enum' (Enum.3) より 'enum class' を優先します。
+C:\Users\student\Desktop\DesktopFile\2DActionGame\2DActionGame\DirectX_ver.Action\input.cpp(458): warning C26812: 列挙型 'JOYTHUMB' は対象範囲外です。'enum' (Enum.3) より 'enum class' を優先します。
+C:\Users\student\Desktop\DesktopFile\2DActionGame\2DActionGame\DirectX_ver.Action\input.cpp(731): warning C33011: インデックスとして使用される列挙型 Thumb の上限は確認されていません。
+C:\Users\student\Desktop\DesktopFile\2DActionGame\2DActionGame\DirectX_ver.Action\main.cpp(47): warning C26812: 列挙型 'MODE' は対象範囲外です。'enum' (Enum.3) より 'enum class' を優先します。
+C:\Users\student\Desktop\DesktopFile\2DActionGame\2DActionGame\DirectX_ver.Action\main.cpp(54): warning C26812: 列挙型 'GAMEDIFFICULTY' は対象範囲外です。'enum' (Enum.3) より 'enum class' を優先します。
+C:\Users\student\Desktop\DesktopFile\2DActionGame\2DActionGame\DirectX_ver.Action\main.cpp(59): warning C28251: 'WinMain' に対する整合性のない注釈: このインスタンスには 注釈なし が含まれます。c:\program files (x86)\windows kits\10\include\10.0.19041.0\um\winbase.h(1006) を参照してください。
+C:\Users\student\Desktop\DesktopFile\2DActionGame\2DActionGame\DirectX_ver.Action\player.h(43): warning C26495: 変数 'PLAYER::gravity' が初期化されていません。メンバー変数は必ず初期化してください (type.6)。
+C:\Users\student\Desktop\DesktopFile\2DActionGame\2DActionGame\DirectX_ver.Action\player.cpp(44): warning C26812: 列挙型 'OR_GRAVITY' は対象範囲外です。'enum' (Enum.3) より 'enum class' を優先します。

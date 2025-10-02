@@ -54,7 +54,7 @@ RECT g_windowRect;										// ウィンドウサイズ
 GAMEDIFFICULTY g_Difficulty = GAMEDIFFICULTY_NORMAL;	// ゲームの難易度
 
 //================================================================================================================
-// メイン関数
+// --- メイン関数 ---
 //================================================================================================================
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hInstancePrev, LPSTR lpCmdLine, int nCmdShow)
 {
@@ -120,12 +120,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hInstancePrev, LPSTR lpCmdLine
 		return -1;
 	}
 
-	//AddFunctionLog("CLEAR : DirectX Init");
-
 	//分解能を設定
 	timeBeginPeriod(1);
-
-	//AddFunctionLog("END : timeBegin Setting");
 
 	dwCurrentTime = 0;							// 初期化
 	dwExecLastTime = timeGetTime();				// 現在時刻を取得
@@ -135,12 +131,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hInstancePrev, LPSTR lpCmdLine
 	// ウィンドウの表示
 	ShowWindow(hWnd, nCmdShow);					// ウィンドウの表示状態を設定
 
-	//AddFunctionLog("END : Window Show");
-
 	UpdateWindow(hWnd);							// クライアント領域を更新
 
-	//AddFunctionLog("END : Window Update");
-	
 	g_hWnd = hWnd;
 
 	// メッセージループ
@@ -193,21 +185,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hInstancePrev, LPSTR lpCmdLine
 	// 終了処理
 	Uninit();
 
-	//AddFunctionLog("END : DirextX Uninit");
-
 	// ウィンドウクラスの登録解除
 	UnregisterClass(CLASS_NAME, wcex.hInstance); 
-
-	//AddFunctionLog("END : WindowClass Unregister");
-
-	// ログの終了処理
-	//UninitLog();
 
 	return (int)msg.wParam;
 }
 
 //================================================================================================================
-// ウィンドウプロシージャ
+// --- ウィンドウプロシージャ ---
 //================================================================================================================
 LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -254,7 +239,7 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 }
 
 //================================================================================================================
-//初期化処理
+// --- 初期化処理 ---
 //================================================================================================================
 HRESULT Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 {
@@ -268,16 +253,12 @@ HRESULT Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 		return E_FAIL;
 	}
 
-	//AddFunctionLog("CLEAR : Direct3DObject Create");
-
 	// 現在のディスプレイモードを取得
 	if (FAILED(g_pD3D->GetAdapterDisplayMode(D3DADAPTER_DEFAULT,
 		&d3ddm)))
 	{
 		return E_FAIL;
 	}
-
-//	AddFunctionLog("CLEAR : DisplayMode Get");
 
 	// デバイスのプレゼンテーションパラメータの設定
 	ZeroMemory(&d3dpp, sizeof(d3dpp));			// パラメータのゼロクリア
@@ -317,19 +298,7 @@ HRESULT Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 			{
 				return E_FAIL;
 			}
-			else
-			{
-	//			AddFunctionLog("CLEAR : Device->SOFTWARE Create");
-			}
 		}
-		else
-		{
-	//		AddFunctionLog("CLEAR : Device->SOFTWARE HALF Create");
-		}
-	}
-	else
-	{
-	//	AddFunctionLog("CLEAR : Device->HARDWARE Create");
 	}
 
 	// レンダーステートの設定(消さないこと！ALPHA値の設定を適用する為の設定！)
@@ -363,31 +332,23 @@ HRESULT Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 		"PixelMplus12",
 		&g_pFont);
 
-	//AddFunctionLog("END : D3DXCreateFont Create");
-
 	// キーボードの初期化処理
 	if (FAILED(InitKeyboard(hInstance, hWnd)))
 	{
 		return E_FAIL;
 	}
 
-	//AddFunctionLog("CLEAR : Keyboard Init");
+	// ジョイパッドの初期化処理
+	if (FAILED(InitJoypad()))
+	{
+		return E_FAIL;
+	}
 
-	//// ジョイパッドの初期化処理
-	//if (FAILED(InitJoypad()))
-	//{
-	//	return E_FAIL;
-	//}
-
-	//AddFunctionLog("CLEAR : Joypad Init");
-
-	//// マウスの初期化処理
-	//if (FAILED(InitMouse(hWnd)))
-	//{
-	//	return E_FAIL;
-	//}
-
-	//AddFunctionLog("CLEAR : Mouse Init");
+	// マウスの初期化処理
+	if (FAILED(InitMouse(hWnd)))
+	{
+		return E_FAIL;
+	}
 
 	//// サウンドの初期化処理
 	//if (FAILED(InitSound(hWnd)))
@@ -395,17 +356,9 @@ HRESULT Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 	//	return E_FAIL;
 	//}
 
-	//AddFunctionLog("CLEAR : Sound Init");
-
 	//SetMode(g_mode);
 
-	//AddFunctionLog("END : Mode Set");
-
 	//InitFade(g_mode);
-
-	//AddFunctionLog("END : Fade Init");
-
-	//SetEnablePlayerFullburst(false);
 
 	InitPlayer();
 
@@ -413,49 +366,34 @@ HRESULT Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 }
 
 //================================================================================================================
-// 終了処理
+// --- 終了処理 ---
 //================================================================================================================
 void Uninit(void)
 {
 	// タイトル画面の終了処理
 	//UninitTitle();
 
-	//AddFunctionLog("END : Title Uninit");
-
 	// ゲーム画面の終了処理
 	//UninitGame();
-
-	//AddFunctionLog("END : Game Uninit");
 
 	// リザルト画面の終了処理
 	//UninitResult();
 
-	//AddFunctionLog("END : Result Uninit");
-
 	// ゲームオーバー画面の終了処理
 	//UninitGameover();
-
-	//AddFunctionLog("END : Gameover Uninit");
 
 	// フェードの終了処理
 	//UninitFade();
 
-	//AddFunctionLog("END : Fade Uninit");
-
 	// キーボードの終了処理
 	UninitKeyboard();
 
-	//AddFunctionLog("END : Keyboard Uninit");
-
 	// ジョイパッドの終了処理
-	//UninitJoypad();
-
-	//AddFunctionLog("END : Joypad Uninit");
+	UninitJoypad();
 
 	// マウスの終了処理
-	//UninitMouse();
+	UninitMouse();
 
-	//AddFunctionLog("END : Mouse Uninit");
 
 	UninitPlayer();
 
@@ -465,13 +403,10 @@ void Uninit(void)
 		g_pFont->Release();
 		g_pFont = NULL;
 
-		//AddFunctionLog("END : Font Release");
 	}
 
 	// サウンドの終了処理
 //	UninitSound();
-
-//	AddFunctionLog("END : Sound Uninit");
 
 	// Direct3Dデバイスの破棄
 	if (g_pD3DDevice != NULL)
@@ -479,8 +414,6 @@ void Uninit(void)
 		g_pD3DDevice->Release();
 
 		g_pD3DDevice = NULL;
-
-		//AddFunctionLog("END : DirectXDevice Release");
 	}
 
 	// Direct3Dオブジェクトの破棄
@@ -489,26 +422,25 @@ void Uninit(void)
 		g_pD3D->Release();
 
 		g_pD3D = NULL;
-
-		//AddFunctionLog("END : DirextXObject Release");
 	}
 }
 
 //================================================================================================================
-// 更新処理
+// --- 更新処理 ---
 //================================================================================================================
 void Update(void)
 {
 	//キーボードの更新処理(これより上に書くな)
 	UpdateKeyboard();
 
-	////ジョイパッドの更新処理
-	//UpdateJoypad();
+	//ジョイパッドの更新処理
+	UpdateJoypad();
 
-	//// マウスの更新処理
-	//UpdateMouse();
+	// マウスの更新処理
+	UpdateMouse();
 
 	UpdatePlayer();
+
 #if 0
 	// 現在の画面(モード)の更新処理
 	switch (g_mode)
@@ -556,7 +488,7 @@ void Update(void)
 }
 
 //================================================================================================================
-// 描画処理
+// --- 描画処理 ---
 //================================================================================================================
 void Draw(void)
 {
@@ -599,6 +531,7 @@ void Draw(void)
 
 		// フェードの描画処理
 		DrawFade();
+#endif
 
 #ifdef _DEBUG
 
@@ -606,12 +539,6 @@ void Draw(void)
 		DrawDebug();
 
 #endif // _DEBUG
-
-		//DrawTutorial();
-
-		// ログの初期化処理
-		DrawLog();
-#endif
 
 		DrawPlayer();
 
@@ -736,58 +663,24 @@ HRESULT GetHandleWindow(HWND* phWnd)
 		return E_FAIL;
 	}
 }
+#endif
 
 // デバッグ表示
 void DrawDebug(void)
 {
 	RECT rect = { 0,0,SCREEN_WIDTH,SCREEN_HEIGHT };			// 画面サイズ
 	char aStr[16][256];										// 画面に表示する文字列
-	int nCntEnemy = GetTotalEnemy();						// 敵の総数
-	PLAYER* pPlayer = GetPlayer();							// プレイヤーの情報
-	XINPUT_VIBRATION *pVibration = GetJoyVibration();		// バイブレーションの情報
-	XINPUT_STATE *pState = GetJoypadState();				// ジョイパッドの情報
-	Gauge *pGauge = GetGauge();								// ゲージの情報
-	POINT pos = GetMousePos();								// マウスの位置情報
-	int nBullet = GetBulletAll();
 
 	// 文字列に代入
 	wsprintf(&aStr[0][0], "FPS:%d\n", g_nCountFPS);
-
-	wsprintf(&aStr[1][0], "EnemyAll:%d\n", nCntEnemy);
-
-	wsprintf(&aStr[2][0], "PlayerPos:%d / %d\n", (int)pPlayer->posPlayer.x, (int)pPlayer->posPlayer.y);
-
-	wsprintf(&aStr[3][0], "Left:%d\n", pVibration->wLeftMotorSpeed);
-
-	wsprintf(&aStr[4][0], "Right:%d\n", pVibration->wRightMotorSpeed);
-
-	wsprintf(&aStr[5][0], "Key:%d\n", pState->Gamepad.wButtons);
-
-	wsprintf(&aStr[6][0], "Gauge:%d\n", pGauge[pPlayer->nGaugeNo].nPercentGauge);
-
-	wsprintf(&aStr[7][0], "Count:%d\n", pPlayer->nCounterBulletCharge);
-
-	wsprintf(&aStr[8][0], "X:%d\n", pos.x);
-
-	wsprintf(&aStr[9][0], "Y:%d\n", pos.y);
-
-	wsprintf(&aStr[10][0], "Volume:%d\n", (int)(GetVolume(SETSOUND_GAME) * 100.0f));
-
-
-	// 文字列を結合
-	for (int nCntDebug = 0; nCntDebug < 10; nCntDebug++)
-	{
-		strcat(&aStr[0][0], &aStr[nCntDebug + 1][0]);
-	}
 
 	// テキストの描画
     g_pFont->DrawText(NULL, &aStr[0][0], -1, &rect, DT_LEFT, D3DCOLOR_RGBA(255, 255, 255, 255));
 }
 
-#endif
 
 //================================================
-// ウィンドウフルスクリーン処理
+// --- ウィンドウフルスクリーン処理 ---
 //================================================
 void ToggleFullscreen(HWND hWnd)
 {
@@ -816,7 +709,7 @@ void ToggleFullscreen(HWND hWnd)
 }
 
 //================================================
-// ゲームの難易度設定処理
+// --- ゲームの難易度設定処理 ---
 //================================================
 void SetGameDifficulty(GAMEDIFFICULTY difficulty)
 {
@@ -824,7 +717,7 @@ void SetGameDifficulty(GAMEDIFFICULTY difficulty)
 }
 
 //================================================
-// ゲームの難易度設定処理
+// --- ゲームの難易度設定処理 ---
 //================================================
 GAMEDIFFICULTY GetGameDifficulty(void)
 {

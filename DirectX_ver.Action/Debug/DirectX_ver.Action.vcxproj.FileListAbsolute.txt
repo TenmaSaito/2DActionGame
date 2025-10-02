@@ -1,1 +1,4 @@
 C:\Users\student\source\repos\DirectX_ver.Action\Debug\DirectX_ver.Action.exe
+C:\Users\student\Desktop\DesktopFile\2DActionGame\2DActionGame\DirectX_ver.Action\Debug\DirectX_ver.Action.exe
+C:\Users\student\Desktop\DesktopFile\2DActionGame\2DActionGame\DirectX_ver.Action\Debug\DirectX_ver.Action.exe.lastcodeanalysissucceeded
+C:\Users\student\Desktop\DesktopFile\2DActionGame\2DActionGame\DirectX_ver.Action\Debug\NativeCodeAnalysis.read.1.tlog
