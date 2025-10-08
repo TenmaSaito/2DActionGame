@@ -4,14 +4,19 @@
 // Author : TENMA
 //
 //================================================================================================================
+//**********************************************************************************
+//*** インクルードファイル ***
+//**********************************************************************************
 #include "main.h"
 #include "input.h"
 //#include "sound.h"
 //#include "title.h"
-//#include "game.h"
+#include "game.h"
 //#include "result.h"
 //#include "enemy.h"
 #include "player.h"
+#include "block.h"
+#include "item.h"
 //#include "fade.h"
 //#include "gauge.h"
 //#include "gameover.h"
@@ -360,7 +365,7 @@ HRESULT Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 
 	//InitFade(g_mode);
 
-	InitPlayer();
+	InitGame();
 
 	return S_OK;
 }
@@ -394,8 +399,7 @@ void Uninit(void)
 	// マウスの終了処理
 	UninitMouse();
 
-
-	UninitPlayer();
+	UninitGame();
 
 	// デバッグ表示用フォントの破棄
 	if (g_pFont != NULL)
@@ -439,7 +443,7 @@ void Update(void)
 	// マウスの更新処理
 	UpdateMouse();
 
-	UpdatePlayer();
+	UpdateGame();
 
 #if 0
 	// 現在の画面(モード)の更新処理
@@ -540,7 +544,7 @@ void Draw(void)
 
 #endif // _DEBUG
 
-		DrawPlayer();
+		DrawGame();
 
 		// 描画終了
 		g_pD3DDevice->EndScene();
@@ -550,14 +554,18 @@ void Draw(void)
    	g_pD3DDevice->Present(NULL, NULL, NULL, NULL);
 }
 
-// デバイスの取得
+//================================================================================================================
+// --- デバイスの取得 ---
+//================================================================================================================
 LPDIRECT3DDEVICE9 GetDevice(void)
 {
 	return g_pD3DDevice;
 }
 
 #if 0
-// 画面の設定
+//================================================================================================================
+// --- 画面の設定 ---
+//================================================================================================================
 void SetMode(MODE mode)
 {
 	// 現在の画面(モード)の終了
@@ -635,7 +643,9 @@ void SetMode(MODE mode)
 	AddFunctionLog("END : Mode Save");
 }
 
-// 現在のモードを取得
+//================================================================================================================
+// --- 現在のモードを取得 ---
+//================================================================================================================
 MODE GetMode(void)
 {
 	AddFunctionLog("END : Mode Get");
@@ -643,13 +653,17 @@ MODE GetMode(void)
 	return g_mode;
 }
 
-// 直前のモードを取得
+//================================================================================================================
+// --- 直前のモードを取得 ---
+//================================================================================================================
 MODE GetModeExac(void)
 {
 	return g_modeExac;
 }
 
-// 獲得済みウィンドウの取得
+//================================================================================================================
+// -- 獲得済みウィンドウの取得 ---
+//================================================================================================================
 HRESULT GetHandleWindow(HWND* phWnd)
 {
 	if (g_hWnd != NULL)
@@ -665,7 +679,9 @@ HRESULT GetHandleWindow(HWND* phWnd)
 }
 #endif
 
-// デバッグ表示
+//================================================================================================================
+// --- デバッグ表示 ---
+//================================================================================================================
 void DrawDebug(void)
 {
 	RECT rect = { 0,0,SCREEN_WIDTH,SCREEN_HEIGHT };			// 画面サイズ
@@ -673,6 +689,19 @@ void DrawDebug(void)
 
 	// 文字列に代入
 	wsprintf(&aStr[0][0], "FPS:%d\n", g_nCountFPS);
+	sprintf(&aStr[1][0], 
+		"U / O : 高さ変更 (%f) \nN / M : 幅変更 (%f)\njump %d\npos %f %f\nposOld %f %f\nBpos %f %f\n", 
+		GetBlock()->fHeight, 
+		GetBlock()->fWidth, 
+		GetPlayer()->bJump, 
+		GetPlayer()->pos.x, 
+		GetPlayer()->pos.y, 
+		GetPlayer()->posOld.x, 
+		GetPlayer()->posOld.y, 
+		GetBlock()->pos.x, 
+		GetBlock()->pos.y);
+
+	strcat(&aStr[0][0], &aStr[1][0]);
 
 	// テキストの描画
     g_pFont->DrawText(NULL, &aStr[0][0], -1, &rect, DT_LEFT, D3DCOLOR_RGBA(255, 255, 255, 255));

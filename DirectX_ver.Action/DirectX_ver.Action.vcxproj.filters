@@ -13,27 +13,93 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="ソース ファイル\game">
+      <UniqueIdentifier>{aef445a1-aa24-4014-9e5f-742472be14f4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\main">
+      <UniqueIdentifier>{7bf869f1-b175-4a39-843c-3b38b119ecaf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\edit">
+      <UniqueIdentifier>{36462da2-f7bb-4cf7-ac38-863c7163720e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\game">
+      <UniqueIdentifier>{f26cc75d-925a-4be8-a386-57aad41406f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\main">
+      <UniqueIdentifier>{3fb4ad36-505e-4901-9bad-cc0a87a6b9b4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\edit">
+      <UniqueIdentifier>{2086ce92-746e-497e-bfb7-505715618680}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\game\object">
+      <UniqueIdentifier>{91823340-6f48-4385-8e74-c8247bea13dc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\game\object">
+      <UniqueIdentifier>{17821a05-38e4-4a07-b2b0-14e759776abe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\game\character">
+      <UniqueIdentifier>{9c523672-d0e6-4b66-8ed7-9e2bddbceb32}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\game\character">
+      <UniqueIdentifier>{f2576349-cb27-4251-96cd-4681b5ee29f3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\math">
+      <UniqueIdentifier>{b428f0eb-38fd-4ba3-8c13-1e64b659aa8b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\math">
+      <UniqueIdentifier>{cd2a2d10-0fbd-4963-bc19-8c6242f14202}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="input.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\main</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>ソース ファイル\main</Filter>
+    </ClCompile>
+    <ClCompile Include="read_binui.cpp">
+      <Filter>ソース ファイル\edit</Filter>
     </ClCompile>
     <ClCompile Include="player.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\game\character</Filter>
+    </ClCompile>
+    <ClCompile Include="block.cpp">
+      <Filter>ソース ファイル\game\object</Filter>
+    </ClCompile>
+    <ClCompile Include="item.cpp">
+      <Filter>ソース ファイル\game\object</Filter>
+    </ClCompile>
+    <ClCompile Include="math.cpp">
+      <Filter>ソース ファイル\math</Filter>
+    </ClCompile>
+    <ClCompile Include="game.cpp">
+      <Filter>ソース ファイル\game</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="input.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\main</Filter>
     </ClInclude>
     <ClInclude Include="main.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\main</Filter>
+    </ClInclude>
+    <ClInclude Include="read_binui.h">
+      <Filter>ヘッダー ファイル\edit</Filter>
+    </ClInclude>
+    <ClInclude Include="game.h">
+      <Filter>ヘッダー ファイル\game</Filter>
+    </ClInclude>
+    <ClInclude Include="block.h">
+      <Filter>ヘッダー ファイル\game\object</Filter>
     </ClInclude>
     <ClInclude Include="player.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\game\character</Filter>
+    </ClInclude>
+    <ClInclude Include="item.h">
+      <Filter>ヘッダー ファイル\game\object</Filter>
+    </ClInclude>
+    <ClInclude Include="math.h">
+      <Filter>ヘッダー ファイル\math</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

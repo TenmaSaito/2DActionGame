@@ -10,7 +10,7 @@
 //**********************************************************************************
 //*** インクルードファイル(DirectX関係) ***
 //**********************************************************************************
-#include <windows.h>
+#include <windows.h>						// windowsアプリケーションを使う上で必須
 #include "d3dx9.h"							// 描画処理に必要
 #define DIRECTINPUT_VERSION		(0x0800)	// ビルド時の警告対処用マクロ
 #include "dinput.h"							// 入力処理に必要(先に上のマクロを定義する)
@@ -30,21 +30,21 @@
 //**********************************************************************************
 //*** インクルードファイル ***
 //**********************************************************************************
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <stdio.h>							// 標準入出力に必要
+#include <stdlib.h>							// 疑似乱数に必要
+#include <string.h>							// 文字列関連の処理に必要
 
 //**********************************************************************************
 //*** マクロ定義 ***
 //**********************************************************************************
-#define SCREEN_WIDTH	(1280)						// ウィンドウの幅
-#define SCREEN_HEIGHT	(720)						// ウィンドウの高さ
-#define FVF_VERTEX_2D	(D3DFVF_XYZRHW | D3DFVF_DIFFUSE | D3DFVF_TEX1)		// 頂点フォーマット
-#define D3DXVECTOR3_NULL	D3DXVECTOR3(0.0f,0.0f,0.0f)						// D3DXVECTOR3のNULL
-#define D3DXCOLOR_NULL		D3DXCOLOR(1.0f,1.0f,1.0f,1.0f)					// COLORのNULL
-#define STRING_MAX		(1024)						// 文字列の最大文字数
-#define WINDOW_MID		D3DXVECTOR3(SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.5f, 0.0f)	// ウィンドウの中心
-#define SWAP(a,b)		a^=b^=a^=b
+#define SCREEN_WIDTH		(1280)												// ウィンドウの幅
+#define SCREEN_HEIGHT		(720)												// ウィンドウの高さ
+#define FVF_VERTEX_2D		(D3DFVF_XYZRHW | D3DFVF_DIFFUSE | D3DFVF_TEX1)		// 頂点フォーマット
+#define D3DXVECTOR3_NULL	D3DXVECTOR3(0.0f,0.0f,0.0f)							// D3DXVECTOR3のNULL
+#define D3DXVECTOR4_NULL	D3DXVECTOR4(0.0f, 0.0f, 0.0f, 0.0f)					// D3DXVECTOR4のNULL
+#define D3DXCOLOR_NULL		D3DXCOLOR(1.0f,1.0f,1.0f,1.0f)						// COLORのNULL
+#define STRING_MAX			(1024)												// 文字列の最大文字数
+#define WINDOW_MID			D3DXVECTOR3(SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.5f, 0.0f)	// ウィンドウの中心
 
 //**********************************************************************************
 //*** 画面モードの種類 ***
@@ -82,6 +82,17 @@ typedef struct
 	D3DCOLOR col;			// 頂点カラー(R,G,B,a)
 	D3DXVECTOR2 tex;		// テクスチャ座標(x,y)
 } VERTEX_2D;
+
+//**********************************************************************************
+//*** 四点範囲指定構造体 ***
+//**********************************************************************************
+typedef struct
+{
+	D3DXVECTOR3 point1;		// 左上
+	D3DXVECTOR3 point2;		// 右上
+	D3DXVECTOR3 point3;		// 左下
+	D3DXVECTOR3 point4;		// 右下
+}POINT_RECT;
 
 //**********************************************************************************
 //*** プロトタイプ宣言 ***

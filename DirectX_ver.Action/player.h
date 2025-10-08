@@ -7,39 +7,29 @@
 #ifndef _PLAYER_H_
 #define _PLAYER_H_
 
-#include "main.h"
 //**********************************************************************************
-//*** 重力の種類 ***
+//*** インクルードファイル ***
 //**********************************************************************************
-typedef enum
-{
-	OR_GRAVITY_GRAVITY = 0,		// 下への重力
-	OR_GRAVITY_ANTI_GRAVITY,	// 上への重力
-	OR_GRAVITY_MAX
-}OR_GRAVITY;
-
-//**********************************************************************************
-//*** 重力構造体 ***
-//**********************************************************************************
-typedef struct
-{
-	float nGravity;				// 現在の重力の値
-	OR_GRAVITY orGravity;		// 重力の向き
-}GRAVITY;
+#include "game.h"
+#include "block.h"
 
 //**********************************************************************************
 //*** プレイヤー構造体 ***
 //**********************************************************************************
 typedef struct
 {
-	D3DXVECTOR3 pos;			// 位置
-	D3DXVECTOR3 rot;			// 角度
+	D3DXVECTOR3 pos;			// 現在の位置
+	D3DXVECTOR3 posOld;			// 過去の位置
 	D3DXVECTOR3 move;			// 移動量
 	int nCounterAnim;			// アニメーションカウンター
 	int nPatternAnim;			// アニメーションNo
-	bool bRight;				// 右向きか
+	float fWidth;				// 横幅
+	float fHeight;				// 身長
+	bool bGravityInverseTime;	// 重力反転中か
+	int nRight;					// 右向きか
 	bool bJump;					// ジャンプ中か
 	GRAVITY gravity;			// プレイヤーへの重力
+	BLOCK *pBlock;				// 対象ブロックのポインタ
 }PLAYER;
 
 //**********************************************************************************
@@ -49,5 +39,7 @@ void InitPlayer(void);
 void UninitPlayer(void);
 void UpdatePlayer(void);
 void DrawPlayer(void);
+
+PLAYER *GetPlayer(void);
 
 #endif
