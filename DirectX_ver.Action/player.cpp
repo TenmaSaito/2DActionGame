@@ -10,25 +10,28 @@
 #include "player.h"
 #include "block.h"
 #include "item.h"
+#include "enemy.h"
 
 //*************************************************************************************************
 //*** マクロ定義 ***
 //*************************************************************************************************
 #define PLAYER_SPD		(0.70f)						// プレイヤーの足の速さ
 #define MOVE_RESIST		(0.15f)						// 減速係数
-#define PLAYER_JUMP		(20.0f)						// プレイヤーの飛び跳ねる力
-#define ACCELE_JUMP		(0.5f)						// ジャンプ中の加速係数
+#define PLAYER_JUMP		(12.0f)						// プレイヤーの飛び跳ねる力
+#define ACCELE_JUMP		(0.25f)						// ジャンプ中の加速係数
 #define PLAYER_ANIM_U	(5)							// アニメーションする数 U
 #define PLAYER_ANIM_V	(4)							// アニメーションする数 V
 #define PLAYER_R		(0)							// プレイヤーの右向きの定義
 #define ANIMATION_START	(5)							// アニメーションを更新する基準
 #define PLAYER_WIDTH	(50.0f)						// プレイヤーの幅
 #define PLAYER_HEIGHT	(50.0f)						// プレイヤーの身長
-#define GRAVITY			(1.0f)						// 重力の強さ
+#define GRAVITY			(0.40f)						// 重力の強さ
+#define MAX_GRAVITY		(15.0f)						// 反転時にかかる重力の最大値
 #define INVERSE_TIME	(30)						// 重力反転のクールタイム
 #define PLAYER_DEBUG								// デバッグ用マクロ定義
+
 #if 1
-#undef PLAYER_DEBUG									// 0 : デバッグ解除 / 1 : デバッグ開始
+#undef PLAYER_DEBUG									// 1 : デバッグ解除 / 0 : デバッグ開始
 #endif
 
 //*************************************************************************************************
@@ -51,8 +54,8 @@ void InitPlayer(void)
 	memset(&g_player, NULL, sizeof(PLAYER));		// ゼロで初期化
 
 	/*** プレイヤーの一部設定 ***/
-	g_player.pos = D3DXVECTOR3(WINDOW_MID.x, SCREEN_HEIGHT, 0.0f);		// 位置を初期化
-	g_player.posOld = D3DXVECTOR3(WINDOW_MID.x, SCREEN_HEIGHT, 0.0f);	// 位置を初期化
+	g_player.pos = D3DXVECTOR3(50.0f + (PLAYER_WIDTH * 0.5f), SCREEN_HEIGHT - PLAYER_HEIGHT, 0.0f);		// 位置を初期化
+	g_player.posOld = D3DXVECTOR3(50.0f + (PLAYER_WIDTH * 0.5f), SCREEN_HEIGHT - PLAYER_HEIGHT, 0.0f);	// 位置を初期化
 	g_player.move = D3DXVECTOR3_NULL;									// プレイヤーの移動量の初期化
 	g_player.fWidth = PLAYER_WIDTH;										// プレイヤーの横幅の初期化
 	g_player.fHeight = PLAYER_HEIGHT;									// プレイヤーの身長の初期化
@@ -242,13 +245,13 @@ void UpdatePlayer(void)
 	g_player.move.y += g_player.gravity.nGravity * (1 + (-2 * g_player.gravity.orGravity));
 
 	/*** 重力加速度の上限を設定 ***/
-	if (g_player.move.y <= -40.0f && g_player.gravity.orGravity == OR_GRAVITY_ANTI_GRAVITY)
+	if (g_player.move.y <= -MAX_GRAVITY && g_player.gravity.orGravity == OR_GRAVITY_ANTI_GRAVITY)
 	{ // 上に一定以上の加速度がかかったら、最大値に変更
-		g_player.move.y = -40.0f;
+		g_player.move.y = -MAX_GRAVITY;
 	}
-	else if(g_player.move.y >= 40.0f)
+	else if(g_player.move.y >= MAX_GRAVITY)
 	{ // 下に一定以上の加速度がかかったら、最大値に変更
-		g_player.move.y = 40.0f;
+		g_player.move.y = MAX_GRAVITY;
 	}
 	
 	/*** 位置を更新 ***/
@@ -320,7 +323,11 @@ void UpdatePlayer(void)
 		g_player.bGravityInverseTime = false;	// 反転のロックを解除する
 	}
 
+	/*** アイテムとの当たり判定 ***/
 	CollisionItem(g_player.pos, g_player.fWidth, g_player.fHeight);
+
+	/*** 敵との当たり判定 ***/
+	CollisionEnemy(g_player.pos, g_player.fWidth, g_player.fHeight);
 
 	/*** 移動量を更新(減速処理) ***/
 	g_player.move.x += (0.0f - g_player.move.x) * 0.15f;

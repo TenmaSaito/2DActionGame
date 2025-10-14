@@ -75,6 +75,15 @@
     <ClCompile Include="game.cpp">
       <Filter>ソース ファイル\game</Filter>
     </ClCompile>
+    <ClCompile Include="binload.cpp">
+      <Filter>ソース ファイル\edit</Filter>
+    </ClCompile>
+    <ClCompile Include="enemy.cpp">
+      <Filter>ソース ファイル\game\character</Filter>
+    </ClCompile>
+    <ClCompile Include="GameBg.cpp">
+      <Filter>ソース ファイル\game\object</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="input.h">
@@ -100,6 +109,15 @@
     </ClInclude>
     <ClInclude Include="math.h">
       <Filter>ヘッダー ファイル\math</Filter>
+    </ClInclude>
+    <ClInclude Include="binload.h">
+      <Filter>ヘッダー ファイル\edit</Filter>
+    </ClInclude>
+    <ClInclude Include="enemy.h">
+      <Filter>ヘッダー ファイル\game\character</Filter>
+    </ClInclude>
+    <ClInclude Include="GameBg.h">
+      <Filter>ヘッダー ファイル\game\object</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

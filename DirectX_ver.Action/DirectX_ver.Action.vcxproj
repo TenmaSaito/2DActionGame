@@ -144,8 +144,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="binload.cpp" />
     <ClCompile Include="block.cpp" />
+    <ClCompile Include="enemy.cpp" />
     <ClCompile Include="game.cpp" />
+    <ClCompile Include="GameBg.cpp" />
     <ClCompile Include="input.cpp" />
     <ClCompile Include="item.cpp" />
     <ClCompile Include="main.cpp" />
@@ -154,8 +157,11 @@
     <ClCompile Include="read_binui.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="binload.h" />
     <ClInclude Include="block.h" />
+    <ClInclude Include="enemy.h" />
     <ClInclude Include="game.h" />
+    <ClInclude Include="GameBg.h" />
     <ClInclude Include="input.h" />
     <ClInclude Include="item.h" />
     <ClInclude Include="main.h" />

@@ -14,6 +14,12 @@
 //*************************************************************************************************
 #define MAX_BLOCK		(128)		// ブロックの最大数
 
+//**********************************************************************************
+//*** プロトタイプ宣言 ***
+//**********************************************************************************
+void WallBlockActivity(BLOCK *pBlock, float fWidth, float fHeight);
+void TrapBlockActivity(BLOCK *pBlock, float fWidth, float fHeight);
+
 //*************************************************************************************************
 //*** グローバル変数 ***
 //*************************************************************************************************
@@ -39,16 +45,11 @@ void InitBlock(void)
 		g_aBlock[nCntBlock].posOld = g_aBlock[nCntBlock].pos;
 		g_aBlock[nCntBlock].rect = D3DXVECTOR4(0.0f, 0.0f, 0.0f, 0.0f);
 		g_aBlock[nCntBlock].col = D3DXCOLOR_NULL;
+		g_aBlock[nCntBlock].type = BLOCKTYPE_WALL;
 		g_aBlock[nCntBlock].fHeight = 150.0f;
 		g_aBlock[nCntBlock].fWidth = 200.0f;
 		g_aBlock[nCntBlock].bUse = false;
 	}
-
-	SetBlock(D3DXVECTOR3(200.0f, 670.0f, 0.0f), D3DXVECTOR3(0.0f,0.0f,0.0f), D3DXCOLOR_NULL, 50.0f, 50.0f);
-	SetBlock(D3DXVECTOR3(200.0f, 620.0f, 0.0f), D3DXVECTOR3(0.0f,0.0f,0.0f), D3DXCOLOR_NULL, 50.0f, 50.0f);
-	SetBlock(D3DXVECTOR3(200.0f, 570.0f, 0.0f), D3DXVECTOR3(0.0f,0.0f,0.0f), D3DXCOLOR_NULL, 50.0f, 50.0f);
-	SetBlock(D3DXVECTOR3(200.0f, 520.0f, 0.0f), D3DXVECTOR3(1.0f,0.0f,0.0f), D3DXCOLOR_NULL, 50.0f, 50.0f, D3DXVECTOR4(100.0f, 0.0f, 400.0f, 0.0f));
-	SetBlock(D3DXVECTOR3(400.0f, 470.0f, 0.0f), D3DXVECTOR3(0.0f,1.0f,0.0f), D3DXCOLOR_NULL, 50.0f, 50.0f);
 
 	/*** テクスチャの読み込み ***/
 	D3DXCreateTextureFromFile(pDevice,
@@ -146,52 +147,6 @@ void UpdateBlock(void)
 		}
 	}
 
-	/*** 設置用ブロックの高さ変更 ***/
-	if (GetKeyboardRepeat(DIK_O))
-	{
-		g_aBlock[0].fHeight += 1.0f;
-	}
-	else if (GetKeyboardRepeat(DIK_U))
-	{
-		g_aBlock[0].fHeight -= 1.0f;
-	}
-
-	/*** 設置用ブロックの横幅変更 ***/
-	if (GetKeyboardRepeat(DIK_M))
-	{
-		g_aBlock[0].fWidth += 1.0f;
-	}
-	else if (GetKeyboardRepeat(DIK_N))
-	{
-		g_aBlock[0].fWidth -= 1.0f;
-	}
-
-	/*** 設置用ブロックのY座標移動 ***/
-	if (GetKeyboardRepeat(DIK_I))
-	{
-		g_aBlock[0].pos.y -= 1.0f;
-	}
-	else if (GetKeyboardRepeat(DIK_K))
-	{
-		g_aBlock[0].pos.y += 1.0f;
-	}
-
-	/*** 設置用ブロックのX座標移動 ***/
-	if (GetKeyboardRepeat(DIK_J))
-	{
-		g_aBlock[0].pos.x -= 2.0f;
-	}
-	else if (GetKeyboardRepeat(DIK_L))
-	{
-		g_aBlock[0].pos.x += 2.0f;
-	}
-
-	/*** ブロックの設置 ***/
-	if (GetKeyboardTrigger(DIK_RETURN))
-	{
-		SetBlock(g_aBlock[0].pos, g_aBlock[0].move, g_aBlock[0].col, g_aBlock[0].fWidth, g_aBlock[0].fHeight);
-	}
-
 	/*** 頂点バッファの設定 ***/
 	g_pVtxBuffBlock->Lock(0, 0, (void**)&pVtx, 0);
 
@@ -221,7 +176,7 @@ void UpdateBlock(void)
 					g_aBlock[nCntBlock].move.x *= -1;
 				}
 
-				if (g_aBlock[nCntBlock].pos.y < g_aBlock[nCntBlock].rect.y || g_aBlock[nCntBlock].pos.x + g_aBlock[nCntBlock].fHeight > g_aBlock[nCntBlock].rect.w)
+				if (g_aBlock[nCntBlock].pos.y < g_aBlock[nCntBlock].rect.y || g_aBlock[nCntBlock].pos.y + g_aBlock[nCntBlock].fHeight > g_aBlock[nCntBlock].rect.w)
 				{
 					g_aBlock[nCntBlock].move.y *= -1;
 				}
@@ -396,6 +351,21 @@ bool CollisionBlock(D3DXVECTOR3* pPos, D3DXVECTOR3* pPosOld, D3DXVECTOR3* pMove,
 					}
 				}
 #else
+				if (g_aBlock[nCntBlock].type == BLOCKTYPE_TRAP)
+				{
+
+					continue;
+				}
+
+				if (gravity == OR_GRAVITY_GRAVITY)
+				{
+
+				}
+				else if (gravity == OR_GRAVITY_ANTI_GRAVITY)
+				{
+
+				}
+
 				if ((pPosOld->y <= g_aBlock[nCntBlock].pos.y))
 				{
 					if (pPosOld->y >= g_aBlock[nCntBlock].pos.y)
@@ -511,14 +481,43 @@ bool CollisionBlock(D3DXVECTOR3* pPos, D3DXVECTOR3* pPosOld, D3DXVECTOR3* pMove,
 						bLand = false;
 						bHitHead = false;
 					}
-
-					if ((pPosOld->x - fWidth * 0.5f >= g_aBlock[nCntBlock].pos.x + g_aBlock[nCntBlock].fWidth
+					else if ((pPosOld->x - fWidth * 0.5f >= g_aBlock[nCntBlock].pos.x + g_aBlock[nCntBlock].fWidth
 						&& pPos->x - fWidth * 0.5f <= g_aBlock[nCntBlock].pos.x + g_aBlock[nCntBlock].fWidth))
 					{
 						pPos->x = g_aBlock[nCntBlock].pos.x + g_aBlock[nCntBlock].fWidth + fWidth * 0.5f;		// 位置をブロックの位置に設定
 						pMove->x = 0.0f;																		// 移動量をリセット
 						bLand = false;
 						bHitHead = false;
+					}
+					else if (gravity == OR_GRAVITY_GRAVITY)
+					{
+						if (pPosOld->y >= g_aBlock[nCntBlock].posOld.y)
+						{
+							bLand = true;							// 着地判定に
+							bLandLast = true;
+
+							/*** ポインタがNULLか確認 ***/
+							if (pBlock != NULL)
+							{ // 上に乗っている場合、その乗っているブロックのアドレスを、pBlockのアドレスの中に代入
+								*pBlock = &g_aBlock[nCntBlock];
+							}
+						}
+					}
+					else if (gravity == OR_GRAVITY_ANTI_GRAVITY)
+					{
+						if (pPosOld->y - fHeight <= g_aBlock[nCntBlock].posOld.y + g_aBlock[nCntBlock].fHeight)
+						{
+
+							bLand = true;							// 着地判定に
+							bLandLast = true;
+
+							/*** ポインタがNULLか確認 ***/
+							if (pBlock != NULL)
+							{ // 上に乗っている場合、その乗っているブロックのアドレスを、pBlockのアドレスの中に代入
+								*pBlock = &g_aBlock[nCntBlock];
+							}
+
+						}
 					}
 				}
 
@@ -617,7 +616,7 @@ bool CollisionBlock(D3DXVECTOR3* pPos, D3DXVECTOR3* pPosOld, D3DXVECTOR3* pMove,
 // fWidth -> 設置するブロックの横幅
 // rect -> 移動する範囲(x :　左端, y : 上端, z : 右端, w : 下端)
 //================================================================================================================
-void SetBlock(D3DXVECTOR3 pos, D3DXVECTOR3 move, D3DXCOLOR col, float fWidth, float fHeight, D3DXVECTOR4 rect)
+void SetBlock(D3DXVECTOR3 pos, D3DXVECTOR3 move, D3DXCOLOR col, BLOCKTYPE type, float fWidth, float fHeight, D3DXVECTOR4 rect)
 {
 	/*** 使用されていないブロックの確認 ***/
 	for (int nCntBlock = 0; nCntBlock < MAX_BLOCK; nCntBlock++)
@@ -627,6 +626,7 @@ void SetBlock(D3DXVECTOR3 pos, D3DXVECTOR3 move, D3DXCOLOR col, float fWidth, fl
 			g_aBlock[nCntBlock].pos = pos;
 			g_aBlock[nCntBlock].move = move;
 			g_aBlock[nCntBlock].rect = rect;
+			g_aBlock[nCntBlock].type = type;
 			g_aBlock[nCntBlock].fWidth = fWidth;
 			g_aBlock[nCntBlock].fHeight = fHeight;
 			g_aBlock[nCntBlock].col = col;
@@ -639,9 +639,56 @@ void SetBlock(D3DXVECTOR3 pos, D3DXVECTOR3 move, D3DXCOLOR col, float fWidth, fl
 }
 
 //================================================================================================================
+// --- 壁床ブロックの衝突時処理 ---
+//================================================================================================================
+void WallBlockActivity(BLOCK* pBlock, float fWidth, float fHeight)
+{
+
+}
+
+//================================================================================================================
+// --- トラップブロックの衝突時処理 ---
+//================================================================================================================
+void TrapBlockActivity(BLOCK* pBlock, float fWidth, float fHeight)
+{
+
+}
+
+//================================================================================================================
 // --- ブロックの情報取得処理 ---
 //================================================================================================================
 BLOCK *GetBlock(void)
 {
 	return &g_aBlock[0];
+}
+
+//================================================================================================================
+// --- ブロックの設置処理 (ファイル読み込み) ---
+//================================================================================================================
+void SetBlockFromFile(const char* binPath)
+{
+	BLOCK *pBlock = &g_aBlock[0];
+	BLOCKLOAD *pBlockLoad = GetBlockInfo(binPath);
+	int nCntBlockLoad = GetBlockLoadNum();
+	DWORD dwError = SUCCESS_READBLOCK;
+
+	if (pBlockLoad == NULL)
+	{
+		dwError = GetLastErrorBin();
+		return;
+	}
+
+	for (int nCntBlock = 0; nCntBlock < nCntBlockLoad; nCntBlock++, pBlock++)
+	{
+		if (pBlock->bUse != true)
+		{
+			pBlock->pos = pBlockLoad->pos;
+			pBlock->col = pBlockLoad->col;
+			pBlock->fWidth = pBlockLoad->fWidth;
+			pBlock->fHeight = pBlockLoad->fHeight;
+			pBlock->bUse = true;
+
+			pBlockLoad++;
+		}
+	}
 }
