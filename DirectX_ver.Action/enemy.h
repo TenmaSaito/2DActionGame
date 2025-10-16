@@ -11,6 +11,7 @@
 //*** インクルードファイル ***
 //**********************************************************************************
 #include "game.h"
+#include "block.h"
 
 //**********************************************************************************
 //*** マクロ定義 ***
@@ -46,7 +47,9 @@ typedef enum
 typedef struct
 {
 	D3DXVECTOR3 pos;			// 敵の位置
-	D3DXVECTOR3 move;			// 敵の移動量
+	D3DXVECTOR3 posOld;			// 敵の過去の位置
+	D3DXVECTOR3 moveNow;		// 敵の現在の移動量
+	D3DXVECTOR3 move;			// 敵の設定時の移動量
 	D3DXCOLOR col;				// 敵の色
 	ENEMYTEX tex;				// 敵のテクスチャの種類
 	int nTexMaxU;				// テクスチャ座標の分割数	(U座標)
@@ -57,8 +60,11 @@ typedef struct
 	float fHeight;				// 敵の身長
 	ENEMYSTATE state;			// 敵の状態
 	int nCounterState;			// 状態カウンター(状態の経過秒数)
+	GRAVITY gravity;			// 重力関連
 	int nLife;					// 敵の体力
+	BLOCK *pBlock;				// 対象ブロックのポインタ
 	bool bUse;					// 使用されているか
+	bool bJump;					// ジャンプ中か
 } ENEMY, *PENEMY;
 
 //**********************************************************************************
@@ -68,7 +74,8 @@ void InitEnemy(void);
 void UninitEnemy(void);
 void UpdateEnemy(void);
 void DrawEnemy(void);
-void SetEnemy(D3DXVECTOR3 pos, D3DXVECTOR3 move, D3DXCOLOR col, ENEMYTEX tex, float fWidth, float fHeight, int nLife);
+
+void SetEnemy(D3DXVECTOR3 pos, D3DXVECTOR3 move, D3DXCOLOR col, ENEMYTEX tex, float fWidth, float fHeight, int nLife, OR_GRAVITY gravity);
 bool CollisionEnemy(D3DXVECTOR3 pos, float fWidth, float fHeight);
 ENEMY *GetEnemy(void);
 int GetTotalEnemy(void);

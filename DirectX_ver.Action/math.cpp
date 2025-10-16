@@ -93,3 +93,91 @@ float GetPosToPos(D3DXVECTOR3 posTarget, D3DXVECTOR3 posMover)
 
 	return fAngle;
 }
+
+//==================================================================
+// --- 角度を修正する処理 ---
+//==================================================================
+float RepairRot(float fRot)
+{
+	if (fRot < -D3DX_PI || fRot > D3DX_PI)
+	{
+		if (fRot > D3DX_PI)
+		{
+			fRot -= D3DX_PI * 2.0f;
+		}
+		else if (fRot < -D3DX_PI)
+		{
+			fRot = D3DX_PI * 2.0f;
+		}
+
+		return fRot;
+	}
+	else
+	{
+		return fRot;
+	}
+}
+
+//==================================================================
+// --- 位置と位置の間の座標を求める処理 ---
+//==================================================================
+D3DXVECTOR3 GetPosBetweenPos(D3DXVECTOR3 pos1, D3DXVECTOR3 pos2)
+{
+	D3DXVECTOR3 posResult = D3DXVECTOR3_NULL;
+
+	/*** X座標を比較し大きい方から差分を求める ***/
+	if (pos1.x >= pos2.x)
+	{
+		posResult.x = (pos1.x + pos2.x) * 0.5f;
+	}
+	else
+	{
+		posResult.x = (pos2.x + pos1.x) * 0.5f;
+	}
+
+	/*** Y座標を比較し大きい方から差分を求める ***/
+	if (pos1.y >= pos2.y)
+	{
+		posResult.y = (pos1.y + pos2.y) * 0.5f;
+	}
+	else
+	{
+		posResult.y = (pos2.y + pos1.y) * 0.5f;
+	}
+
+	/*** Z座標を比較し大きい方から差分を求める ***/
+	if (pos1.z >= pos2.z)
+	{
+		posResult.z = (pos1.z + pos2.z) * 0.5f;
+	}
+	else
+	{
+		posResult.z = (pos2.z + pos1.z) * 0.5f;
+	}
+
+	/*** 結果 ***/
+	return posResult;
+}
+
+//==================================================================
+// --- ランダムな色を求める処理 ---
+//==================================================================
+D3DXCOLOR GetRandomColor(bool bUseAlphaRand)
+{
+	D3DXCOLOR col;
+
+	col.r = (float)((rand() % 100) * 0.01f);
+	col.g = (float)((rand() % 100) * 0.01f);
+	col.b = (float)((rand() % 100) * 0.01f);
+
+	if (bUseAlphaRand)
+	{
+		col.a = (float)((rand() % 100) * 0.01f);
+	}
+	else
+	{
+		col.a = 1.0f;
+	}
+
+	return col;
+}

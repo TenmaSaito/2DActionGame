@@ -8,11 +8,14 @@
 //*** インクルードファイル ***
 //**********************************************************************************
 #include "block.h"
+#include "player.h"
 
 //*************************************************************************************************
 //*** マクロ定義 ***
 //*************************************************************************************************
 #define MAX_BLOCK		(128)		// ブロックの最大数
+#define BLOCK_SIZE_X	(50.0f)		// 基準の大きさ(X)
+#define BLOCK_SIZE_Y	(50.0f)		// 基準の大きさ(Y)
 
 //**********************************************************************************
 //*** プロトタイプ宣言 ***
@@ -23,10 +26,19 @@ void TrapBlockActivity(BLOCK *pBlock, float fWidth, float fHeight);
 //*************************************************************************************************
 //*** グローバル変数 ***
 //*************************************************************************************************
-LPDIRECT3DTEXTURE9		g_pTextureBlock = NULL;	// テクスチャへのポインタ
-LPDIRECT3DVERTEXBUFFER9 g_pVtxBuffBlock = NULL;	// 頂点バッファのポインタ
-BLOCK g_aBlock[MAX_BLOCK] = {};					// ブロックの情報
-int g_nCheckCollision;
+LPDIRECT3DTEXTURE9		g_apTextureBlock[BLOCKTYPE_MAX] = {};	// テクスチャへのポインタ
+LPDIRECT3DVERTEXBUFFER9 g_pVtxBuffBlock = NULL;					// 頂点バッファのポインタ
+BLOCK g_aBlock[MAX_BLOCK] = {};									// ブロックの情報
+int g_nCheckCollision;					
+
+//**********************************************************************************
+//*** テクスチャ ***
+//**********************************************************************************
+const char *g_aBlockTex[BLOCKTYPE_MAX]
+{
+	"data\\TEXTURE\\BLOCK\\WALL.png",
+	"data\\TEXTURE\\BLOCK\\TRAP.png"
+};
 
 //================================================================================================================
 // --- ブロックの初期化 ---
@@ -46,15 +58,18 @@ void InitBlock(void)
 		g_aBlock[nCntBlock].rect = D3DXVECTOR4(0.0f, 0.0f, 0.0f, 0.0f);
 		g_aBlock[nCntBlock].col = D3DXCOLOR_NULL;
 		g_aBlock[nCntBlock].type = BLOCKTYPE_WALL;
-		g_aBlock[nCntBlock].fHeight = 150.0f;
-		g_aBlock[nCntBlock].fWidth = 200.0f;
+		g_aBlock[nCntBlock].fHeight = 50.0f;
+		g_aBlock[nCntBlock].fWidth = 50.0f;
 		g_aBlock[nCntBlock].bUse = false;
 	}
 
 	/*** テクスチャの読み込み ***/
-	D3DXCreateTextureFromFile(pDevice,
-		"data\\TEXTURE\\Block.png",
-		&g_pTextureBlock);
+	for (int nCntBlock = 0; nCntBlock < BLOCKTYPE_MAX; nCntBlock++)
+	{
+		D3DXCreateTextureFromFile(pDevice,
+			g_aBlockTex[nCntBlock],
+			&g_apTextureBlock[nCntBlock]);
+	}
 
 	/*** 頂点バッファの生成 ***/
 	pDevice->CreateVertexBuffer(sizeof(VERTEX_2D) * 4 * MAX_BLOCK,
@@ -117,10 +132,13 @@ void InitBlock(void)
 void UninitBlock(void)
 {
 	/*** テクスチャの破棄 ***/
-	if (g_pTextureBlock != NULL)
+	for (int nCntBlock = 0; nCntBlock < BLOCKTYPE_MAX; nCntBlock++)
 	{
-		g_pTextureBlock->Release();
-		g_pTextureBlock = NULL;
+		if (g_apTextureBlock[nCntBlock] != NULL)
+		{
+			g_apTextureBlock[nCntBlock]->Release();
+			g_apTextureBlock[nCntBlock] = NULL;
+		}
 	}
 
 	/*** 頂点バッファの破棄 ***/
@@ -198,6 +216,15 @@ void UpdateBlock(void)
 			pVtx[3].pos.x = g_aBlock[nCntBlock].pos.x + (g_aBlock[nCntBlock].fWidth);
 			pVtx[3].pos.y = g_aBlock[nCntBlock].pos.y + (g_aBlock[nCntBlock].fHeight);
 			pVtx[3].pos.z = 0.0f;
+
+			if (g_aBlock[nCntBlock].type == BLOCKTYPE_WALL)
+			{
+				/*** テクスチャ座標の設定 ***/
+				pVtx[0].tex = D3DXVECTOR2(0.0f, 0.0f);
+				pVtx[1].tex = D3DXVECTOR2(1.0f * (g_aBlock[nCntBlock].fWidth / BLOCK_SIZE_X), 0.0f);
+				pVtx[2].tex = D3DXVECTOR2(0.0f, 1.0f * (g_aBlock[nCntBlock].fHeight / BLOCK_SIZE_Y));
+				pVtx[3].tex = D3DXVECTOR2(1.0f * (g_aBlock[nCntBlock].fWidth / BLOCK_SIZE_X), 1.0f * (g_aBlock[nCntBlock].fHeight / BLOCK_SIZE_Y));
+			}
 		}
 
 		pVtx += 4;
@@ -221,13 +248,13 @@ void DrawBlock(void)
 	/*** 頂点フォーマットの設定 ***/
 	pDevice->SetFVF(FVF_VERTEX_2D);
 
-	/*** テクスチャの設定 ***/
-	pDevice->SetTexture(0, g_pTextureBlock);
-
 	for (int nCntBlock = 0; nCntBlock < MAX_BLOCK; nCntBlock++)
 	{
 		if (g_aBlock[nCntBlock].bUse == true)
 		{
+			/*** テクスチャの設定 ***/
+			pDevice->SetTexture(0, g_apTextureBlock[g_aBlock[nCntBlock].type]);
+
 			/*** ポリゴンの描画 ***/
 			pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP,		// プリミティブの種類
 				4 * nCntBlock,								// 描画する最初の頂点インデックス
@@ -247,7 +274,7 @@ void DrawBlock(void)
 // **pBlock -> ブロックのアドレスを格納するポインタのポインタ (ダブルポインタ)
 // gravity -> 対象にかかっている重力
 //================================================================================================================
-bool CollisionBlock(D3DXVECTOR3* pPos, D3DXVECTOR3* pPosOld, D3DXVECTOR3* pMove, float fHeight, float fWidth, BLOCK **pBlock, OR_GRAVITY gravity)
+bool CollisionBlock(D3DXVECTOR3* pPos, D3DXVECTOR3* pPosOld, D3DXVECTOR3* pMove, float fHeight, float fWidth, BLOCK **pBlock, OR_GRAVITY gravity, bool bIsPlayer)
 {
 	int nCounterBlock = -1;
 #if 0
@@ -351,19 +378,11 @@ bool CollisionBlock(D3DXVECTOR3* pPos, D3DXVECTOR3* pPosOld, D3DXVECTOR3* pMove,
 					}
 				}
 #else
-				if (g_aBlock[nCntBlock].type == BLOCKTYPE_TRAP)
+				if (g_aBlock[nCntBlock].type == BLOCKTYPE_TRAP && bIsPlayer == true)
 				{
-
-					continue;
-				}
-
-				if (gravity == OR_GRAVITY_GRAVITY)
-				{
-
-				}
-				else if (gravity == OR_GRAVITY_ANTI_GRAVITY)
-				{
-
+					SetPlayerDeath();
+					pMove->x = 0.0f;
+					pMove->y = 0.0f;
 				}
 
 				if ((pPosOld->y <= g_aBlock[nCntBlock].pos.y))
@@ -682,11 +701,7 @@ void SetBlockFromFile(const char* binPath)
 	{
 		if (pBlock->bUse != true)
 		{
-			pBlock->pos = pBlockLoad->pos;
-			pBlock->col = pBlockLoad->col;
-			pBlock->fWidth = pBlockLoad->fWidth;
-			pBlock->fHeight = pBlockLoad->fHeight;
-			pBlock->bUse = true;
+			SetBlock(pBlockLoad->pos, D3DXVECTOR3_NULL, pBlockLoad->col, BLOCKTYPE_WALL, pBlockLoad->fWidth, pBlockLoad->fHeight);
 
 			pBlockLoad++;
 		}

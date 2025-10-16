@@ -1,6 +1,10 @@
-﻿  block.cpp
+﻿  effect.cpp
+C:\Users\student\Desktop\DesktopFile\2DActionGame\2DActionGame\DirectX_ver.Action\effect.cpp(181,64): warning C4244: '引数': 'LONG' から 'FLOAT' への変換です。データが失われる可能性があります。
+C:\Users\student\Desktop\DesktopFile\2DActionGame\2DActionGame\DirectX_ver.Action\effect.cpp(181,38): warning C4244: '引数': 'LONG' から 'FLOAT' への変換です。データが失われる可能性があります。
+C:\Users\student\Desktop\DesktopFile\2DActionGame\2DActionGame\DirectX_ver.Action\effect.cpp(182,65): warning C4244: '引数': 'LONG' から 'FLOAT' への変換です。データが失われる可能性があります。
+C:\Users\student\Desktop\DesktopFile\2DActionGame\2DActionGame\DirectX_ver.Action\effect.cpp(182,38): warning C4244: '引数': 'LONG' から 'FLOAT' への変換です。データが失われる可能性があります。
   コード生成しています。
-  2 of 86 functions ( 2.3%) were compiled, the rest were copied from previous compilation.
+  2 of 104 functions ( 1.9%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
     2 functions had inline decision re-evaluated but remain unchanged
   コード生成が終了しました。

@@ -23,6 +23,8 @@
 #define STAGE_UPPER				(0)					// ステージの上幅
 #define STAGE_WIDTH				SCREEN_WIDTH		// ステージの右端
 #define STAGE_HEIGHT			SCREEN_HEIGHT		// ステージの床
+#define WORLD_GRAVITY			(0.40f)				// この世界に共通でかかる重力の強さ
+#define MAX_GRAVITY				(15.0f)				// 反転時にかかる重力の最大値
 
 //**********************************************************************************
 //*** 重力の種類 ***

@@ -32,6 +32,17 @@ typedef enum
 }ACTIVE;
 
 //**********************************************************************************
+//*** アイテム情報構造体 ***
+//**********************************************************************************
+typedef struct
+{
+	D3DXVECTOR3 pos;				// アイテムの位置
+	D3DXCOLOR col;					// アイテムの色
+	ITEMTYPE type;					// アイテムの種類
+	GRAVITY gravity;				// 重力
+} ITEMINFO;
+
+//**********************************************************************************
 //*** プロトタイプ宣言 ***
 //**********************************************************************************
 void ItemActivity(ACTIVE active, ITEM *pItem);
@@ -42,6 +53,13 @@ void ItemActivity(ACTIVE active, ITEM *pItem);
 LPDIRECT3DTEXTURE9		g_pTextureItem = NULL;	// テクスチャへのポインタ
 LPDIRECT3DVERTEXBUFFER9 g_pVtxBuffItem = NULL;	// 頂点バッファのポインタ
 ITEM g_aItem[MAX_ITEM];							// ブロック構造体
+ITEMINFO g_aItemInfo[] =
+{
+	{D3DXVECTOR3(50.0f + ITEM_WIDTH * 0.5f, 50.0f + ITEM_HEIGHT, 0.0f), D3DXCOLOR_NULL, ITEMTYPE_STAR, OR_GRAVITY_GRAVITY},
+	{D3DXVECTOR3((SCREEN_WIDTH - 50.0f) - (ITEM_WIDTH * 0.5f), SCREEN_HEIGHT - 50.0f, 0.0f), D3DXCOLOR_NULL, ITEMTYPE_STAR, OR_GRAVITY_GRAVITY},
+	{D3DXVECTOR3(50.0f + ITEM_WIDTH * 0.5f, SCREEN_HEIGHT - 50.0f, 0.0f), D3DXCOLOR_NULL, ITEMTYPE_STAR, OR_GRAVITY_GRAVITY},
+	{D3DXVECTOR3((SCREEN_WIDTH - 50.0f) - (ITEM_WIDTH * 0.5f), 50.0f + ITEM_HEIGHT, 0.0f), D3DXCOLOR_NULL, ITEMTYPE_STAR, OR_GRAVITY_GRAVITY}
+};
 
 //================================================================================================================
 // --- ブロックの初期化処理 ---
@@ -80,6 +98,12 @@ void InitItem(void)
 		D3DPOOL_MANAGED,
 		&g_pVtxBuffItem,
 		NULL);
+
+	/*** アイテムの設置 ***/
+	for (int nCntItem = 0; nCntItem < (sizeof g_aItemInfo / sizeof(ITEMINFO)); nCntItem++)
+	{
+		SetItem(g_aItemInfo[nCntItem].type, g_aItemInfo[nCntItem].pos, g_aItemInfo[nCntItem].col, g_aItemInfo[nCntItem].gravity.orGravity);
+	}
 
 	/*** 頂点バッファの設定 ***/
 	g_pVtxBuffItem->Lock(0, 0, (void**)&pVtx, 0);

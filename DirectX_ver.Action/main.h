@@ -45,6 +45,7 @@
 #define D3DXCOLOR_NULL		D3DXCOLOR(1.0f,1.0f,1.0f,1.0f)						// COLORのNULL
 #define STRING_MAX			(1024)												// 文字列の最大文字数
 #define WINDOW_MID			D3DXVECTOR3(SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.5f, 0.0f)	// ウィンドウの中心
+#define ENABLE_LOOP			true												// デバッグ用ENTERループをオンにするか
 
 //**********************************************************************************
 //*** 画面モードの種類 ***
@@ -55,8 +56,6 @@ typedef enum
 	MODE_TUTORIAL,			// チュートリアル付きゲーム画面
 	MODE_GAME,				// ゲーム画面
 	MODE_RESULT,			// リザルト画面
-	MODE_GAMEOVER,			// ゲームオーバー画面
-	MODE_GAMECLEAR,			// ゲームクリア画面
 	MODE_CREDIT,			// クレジット画面
 	MODE_MAX
 }MODE;

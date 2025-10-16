@@ -10,20 +10,11 @@
 #include "main.h"
 #include "input.h"
 //#include "sound.h"
-//#include "title.h"
+#include "title.h"
 #include "game.h"
-//#include "result.h"
-//#include "enemy.h"
-#include "player.h"
-#include "block.h"
-#include "item.h"
-//#include "fade.h"
-//#include "gauge.h"
-//#include "gameover.h"
-//#include "gameclear.h"
+#include "result.h"
+#include "fade.h"
 //#include "credit.h"
-//#include "block.h"
-//#include "bullet.h"
 //#include "resource.h"
 #include <crtdbg.h>
 
@@ -32,6 +23,9 @@
 //**********************************************************************************
 #define CLASS_NAME		"WindowClass"				// ウィンドウクラスの名前
 #define WINDOW_NAME		"MapMaker"					// キャプションに表示される名前(提出する前に変えること！！！)
+#if 1
+#define MODE_ON				// モード設定を有効化
+#endif
 
 //**********************************************************************************
 //*** プロトタイプ宣言 ***
@@ -361,11 +355,13 @@ HRESULT Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 	//	return E_FAIL;
 	//}
 
-	//SetMode(g_mode);
+#ifdef MODE_ON
 
-	//InitFade(g_mode);
+	InitFade(g_mode);
 
-	InitGame();
+	SetMode(g_mode);
+
+#endif // MODE_ON
 
 	return S_OK;
 }
@@ -375,21 +371,19 @@ HRESULT Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 //================================================================================================================
 void Uninit(void)
 {
+#ifdef MODE_ON
 	// タイトル画面の終了処理
-	//UninitTitle();
+	UninitTitle();
 
 	// ゲーム画面の終了処理
-	//UninitGame();
+	UninitGame();
 
 	// リザルト画面の終了処理
-	//UninitResult();
-
-	// ゲームオーバー画面の終了処理
-	//UninitGameover();
+	UninitResult();
 
 	// フェードの終了処理
-	//UninitFade();
-
+	UninitFade();
+#endif
 	// キーボードの終了処理
 	UninitKeyboard();
 
@@ -443,40 +437,28 @@ void Update(void)
 	// マウスの更新処理
 	UpdateMouse();
 
-	UpdateGame();
-
-#if 0
-	// 現在の画面(モード)の更新処理
+#ifdef MODE_ON
+	/*** 現在の画面(モード)の更新処理 ***/
 	switch (g_mode)
 	{
+	// タイトル画面
 	case MODE_TITLE:
 		UpdateTitle();
-
 		break;
 
+	// ゲーム画面
 	case MODE_GAME:
 		UpdateGame();
-
 		break;
 
+	// リザルト画面
 	case MODE_RESULT:
 		UpdateResult();
-
 		break;
 
-	case MODE_GAMEOVER:
-		UpdateGameover();
-
-		break;
-
-	case MODE_GAMECLEAR:
-		UpdateGameclear();
-
-		break;
-
+	// クレジット画面
 	case MODE_CREDIT:
-		UpdateCredit();
-
+//		UpdateCredit();
 		break;
 	}
 
@@ -484,10 +466,7 @@ void Update(void)
 	UpdateFade();
 
 	// サウンドの更新処理
-	UpdateSound();
-
-	// ログの更新処理
-	UpdateLog();
+//	UpdateSound();
 #endif
 }
 
@@ -504,32 +483,28 @@ void Draw(void)
 	// 描画開始
 	if (SUCCEEDED(g_pD3DDevice->BeginScene()))
 	{// 描画開始が成功した場合
-#if 0
-		// 現在の画面(モード)の描画処理
+#ifdef MODE_ON
+		/*** 現在の画面(モード)の描画処理 ***/
 		switch (g_mode)
 		{
+		// タイトル画面
 		case MODE_TITLE:
 			DrawTitle();
 			break;
 
+		// ゲーム画面
 		case MODE_GAME:
 			DrawGame();
 			break;
 
+		// リザルト画面
 		case MODE_RESULT:
 			DrawResult();
 			break;
 
-		case MODE_GAMEOVER:
-			DrawGameover();
-			break;
-
-		case MODE_GAMECLEAR:
-			DrawGameclear();
-			break;
-
+		// クレジット画面
 		case MODE_CREDIT:
-			DrawCredit();
+//			DrawCredit();
 			break;
 		}
 
@@ -543,8 +518,6 @@ void Draw(void)
 		DrawDebug();
 
 #endif // _DEBUG
-
-		DrawGame();
 
 		// 描画終了
 		g_pD3DDevice->EndScene();
@@ -562,7 +535,7 @@ LPDIRECT3DDEVICE9 GetDevice(void)
 	return g_pD3DDevice;
 }
 
-#if 0
+#ifdef MODE_ON
 //================================================================================================================
 // --- 画面の設定 ---
 //================================================================================================================
@@ -571,32 +544,24 @@ void SetMode(MODE mode)
 	// 現在の画面(モード)の終了
 	switch (g_mode)
 	{
+	// タイトル画面
 	case MODE_TITLE:
 		UninitTitle();
-		AddFunctionLog("END : Title Uninit");
 		break;
 
+	// ゲーム画面
 	case MODE_GAME:
 		UninitGame();
-		AddFunctionLog("END : Game Uninit");
 		break;
 
+	// リザルト画面
 	case MODE_RESULT:
 		UninitResult();
-		AddFunctionLog("END : Result Uninit");
 		break;
 
-	case MODE_GAMEOVER:
-		UninitGameover();
-		AddFunctionLog("END : Gameover Uninit");
-		break;
-
-	case MODE_GAMECLEAR:
-		UninitGameclear();
-		break;
-
+	// クレジット画面
 	case MODE_CREDIT:
-		UninitCredit();
+//		UninitCredit();
 		break;
 	}
 
@@ -606,41 +571,29 @@ void SetMode(MODE mode)
 	// 指定の画面(モード)の初期化処理
 	switch (mode)
 	{
+	// タイトル画面
 	case MODE_TITLE:
 		InitTitle();
-		AddFunctionLog("END : Title Init");
 		break;
 
+	// ゲーム画面
 	case MODE_GAME:
-		InitGame(g_Difficulty);
-		AddFunctionLog("END : Game Init");
+		InitGame();
 		break;
 
+	// リザルト画面
 	case MODE_RESULT:
 		InitResult();
-		AddFunctionLog("END : Result Init");
 		break;
 
-	case MODE_GAMEOVER:
-		InitGameover();
-		AddFunctionLog("END : Gameover Init");
-		break;
-
-	case MODE_GAMECLEAR:
-		InitGameclear();
-		break;
-
+	// クレジット画面
 	case MODE_CREDIT:
-		InitCredit();
+//		InitCredit();
 		break;
 	}
 
-	AddFunctionLog("END : Mode Set");
-
 	// モードを保存
 	g_mode = mode;
-
-	AddFunctionLog("END : Mode Save");
 }
 
 //================================================================================================================
@@ -648,8 +601,6 @@ void SetMode(MODE mode)
 //================================================================================================================
 MODE GetMode(void)
 {
-	AddFunctionLog("END : Mode Get");
-
 	return g_mode;
 }
 
@@ -686,10 +637,9 @@ void DrawDebug(void)
 {
 	RECT rect = { 0,0,SCREEN_WIDTH,SCREEN_HEIGHT };			// 画面サイズ
 	char aStr[16][256];										// 画面に表示する文字列
-
 	// 文字列に代入
 	wsprintf(&aStr[0][0], "FPS:%d\n", g_nCountFPS);
-	sprintf(&aStr[1][0], 
+	/*sprintf(&aStr[1][0],
 		"U / O : 高さ変更 (%f) \nN / M : 幅変更 (%f)\njump %d\npos %f %f\nposOld %f %f\nBpos %f %f\n", 
 		GetBlock()->fHeight, 
 		GetBlock()->fWidth, 
@@ -701,10 +651,10 @@ void DrawDebug(void)
 		GetBlock()->pos.x, 
 		GetBlock()->pos.y);
 
-	strcat(&aStr[0][0], &aStr[1][0]);
+	strcat(&aStr[0][0], &aStr[1][0]);*/
 
 	// テキストの描画
-    g_pFont->DrawText(NULL, &aStr[0][0], -1, &rect, DT_LEFT, D3DCOLOR_RGBA(255, 255, 255, 255));
+    g_pFont->DrawText(NULL, &aStr[0][0], -1, &rect, DT_LEFT, D3DCOLOR_RGBA(0, 255, 255, 255));
 }
 
 

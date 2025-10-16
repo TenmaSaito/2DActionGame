@@ -12,7 +12,10 @@
 #include "item.h"
 #include "player.h"
 #include "enemy.h"
+#include "effect.h"
+#include "particle.h"
 #include "GameBg.h"
+#include "fade.h"
 
 //*************************************************************************************************
 //*** マクロ定義 ***
@@ -40,29 +43,28 @@ void InitGame(void)
 	/*** 敵の初期化 ***/
 	InitEnemy();
 
+	/*** エフェクトの初期化 ***/
+	InitEffect();
+
+	/*** パーティクルの初期化 ***/
+	InitParticle();
+
 	/*** ゲーム用背景の初期化 ***/
 	InitGameBg();
 
-	/*** アイテムの設置 ***/
-	SetItem(ITEMTYPE_STAR, D3DXVECTOR3(50.0f + ITEM_WIDTH * 0.5f, 50.0f + ITEM_HEIGHT, 0.0f), D3DXCOLOR_NULL, OR_GRAVITY_GRAVITY);
+	
 
-	SetItem(ITEMTYPE_STAR, D3DXVECTOR3((SCREEN_WIDTH - 50.0f) - (ITEM_WIDTH * 0.5f), SCREEN_HEIGHT - 50.0f, 0.0f), D3DXCOLOR_NULL, OR_GRAVITY_GRAVITY);
+	/*** ブロックの配置 ***/
+	SetBlock(D3DXVECTOR3(100.0f, 620.0f, 0.0f), D3DXVECTOR3(0.0f, 5.0f, 0.0f), D3DXCOLOR_NULL, BLOCKTYPE_WALL, 50.0f, 50.0f, D3DXVECTOR4(0.0f, 150.0f, 300.0f, 720.0f));
 
-	SetItem(ITEMTYPE_STAR, D3DXVECTOR3(50.0f + ITEM_WIDTH * 0.5f, SCREEN_HEIGHT - 50.0f, 0.0f), D3DXCOLOR_NULL, OR_GRAVITY_GRAVITY);
-
-	SetItem(ITEMTYPE_STAR, D3DXVECTOR3((SCREEN_WIDTH - 50.0f) - (ITEM_WIDTH * 0.5f), 50.0f + ITEM_HEIGHT, 0.0f), D3DXCOLOR_NULL, OR_GRAVITY_GRAVITY);
+	SetBlock(D3DXVECTOR3(1000.0f, 620.0f, 0.0f), D3DXVECTOR3_NULL, D3DXCOLOR_NULL, BLOCKTYPE_TRAP, 50.0f, 50.0f);
 
 	/*** ファイルデータからブロックの配置 ***/
 	SetBlockFromFile("data\\bin\\stage_0.bin");
 
-	/*** ブロックの配置 ***/
-	SetBlock(D3DXVECTOR3(100.0f, 620.0f, 0.0f), D3DXVECTOR3(0.0f, 5.0f, 0.0f), D3DXCOLOR_NULL, BLOCKTYPE_WALL, 50.0f, 50.0f, D3DXVECTOR4(0.0f, 100.0f, 300.0f, 720.0f));
+	SetBlockFromFile("data\\bin\\frame.bin");
 
-	SetEnemy(D3DXVECTOR3(700.0f, 600.0f, 0.0f), D3DXVECTOR3_NULL, D3DXCOLOR_NULL, ENEMYTEX_SLIME, 50.0f, 50.0f, 10);
-
-	SetEnemy(D3DXVECTOR3(100.0f, 600.0f, 0.0f), D3DXVECTOR3_NULL, D3DXCOLOR_NULL, ENEMYTEX_SLIME, 50.0f, 50.0f, 10);
-
-	SetItem(ITEMTYPE_STAR, D3DXVECTOR3(150.0f + ITEM_WIDTH * 0.5f, SCREEN_HEIGHT - 50.0f, 0.0f), D3DXCOLOR_NULL, OR_GRAVITY_GRAVITY);
+	SetEnemy(D3DXVECTOR3(700.0f, 600.0f, 0.0f), D3DXVECTOR3(1.0f, 0.0f, 0.0f), D3DXCOLOR_NULL, ENEMYTEX_SLIME, 50.0f, 50.0f, 10, OR_GRAVITY_GRAVITY);
 
 	/*** ゲーム用背景の有効化 ***/
 	SetEnableGameBg(true);
@@ -84,6 +86,12 @@ void UninitGame(void)
 
 	/*** 敵の終了 ***/
 	UninitEnemy();
+
+	/*** エフェクトの終了 ***/
+	UninitEffect();
+
+	/*** パーティクルの終了 ***/
+	UninitParticle();
 
 	/*** 背景の終了 ***/
 	UninitGameBg();
@@ -108,9 +116,22 @@ void UpdateGame(void)
 		/*** 敵の更新 ***/
 		UpdateEnemy();
 
+		/*** エフェクトの更新 ***/
+		UpdateEffect();
+
+		/*** パーティクルの更新 ***/
+		UpdateParticle();
+
 		/*** 背景の更新 ***/
 		UpdateGameBg();
 	}
+#if ENABLE_LOOP == true
+	if (GetKeyboardTrigger(DIK_RETURN)
+		&& GetFade() == FADE_NONE)
+	{
+		SetFade(MODE_RESULT, FADE_TYPE_NORMAL);
+	}
+#endif
 }
 
 //================================================================================================================
@@ -132,4 +153,10 @@ void DrawGame(void)
 
 	/*** 敵の描画 ***/
 	DrawEnemy();
+
+	/*** エフェクトの描画 ***/
+	DrawEffect();
+
+	/*** パーティクルの描画 ***/
+	DrawParticle();
 }

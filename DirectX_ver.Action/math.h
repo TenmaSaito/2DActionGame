@@ -25,5 +25,8 @@ POINT_RECT SetPointRect(D3DXVECTOR3 p1, D3DXVECTOR3 p2, D3DXVECTOR3 p3, D3DXVECT
 POINT_RECT SetRectToPointRect(RECT rect);
 void HomingPosToPos(D3DXVECTOR3 posTarget, D3DXVECTOR3 *posMover, float fSpeed);
 float GetPosToPos(D3DXVECTOR3 posTarget, D3DXVECTOR3 posMover);
+float RepairRot(float fRot);
+D3DXVECTOR3 GetPosBetweenPos(D3DXVECTOR3 pos1, D3DXVECTOR3 pos2);
+D3DXCOLOR GetRandomColor(bool bUseAlphaRand);
 
 #endif

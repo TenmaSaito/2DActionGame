@@ -16,6 +16,18 @@
 //**********************************************************************************
 //*** マクロ定義 ***
 //**********************************************************************************
+#define PLAYER_SPAWN	D3DXVECTOR3(50.0f + (PLAYER_WIDTH * 0.5f), SCREEN_HEIGHT - PLAYER_HEIGHT, 0.0f)			// プレイヤーの初期スポーン位置
+
+//**********************************************************************************
+//*** プレイヤーの状態 ***
+//**********************************************************************************
+typedef enum
+{
+	PLAYERSTATE_NORMAL = 0,		// 通常時
+	PLAYERSTATE_APPEAR,			// 出現、待機時
+	PLAYERSTATE_DEATH,			// 死亡時
+	PLAYERSTATE_MAX
+}PLAYERSTATE;
 
 //**********************************************************************************
 //*** プレイヤー構造体 ***
@@ -25,6 +37,9 @@ typedef struct
 	D3DXVECTOR3 pos;			// 現在の位置
 	D3DXVECTOR3 posOld;			// 過去の位置
 	D3DXVECTOR3 move;			// 移動量
+	D3DXCOLOR col;				// 色
+	PLAYERSTATE state;			// 状態
+	int nCounterState;			// 状態カウンター
 	int nCounterAnim;			// アニメーションカウンター
 	int nPatternAnim;			// アニメーションNo
 	float fWidth;				// 横幅
@@ -45,5 +60,6 @@ void UpdatePlayer(void);
 void DrawPlayer(void);
 
 PLAYER *GetPlayer(void);
+void SetPlayerDeath(void);
 
 #endif

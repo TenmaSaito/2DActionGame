@@ -49,7 +49,7 @@ void InitBlock(void);
 void UninitBlock(void);
 void UpdateBlock(void);
 void DrawBlock(void);
-bool CollisionBlock(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pPosOld, D3DXVECTOR3 *pMove, float fHeight, float fWidth, BLOCK **pBlock, OR_GRAVITY gravity);
+bool CollisionBlock(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pPosOld, D3DXVECTOR3 *pMove, float fHeight, float fWidth, BLOCK **pBlock, OR_GRAVITY gravity, bool bIsPlayer);
 
 void SetBlock(D3DXVECTOR3 pos, D3DXVECTOR3 move, D3DXCOLOR col, BLOCKTYPE type, float fWidth, float fHeight, D3DXVECTOR4 rect = D3DXVECTOR4_NULL);
 void SetBlockFromFile(const char *binPath);

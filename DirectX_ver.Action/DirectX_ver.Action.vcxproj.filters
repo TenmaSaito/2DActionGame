@@ -49,6 +49,24 @@
     <Filter Include="ヘッダー ファイル\math">
       <UniqueIdentifier>{cd2a2d10-0fbd-4963-bc19-8c6242f14202}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ソース ファイル\game\effect">
+      <UniqueIdentifier>{e38fe54a-5a89-4ae2-8a36-bd9c5560e364}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\game\effect">
+      <UniqueIdentifier>{7ff1d6d2-a3a5-41a4-87ff-16ead498fefd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\title">
+      <UniqueIdentifier>{b9151814-44b4-46df-b677-23eebbdcbf38}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\result">
+      <UniqueIdentifier>{966f94e8-58bf-4ee3-aeeb-e17b86163c7a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\title">
+      <UniqueIdentifier>{b4c9162e-3cd2-46bd-af8d-532df64dfbfc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\result">
+      <UniqueIdentifier>{940c3c85-619e-40ca-ba16-99fc0e2307ae}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="input.cpp">
@@ -84,6 +102,27 @@
     <ClCompile Include="GameBg.cpp">
       <Filter>ソース ファイル\game\object</Filter>
     </ClCompile>
+    <ClCompile Include="effect.cpp">
+      <Filter>ソース ファイル\game\effect</Filter>
+    </ClCompile>
+    <ClCompile Include="particle.cpp">
+      <Filter>ソース ファイル\game\effect</Filter>
+    </ClCompile>
+    <ClCompile Include="fade.cpp">
+      <Filter>ソース ファイル\main</Filter>
+    </ClCompile>
+    <ClCompile Include="title.cpp">
+      <Filter>ソース ファイル\title</Filter>
+    </ClCompile>
+    <ClCompile Include="result.cpp">
+      <Filter>ソース ファイル\result</Filter>
+    </ClCompile>
+    <ClCompile Include="titleBg.cpp">
+      <Filter>ソース ファイル\title</Filter>
+    </ClCompile>
+    <ClCompile Include="resultBg.cpp">
+      <Filter>ソース ファイル\result</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="input.h">
@@ -118,6 +157,27 @@
     </ClInclude>
     <ClInclude Include="GameBg.h">
       <Filter>ヘッダー ファイル\game\object</Filter>
+    </ClInclude>
+    <ClInclude Include="effect.h">
+      <Filter>ヘッダー ファイル\game\effect</Filter>
+    </ClInclude>
+    <ClInclude Include="particle.h">
+      <Filter>ヘッダー ファイル\game\effect</Filter>
+    </ClInclude>
+    <ClInclude Include="fade.h">
+      <Filter>ヘッダー ファイル\main</Filter>
+    </ClInclude>
+    <ClInclude Include="title.h">
+      <Filter>ヘッダー ファイル\title</Filter>
+    </ClInclude>
+    <ClInclude Include="result.h">
+      <Filter>ヘッダー ファイル\result</Filter>
+    </ClInclude>
+    <ClInclude Include="titleBg.h">
+      <Filter>ヘッダー ファイル\title</Filter>
+    </ClInclude>
+    <ClInclude Include="resultBg.h">
+      <Filter>ヘッダー ファイル\result</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -11,6 +11,7 @@
 #include "block.h"
 #include "item.h"
 #include "enemy.h"
+#include "particle.h"
 
 //*************************************************************************************************
 //*** マクロ定義 ***
@@ -25,14 +26,26 @@
 #define ANIMATION_START	(5)							// アニメーションを更新する基準
 #define PLAYER_WIDTH	(50.0f)						// プレイヤーの幅
 #define PLAYER_HEIGHT	(50.0f)						// プレイヤーの身長
-#define GRAVITY			(0.40f)						// 重力の強さ
-#define MAX_GRAVITY		(15.0f)						// 反転時にかかる重力の最大値
 #define INVERSE_TIME	(30)						// 重力反転のクールタイム
 #define PLAYER_DEBUG								// デバッグ用マクロ定義
 
 #if 1
 #undef PLAYER_DEBUG									// 1 : デバッグ解除 / 0 : デバッグ開始
 #endif
+
+//**********************************************************************************
+//*** プレイヤーの状態カウンターの値 ***
+//**********************************************************************************
+const int c_nCounterStatePlayer[PLAYERSTATE_MAX] =
+{
+	0,			// 通常状態 (0で固定)
+	120,		// 出現時の持続時間
+	100			// 死亡時の持続時間
+};
+
+//**********************************************************************************
+//*** プロトタイプ宣言 ***
+//**********************************************************************************
 
 //*************************************************************************************************
 //*** グローバル変数 ***
@@ -54,16 +67,19 @@ void InitPlayer(void)
 	memset(&g_player, NULL, sizeof(PLAYER));		// ゼロで初期化
 
 	/*** プレイヤーの一部設定 ***/
-	g_player.pos = D3DXVECTOR3(50.0f + (PLAYER_WIDTH * 0.5f), SCREEN_HEIGHT - PLAYER_HEIGHT, 0.0f);		// 位置を初期化
+	g_player.pos = PLAYER_SPAWN;		// 位置を初期化
 	g_player.posOld = D3DXVECTOR3(50.0f + (PLAYER_WIDTH * 0.5f), SCREEN_HEIGHT - PLAYER_HEIGHT, 0.0f);	// 位置を初期化
 	g_player.move = D3DXVECTOR3_NULL;									// プレイヤーの移動量の初期化
+	g_player.col = D3DXCOLOR_NULL;										// プレイヤーの色を初期化
+	g_player.state = PLAYERSTATE_APPEAR;								// プレイヤーの状態の初期化(出現状態)
+	g_player.nCounterState = c_nCounterStatePlayer[g_player.state];		// プレイヤーの状態カウンターを初期化
 	g_player.fWidth = PLAYER_WIDTH;										// プレイヤーの横幅の初期化
 	g_player.fHeight = PLAYER_HEIGHT;									// プレイヤーの身長の初期化
 	g_player.bJump = false;												// ジャンプ状態の初期化
 	g_player.nRight = PLAYER_R;											// 右向きに設定
 	g_player.nCounterAnim = 0;											// アニメーションカウンターを初期化
 	g_player.nPatternAnim = (PLAYER_ANIM_U - 1);						// アニメーションパターンを初期化
-	g_player.gravity.nGravity = GRAVITY;								// 重力の値を設定
+	g_player.gravity.nGravity = WORLD_GRAVITY;								// 重力の値を設定
 	g_player.gravity.orGravity = OR_GRAVITY_GRAVITY;					// 重力を設定
 	g_player.pBlock = NULL;												// ポインタを初期化
 	g_orGravityExac = g_player.gravity.orGravity;						// 現在の重力を保存
@@ -108,10 +124,10 @@ void InitPlayer(void)
 	pVtx[3].rhw = 1.0f;
 
 	/*** 頂点カラー設定 ***/
-	pVtx[0].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-	pVtx[1].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-	pVtx[2].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-	pVtx[3].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+	pVtx[0].col = g_player.col;
+	pVtx[1].col = g_player.col;
+	pVtx[2].col = g_player.col;
+	pVtx[3].col = g_player.col;
 
 	/*** テクスチャ座標の設定 ***/
 	pVtx[0].tex.x = ((1.0f / PLAYER_ANIM_U) * (g_player.nPatternAnim % PLAYER_ANIM_U));
@@ -166,80 +182,130 @@ void UpdatePlayer(void)
 		g_player.pos += g_player.pBlock->pos - g_player.pBlock->posOld;
 	}
 
-	/*** Aキー または Dキーを押している時 ***/
-	if (GetKeyboardPress(DIK_A))
-	{ // Aキーなら
-		g_player.move.x -= PLAYER_SPD;		// 加速度を追加
+	switch (g_player.state)
+	{
+	case PLAYERSTATE_NORMAL:
 
-		/*** ジャンプ中なら ***/
-		if (g_player.bJump) g_player.move.x -= PLAYER_SPD * ACCELE_JUMP;	// 加速度追加
-		g_player.nRight = PLAYER_R ^ 1;		// 現在の向きを左向きに設定
-	}
-	else if (GetKeyboardPress(DIK_D))
-	{ // Dキーなら
-		g_player.move.x += PLAYER_SPD;		// 加速度を追加
+		g_player.col = D3DXCOLOR_NULL;
 
-		/*** ジャンプ中なら ***/
-		if (g_player.bJump) g_player.move.x += PLAYER_SPD * ACCELE_JUMP;	// 加速度追加
-		g_player.nRight = PLAYER_R;				// 現在の向きを右向きに設定
+		break;
+
+	case PLAYERSTATE_APPEAR:
+
+		g_player.nCounterState--;
+		if (g_player.nCounterState <= 0)
+		{
+			g_player.nCounterState = 0;
+			g_player.col.a = 1.0f;
+			g_player.bJump = false;
+			g_player.nPatternAnim = (PLAYER_ANIM_U - 1);
+			g_player.state = PLAYERSTATE_NORMAL;
+		}
+		else
+		{
+			g_player.col.a += (1.0f / (float)c_nCounterStatePlayer[PLAYERSTATE_APPEAR]);
+			if (g_player.col.a >= 1.0f)
+			{
+				g_player.col.a = 1.0f;
+			}
+		}
+
+		break;
+
+	case PLAYERSTATE_DEATH:
+
+		g_player.nCounterState--;
+		if (g_player.nCounterState <= 0)
+		{
+			g_player.nCounterState = c_nCounterStatePlayer[PLAYERSTATE_APPEAR];
+			g_player.state = PLAYERSTATE_APPEAR;
+		}
+		else
+		{
+			g_player.col.a = 0.0f;
+		}
+
+		break;
 	}
+
+	if (g_player.state == PLAYERSTATE_NORMAL)
+	{
+
+		/*** Aキー または Dキーを押している時 ***/
+		if (GetKeyboardPress(DIK_A))
+		{ // Aキーなら
+			g_player.move.x -= PLAYER_SPD;		// 加速度を追加
+
+			/*** ジャンプ中なら ***/
+			if (g_player.bJump) g_player.move.x -= PLAYER_SPD * ACCELE_JUMP;	// 加速度追加
+			g_player.nRight = PLAYER_R ^ 1;		// 現在の向きを左向きに設定
+		}
+		else if (GetKeyboardPress(DIK_D))
+		{ // Dキーなら
+			g_player.move.x += PLAYER_SPD;		// 加速度を追加
+
+			/*** ジャンプ中なら ***/
+			if (g_player.bJump) g_player.move.x += PLAYER_SPD * ACCELE_JUMP;	// 加速度追加
+			g_player.nRight = PLAYER_R;				// 現在の向きを右向きに設定
+		}
 
 #ifndef PLAYER_DEBUG
-	/*** スペースを押したとき ***/
-	if (GetKeyboardTrigger(DIK_SPACE) == true
-		&& g_player.bGravityInverseTime == false)
-	{ // 重力を反転
-		g_player.gravity.orGravity = (OR_GRAVITY)((g_player.gravity.orGravity + 1) % 2);
-		if (g_player.gravity.orGravity > OR_GRAVITY_ANTI_GRAVITY)
-		{ // インデックスの範囲を確認
-			g_player.gravity.orGravity = OR_GRAVITY_ANTI_GRAVITY;
+		/*** スペースを押したとき ***/
+		if (GetKeyboardTrigger(DIK_SPACE) == true
+			&& g_player.bGravityInverseTime == false)
+		{ // 重力を反転
+			g_player.gravity.orGravity = (OR_GRAVITY)((g_player.gravity.orGravity + 1) % 2);
+			if (g_player.gravity.orGravity > OR_GRAVITY_ANTI_GRAVITY)
+			{ // インデックスの範囲を確認
+				g_player.gravity.orGravity = OR_GRAVITY_ANTI_GRAVITY;
+			}
+
+			g_orGravityExac = g_player.gravity.orGravity;
+
+			g_player.bGravityInverseTime = true;
+			g_player.bJump = true;
+
+			g_player.nPatternAnim = 0;
+			g_player.nCounterAnim = 0;
 		}
 
-		g_orGravityExac = g_player.gravity.orGravity;
-
-		g_player.bGravityInverseTime = true;
-		g_player.bJump = true;
-
-		g_player.nPatternAnim = 0;
-		g_player.nCounterAnim = 0;
-	}
-
-	/*** 自動ジャンプ ***/
-	if (g_player.bJump == false && g_player.nPatternAnim == (PLAYER_ANIM_U - 1))
-	{
-		g_player.bJump = true;
-		g_player.move.y = -PLAYER_JUMP * (1 + (-2 * g_player.gravity.orGravity));
-		g_player.nPatternAnim = 0;
-		g_player.nCounterAnim = 0;
-	}
-#else
-	if (GetKeyboardTrigger(DIK_E))
-	{ // 重力を反転
-		g_player.gravity.orGravity = (OR_GRAVITY)((g_player.gravity.orGravity + 1) % 2);
-		if (g_player.gravity.orGravity > OR_GRAVITY_ANTI_GRAVITY)
-		{ // インデックスの範囲を確認
-			g_player.gravity.orGravity = OR_GRAVITY_ANTI_GRAVITY;
-		}
-
-		g_orGravityExac = g_player.gravity.orGravity;
-
-		g_player.bGravityInverseTime = true;
-		g_player.bJump = true;
-
-	}
-
-	if (GetKeyboardPress(DIK_SPACE))
-	{
 		/*** 自動ジャンプ ***/
-		if (g_player.bJump == false)
+		if (g_player.bJump == false && g_player.nPatternAnim == (PLAYER_ANIM_U - 1))
 		{
 			g_player.bJump = true;
 			g_player.move.y = -PLAYER_JUMP * (1 + (-2 * g_player.gravity.orGravity));
 			g_player.nPatternAnim = 0;
 			g_player.nCounterAnim = 0;
 		}
-	}
+#else
+		if (GetKeyboardTrigger(DIK_E))
+		{ // 重力を反転
+			g_player.gravity.orGravity = (OR_GRAVITY)((g_player.gravity.orGravity + 1) % 2);
+			if (g_player.gravity.orGravity > OR_GRAVITY_ANTI_GRAVITY)
+			{ // インデックスの範囲を確認
+				g_player.gravity.orGravity = OR_GRAVITY_ANTI_GRAVITY;
+			}
+
+			g_orGravityExac = g_player.gravity.orGravity;
+
+			g_player.bGravityInverseTime = true;
+			g_player.bJump = true;
+
+		}
+
+		if (GetKeyboardPress(DIK_SPACE))
+		{
+			/*** 自動ジャンプ ***/
+			if (g_player.bJump == false)
+			{
+				g_player.bJump = true;
+				g_player.move.y = -PLAYER_JUMP * (1 + (-2 * g_player.gravity.orGravity));
+				g_player.nPatternAnim = 0;
+				g_player.nCounterAnim = 0;
+			}
+		}
 #endif
+	}
 
 	/*** 重力を適用 ***/
 	g_player.move.y += g_player.gravity.nGravity * (1 + (-2 * g_player.gravity.orGravity));
@@ -265,7 +331,8 @@ void UpdatePlayer(void)
 		g_player.fHeight,
 		g_player.fWidth,
 		&g_player.pBlock,
-		g_player.gravity.orGravity) == true)
+		g_player.gravity.orGravity,
+		true) == true)
 	{
 		g_player.bJump = false;					// 着地状態にする
 		g_player.bGravityInverseTime = false;	// 反転のロックを解除する
@@ -327,10 +394,13 @@ void UpdatePlayer(void)
 	CollisionItem(g_player.pos, g_player.fWidth, g_player.fHeight);
 
 	/*** 敵との当たり判定 ***/
-	CollisionEnemy(g_player.pos, g_player.fWidth, g_player.fHeight);
+	if (CollisionEnemy(g_player.pos, g_player.fWidth, g_player.fHeight))
+	{
+		SetPlayerDeath();
+	}
 
 	/*** 移動量を更新(減速処理) ***/
-	g_player.move.x += (0.0f - g_player.move.x) * 0.15f;
+	g_player.move.x += (0.0f - g_player.move.x) * (0.15f * (g_player.nPatternAnim + 1));
 	if (g_player.move.x <= 0.15f && g_player.move.x >= -0.15f)
 	{
 		g_player.move.x = 0;
@@ -356,7 +426,12 @@ void UpdatePlayer(void)
 	pVtx[3].pos.y = g_player.pos.y;
 	pVtx[3].pos.z = 0.0f;
 
-	/*** 向きの判定 ***/
+	/*** 頂点カラー設定 ***/
+	pVtx[0].col = g_player.col;
+	pVtx[1].col = g_player.col;
+	pVtx[2].col = g_player.col;
+	pVtx[3].col = g_player.col;
+
 	/*** テクスチャ座標の設定 ***/
 	pVtx[0].tex.x = ((1.0f / PLAYER_ANIM_U) * (g_player.nPatternAnim % PLAYER_ANIM_U));
 	pVtx[0].tex.y = ((1.0f / PLAYER_ANIM_V) * g_player.nRight) + ((2.0f / PLAYER_ANIM_V) * g_player.gravity.orGravity);
@@ -403,4 +478,18 @@ void DrawPlayer(void)
 PLAYER* GetPlayer(void)
 {
 	return &g_player;
+}
+
+//=================================================================================================
+// --- プレイヤーの死亡時処理 ---
+//=================================================================================================
+void SetPlayerDeath(void)
+{
+	g_player.move.x = 0.0f;
+	g_player.move.y = 0.0f;
+	g_player.state = PLAYERSTATE_DEATH;
+	g_player.nCounterState = c_nCounterStatePlayer[PLAYERSTATE_DEATH];
+	SetParticle(g_player.pos, D3DXCOLOR_NULL, 4, D3DX_PI, -D3DX_PI, 10, EFFECTTYPE_TARGET, RECT{ 50, 620, 100, 670 });
+	g_player.pos = PLAYER_SPAWN;
+	g_player.col.a = 0.0f;
 }
