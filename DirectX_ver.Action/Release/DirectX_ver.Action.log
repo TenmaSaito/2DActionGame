@@ -1,11 +1,31 @@
-﻿  effect.cpp
-C:\Users\student\Desktop\DesktopFile\2DActionGame\2DActionGame\DirectX_ver.Action\effect.cpp(181,64): warning C4244: '引数': 'LONG' から 'FLOAT' への変換です。データが失われる可能性があります。
-C:\Users\student\Desktop\DesktopFile\2DActionGame\2DActionGame\DirectX_ver.Action\effect.cpp(181,38): warning C4244: '引数': 'LONG' から 'FLOAT' への変換です。データが失われる可能性があります。
-C:\Users\student\Desktop\DesktopFile\2DActionGame\2DActionGame\DirectX_ver.Action\effect.cpp(182,65): warning C4244: '引数': 'LONG' から 'FLOAT' への変換です。データが失われる可能性があります。
-C:\Users\student\Desktop\DesktopFile\2DActionGame\2DActionGame\DirectX_ver.Action\effect.cpp(182,38): warning C4244: '引数': 'LONG' から 'FLOAT' への変換です。データが失われる可能性があります。
+﻿  block.cpp
+  effect.cpp
+C:\Users\student\Desktop\DesktopFile\2DActionGame\2DActionGame\DirectX_ver.Action\effect.cpp(183,64): warning C4244: '引数': 'LONG' から 'FLOAT' への変換です。データが失われる可能性があります。
+C:\Users\student\Desktop\DesktopFile\2DActionGame\2DActionGame\DirectX_ver.Action\effect.cpp(183,38): warning C4244: '引数': 'LONG' から 'FLOAT' への変換です。データが失われる可能性があります。
+C:\Users\student\Desktop\DesktopFile\2DActionGame\2DActionGame\DirectX_ver.Action\effect.cpp(184,65): warning C4244: '引数': 'LONG' から 'FLOAT' への変換です。データが失われる可能性があります。
+C:\Users\student\Desktop\DesktopFile\2DActionGame\2DActionGame\DirectX_ver.Action\effect.cpp(184,38): warning C4244: '引数': 'LONG' から 'FLOAT' への変換です。データが失われる可能性があります。
+  enemy.cpp
+  exit.cpp
+  game.cpp
+  GameBg.cpp
+  item.cpp
+  main.cpp
+  mathUtil.cpp
+C:\Users\student\Desktop\DesktopFile\2DActionGame\2DActionGame\DirectX_ver.Action\mathUtil.cpp(64,45): warning C4244: '引数': 'LONG' から 'FLOAT' への変換です。データが失われる可能性があります。
+C:\Users\student\Desktop\DesktopFile\2DActionGame\2DActionGame\DirectX_ver.Action\mathUtil.cpp(64,34): warning C4244: '引数': 'LONG' から 'FLOAT' への変換です。データが失われる可能性があります。
+C:\Users\student\Desktop\DesktopFile\2DActionGame\2DActionGame\DirectX_ver.Action\mathUtil.cpp(65,46): warning C4244: '引数': 'LONG' から 'FLOAT' への変換です。データが失われる可能性があります。
+C:\Users\student\Desktop\DesktopFile\2DActionGame\2DActionGame\DirectX_ver.Action\mathUtil.cpp(65,34): warning C4244: '引数': 'LONG' から 'FLOAT' への変換です。データが失われる可能性があります。
+C:\Users\student\Desktop\DesktopFile\2DActionGame\2DActionGame\DirectX_ver.Action\mathUtil.cpp(66,45): warning C4244: '引数': 'LONG' から 'FLOAT' への変換です。データが失われる可能性があります。
+C:\Users\student\Desktop\DesktopFile\2DActionGame\2DActionGame\DirectX_ver.Action\mathUtil.cpp(66,34): warning C4244: '引数': 'LONG' から 'FLOAT' への変換です。データが失われる可能性があります。
+C:\Users\student\Desktop\DesktopFile\2DActionGame\2DActionGame\DirectX_ver.Action\mathUtil.cpp(67,46): warning C4244: '引数': 'LONG' から 'FLOAT' への変換です。データが失われる可能性があります。
+C:\Users\student\Desktop\DesktopFile\2DActionGame\2DActionGame\DirectX_ver.Action\mathUtil.cpp(67,34): warning C4244: '引数': 'LONG' から 'FLOAT' への変換です。データが失われる可能性があります。
+  particle.cpp
+  player.cpp
+  stage.cpp
+  titleLogo.cpp
   コード生成しています。
-  2 of 104 functions ( 1.9%) were compiled, the rest were copied from previous compilation.
-    0 functions were new in current compilation
-    2 functions had inline decision re-evaluated but remain unchanged
+  70 of 156 functions (44.9%) were compiled, the rest were copied from previous compilation.
+    23 functions were new in current compilation
+    32 functions had inline decision re-evaluated but remain unchanged
   コード生成が終了しました。
   DirectX_ver.Action.vcxproj -> C:\Users\student\Desktop\DesktopFile\2DActionGame\2DActionGame\DirectX_ver.Action\DirectX_ver.Action.exe

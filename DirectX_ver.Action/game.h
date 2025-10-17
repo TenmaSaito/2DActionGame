@@ -11,7 +11,7 @@
 //*** インクルードファイル ***
 //**********************************************************************************
 #include "main.h"
-#include "math.h"
+#include "mathUtil.h"
 #include "input.h"
 #include "binload.h"
 #include "read_binui.h"
@@ -37,6 +37,18 @@ typedef enum
 }OR_GRAVITY;
 
 //**********************************************************************************
+//*** ゲームの状態 ***
+//**********************************************************************************
+typedef enum
+{
+	GAMESTATE_NONE = 0,
+	GAMESTATE_NORMAL,
+	GAMESTATE_CLEAREND,
+	GAMESTATE_BADEND,
+	GAMESTATE_MAX
+}GAMESTATE;
+
+//**********************************************************************************
 //*** 重力構造体 ***
 //**********************************************************************************
 typedef struct
@@ -52,6 +64,8 @@ void InitGame(void);
 void UninitGame(void);
 void UpdateGame(void);
 void DrawGame(void);
+
+void SetEndStage(void);
 
 //**********************************************************************************
 //*** 当たり判定について ***

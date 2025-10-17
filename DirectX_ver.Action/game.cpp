@@ -14,23 +14,36 @@
 #include "enemy.h"
 #include "effect.h"
 #include "particle.h"
+#include "exit.h"
 #include "GameBg.h"
 #include "fade.h"
+#include "stage.h"
 
 //*************************************************************************************************
 //*** マクロ定義 ***
 //*************************************************************************************************
 
 //*************************************************************************************************
+//*** プロトタイプ宣言 ***
+//*************************************************************************************************
+void SetGameState(GAMESTATE state, int nCounter);
+
+//*************************************************************************************************
 //*** グローバル変数 ***
 //*************************************************************************************************
+int g_nCounterState;
 bool g_bPause;
+GAMESTATE g_gameState = GAMESTATE_NORMAL;
 
 //================================================================================================================
 // --- ゲーム関連cppファイルの初期化 ---
 //================================================================================================================
 void InitGame(void)
 {
+	/*** 変数の初期化 ***/
+	g_nCounterState = 0;
+	g_gameState = GAMESTATE_NORMAL;
+
 	/*** プレイヤーの初期化 ***/
 	InitPlayer();
 
@@ -52,7 +65,13 @@ void InitGame(void)
 	/*** ゲーム用背景の初期化 ***/
 	InitGameBg();
 
+	/*** 出口の初期化 ***/
+	InitExit();
+
+	/*** ステージ読み込みの初期化 ***/
+	InitStage();
 	
+	SetStage(0);
 
 	/*** ブロックの配置 ***/
 	SetBlock(D3DXVECTOR3(100.0f, 620.0f, 0.0f), D3DXVECTOR3(0.0f, 5.0f, 0.0f), D3DXCOLOR_NULL, BLOCKTYPE_WALL, 50.0f, 50.0f, D3DXVECTOR4(0.0f, 150.0f, 300.0f, 720.0f));
@@ -64,7 +83,7 @@ void InitGame(void)
 
 	SetBlockFromFile("data\\bin\\frame.bin");
 
-	SetEnemy(D3DXVECTOR3(700.0f, 600.0f, 0.0f), D3DXVECTOR3(1.0f, 0.0f, 0.0f), D3DXCOLOR_NULL, ENEMYTEX_SLIME, 50.0f, 50.0f, 10, OR_GRAVITY_GRAVITY);
+	SetEnemy(D3DXVECTOR3(700.0f, 600.0f, 0.0f), D3DXVECTOR3(1.0f, -7.5f, 0.0f), D3DXCOLOR_NULL, ENEMYTYPE_SLIME, 50.0f, 50.0f, 10, OR_GRAVITY_GRAVITY);
 
 	/*** ゲーム用背景の有効化 ***/
 	SetEnableGameBg(true);
@@ -95,6 +114,9 @@ void UninitGame(void)
 
 	/*** 背景の終了 ***/
 	UninitGameBg();
+
+	/*** 出口の終了 ***/
+	UninitExit();
 }
 
 //================================================================================================================
@@ -102,6 +124,30 @@ void UninitGame(void)
 //================================================================================================================
 void UpdateGame(void)
 {
+	switch (g_gameState)
+	{
+	case GAMESTATE_NONE:
+
+		break;
+
+	case GAMESTATE_NORMAL:
+
+		break;
+
+	case GAMESTATE_CLEAREND:
+
+		g_nCounterState--;
+		if (g_nCounterState <= 0)
+		{
+			if (GetFade() == FADE_NONE)
+			{
+				SetFade(MODE_RESULT, FADE_TYPE_NORMAL);
+			}
+		}
+
+		break;
+	}
+
 	if (g_bPause == false)
 	{
 		/*** プレイヤーの更新 ***/
@@ -121,6 +167,9 @@ void UpdateGame(void)
 
 		/*** パーティクルの更新 ***/
 		UpdateParticle();
+
+		/*** 出口の更新 ***/
+		UpdateExit();
 
 		/*** 背景の更新 ***/
 		UpdateGameBg();
@@ -154,9 +203,33 @@ void DrawGame(void)
 	/*** 敵の描画 ***/
 	DrawEnemy();
 
+	/*** 出口の描画 ***/
+	DrawExit();
+
 	/*** エフェクトの描画 ***/
 	DrawEffect();
 
 	/*** パーティクルの描画 ***/
 	DrawParticle();
+}
+
+//================================================================================================================
+// --- ステージ終了処理 ---
+//================================================================================================================
+void SetEndStage(void)
+{
+	if (g_gameState == GAMESTATE_NORMAL)
+	{
+		SetGameState(GAMESTATE_CLEAREND, 60);
+	}
+}
+
+//================================================================================================================
+// --- ゲーム状態の設定処理 ---
+//================================================================================================================
+void SetGameState(GAMESTATE state, int nCounter)
+{
+	g_gameState = state;
+
+	g_nCounterState = nCounter;
 }

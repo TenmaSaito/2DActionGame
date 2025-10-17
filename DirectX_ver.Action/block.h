@@ -23,6 +23,7 @@ typedef enum
 {
 	BLOCKTYPE_WALL = 0,		// 壁床ブロック
 	BLOCKTYPE_TRAP,			// トラップブロック
+	BLOCKTYPE_EXIT,			// 出口ブロック
 	BLOCKTYPE_MAX
 }BLOCKTYPE;
 

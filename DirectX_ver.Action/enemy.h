@@ -33,13 +33,13 @@ typedef enum
 }ENEMYSTATE;
 
 //**********************************************************************************
-//*** 敵のテクスチャの種類 ***
+//*** 敵の種類 ***
 //**********************************************************************************
 typedef enum
 {
-	ENEMYTEX_SLIME = 0,				// スライム
-	ENEMYTEX_MAX
-}ENEMYTEX;
+	ENEMYTYPE_SLIME = 0,		// スライム
+	ENEMYTYPE_MAX
+}ENEMYTYPE;
 
 //**********************************************************************************
 //*** 敵構造体 ***
@@ -50,8 +50,9 @@ typedef struct
 	D3DXVECTOR3 posOld;			// 敵の過去の位置
 	D3DXVECTOR3 moveNow;		// 敵の現在の移動量
 	D3DXVECTOR3 move;			// 敵の設定時の移動量
+	D3DXVECTOR4 rect;			// 移動範囲
 	D3DXCOLOR col;				// 敵の色
-	ENEMYTEX tex;				// 敵のテクスチャの種類
+	ENEMYTYPE type;				// 敵の種類
 	int nTexMaxU;				// テクスチャ座標の分割数	(U座標)
 	int nTexMaxV;				// テクスチャ座標の分割数	(V座標)
 	int nCounterAnim;			// アニメーションカウンター
@@ -75,7 +76,7 @@ void UninitEnemy(void);
 void UpdateEnemy(void);
 void DrawEnemy(void);
 
-void SetEnemy(D3DXVECTOR3 pos, D3DXVECTOR3 move, D3DXCOLOR col, ENEMYTEX tex, float fWidth, float fHeight, int nLife, OR_GRAVITY gravity);
+void SetEnemy(D3DXVECTOR3 pos, D3DXVECTOR3 move, D3DXCOLOR col, ENEMYTYPE type, float fWidth, float fHeight, int nLife, OR_GRAVITY gravity, D3DXVECTOR4 rect = D3DXVECTOR4_NULL);
 bool CollisionEnemy(D3DXVECTOR3 pos, float fWidth, float fHeight);
 ENEMY *GetEnemy(void);
 int GetTotalEnemy(void);

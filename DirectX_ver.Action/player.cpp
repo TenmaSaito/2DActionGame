@@ -11,6 +11,7 @@
 #include "block.h"
 #include "item.h"
 #include "enemy.h"
+#include "exit.h"
 #include "particle.h"
 
 //*************************************************************************************************
@@ -399,6 +400,9 @@ void UpdatePlayer(void)
 		SetPlayerDeath();
 	}
 
+	/*** èoå˚Ç∆ÇÃìñÇΩÇËîªíË ***/
+	CollisionExit(g_player.pos, g_player.fHeight, g_player.fWidth);
+
 	/*** à⁄ìÆó ÇçXêV(å∏ë¨èàóù) ***/
 	g_player.move.x += (0.0f - g_player.move.x) * (0.15f * (g_player.nPatternAnim + 1));
 	if (g_player.move.x <= 0.15f && g_player.move.x >= -0.15f)
@@ -489,7 +493,7 @@ void SetPlayerDeath(void)
 	g_player.move.y = 0.0f;
 	g_player.state = PLAYERSTATE_DEATH;
 	g_player.nCounterState = c_nCounterStatePlayer[PLAYERSTATE_DEATH];
-	SetParticle(g_player.pos, D3DXCOLOR_NULL, 4, D3DX_PI, -D3DX_PI, 10, EFFECTTYPE_TARGET, RECT{ 50, 620, 100, 670 });
+	SetParticle(g_player.pos, D3DXCOLOR_NULL, 4, D3DX_PI, -D3DX_PI, 25, EFFECTTYPE_TARGET, RECT{ 50, 620, 100, 670 });
 	g_player.pos = PLAYER_SPAWN;
 	g_player.col.a = 0.0f;
 }

@@ -23,7 +23,7 @@
 //*************************************************************************************************
 //*** グローバル変数 ***
 //*************************************************************************************************
-LPDIRECT3DTEXTURE9		g_apTextureEnemy[ENEMYTEX_MAX] = {};	// テクスチャへのポインタ
+LPDIRECT3DTEXTURE9		g_apTextureEnemy[ENEMYTYPE_MAX] = {};	// テクスチャへのポインタ
 LPDIRECT3DVERTEXBUFFER9 g_pVtxBuffEnemy = NULL;					// 頂点バッファのポインタ
 ENEMY g_aEnemy[MAX_ENEMY];										// 敵の現情報
 int g_nCounterEnemy;											// 敵の総数
@@ -31,7 +31,7 @@ int g_nCounterEnemy;											// 敵の総数
 //**********************************************************************************
 //*** テクスチャ ***
 //**********************************************************************************
-const char *g_aEnemyTex[ENEMYTEX_MAX]
+const char *g_aEnemyTex[ENEMYTYPE_MAX]
 {
 	"data\\TEXTURE\\ENEMY\\SLIME.png"
 };
@@ -46,7 +46,7 @@ void InitEnemy(void)
 	VERTEX_2D* pVtx;								// 頂点情報へのポインタ
 
 	/*** テクスチャの読み込み ***/
-	for (int nCntEnemy = 0; nCntEnemy < ENEMYTEX_MAX; nCntEnemy++)
+	for (int nCntEnemy = 0; nCntEnemy < ENEMYTYPE_MAX; nCntEnemy++)
 	{
 		D3DXCreateTextureFromFile(pDevice,
 			g_aEnemyTex[nCntEnemy],
@@ -59,7 +59,8 @@ void InitEnemy(void)
 		pEnemy->pos = D3DXVECTOR3_NULL;
 		pEnemy->posOld = D3DXVECTOR3_NULL;
 		pEnemy->move = D3DXVECTOR3_NULL;
-		pEnemy->tex = ENEMYTEX_SLIME;
+		pEnemy->rect = D3DXVECTOR4_NULL;
+		pEnemy->type = ENEMYTYPE_SLIME;
 		pEnemy->nTexMaxU = 1;
 		pEnemy->nTexMaxV = 1;
 		pEnemy->nCounterAnim = 0;
@@ -145,7 +146,7 @@ void InitEnemy(void)
 void UninitEnemy(void)
 {
 	/*** テクスチャの破棄 ***/
-	for (int nCntEnemy = 0; nCntEnemy < ENEMYTEX_MAX; nCntEnemy++)
+	for (int nCntEnemy = 0; nCntEnemy < ENEMYTYPE_MAX; nCntEnemy++)
 	{
 		if (g_apTextureEnemy[nCntEnemy] != NULL)
 		{
@@ -203,6 +204,16 @@ void UpdateEnemy(void)
 			pEnemy->pos.x += pEnemy->moveNow.x;
 			pEnemy->pos.y += pEnemy->moveNow.y;
 
+			/*** 指定範囲から飛び出していないか確認 ***/
+			if (pEnemy->rect != D3DXVECTOR4_NULL)
+			{ // 範囲指定あり
+				if (pEnemy->pos.x < pEnemy->rect.x || pEnemy->pos.x + pEnemy->fWidth > pEnemy->rect.z)
+				{
+					pEnemy->moveNow.x = pEnemy->move.x * -1;
+					pEnemy->move.x *= -1.0f;
+				}
+			}
+
 			/*** ブロックとの当たり判定 ***/
 			if (CollisionBlock(&pEnemy->pos,
 				&pEnemy->posOld,
@@ -226,7 +237,12 @@ void UpdateEnemy(void)
 				{ /* もしもXの移動量がリセットされていたら、
 					反対方向に設定された移動量分与え、設定された移動量を反対方向へ更新する */
 					pEnemy->moveNow.x = pEnemy->move.x * -1;
-					pEnemy->move *= -1.0f;
+					pEnemy->move.x *= -1.0f;
+				}
+				
+				if (pEnemy->moveNow.y == 0.0f)
+				{
+					pEnemy->moveNow.y = pEnemy->move.y;
 				}
 			}
 			else
@@ -252,7 +268,7 @@ void UpdateEnemy(void)
 				}
 
 				pEnemy->pos.y = SCREEN_HEIGHT;
-				pEnemy->move.y = 0.0f;
+				pEnemy->moveNow.y = pEnemy->move.y;
 			}
 
 			/*** 敵の位置が画面以上且つ上に重力がかかっていたら ***/
@@ -271,8 +287,9 @@ void UpdateEnemy(void)
 						}
 					}
 				}
+
 				pEnemy->pos.y = pEnemy->fHeight;
-				pEnemy->move.y = 0.0f;
+				pEnemy->moveNow.y = pEnemy->move.y;
 			}
 
 			/*** 頂点座標の設定の設定 ***/
@@ -338,7 +355,7 @@ void DrawEnemy(void)
 		if (g_aEnemy[nCntEnemy].bUse == true)
 		{
 			/*** テクスチャの設定 ***/
-			pDevice->SetTexture(0, g_apTextureEnemy[g_aEnemy[nCntEnemy].tex]);
+			pDevice->SetTexture(0, g_apTextureEnemy[g_aEnemy[nCntEnemy].type]);
 
 			/*** ポリゴンの描画 ***/
 			pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP,		// プリミティブの種類
@@ -351,7 +368,7 @@ void DrawEnemy(void)
 //================================================================================================================
 // --- 敵の設置処理 ---
 //================================================================================================================
-void SetEnemy(D3DXVECTOR3 pos, D3DXVECTOR3 move, D3DXCOLOR col, ENEMYTEX tex, float fWidth, float fHeight, int nLife, OR_GRAVITY gravity)
+void SetEnemy(D3DXVECTOR3 pos, D3DXVECTOR3 move, D3DXCOLOR col, ENEMYTYPE type, float fWidth, float fHeight, int nLife, OR_GRAVITY gravity, D3DXVECTOR4 rect)
 {
 	ENEMY *pEnemy = &g_aEnemy[0];		// 敵の情報
 	VERTEX_2D* pVtx;					// 頂点バッファのポインタ
@@ -367,8 +384,9 @@ void SetEnemy(D3DXVECTOR3 pos, D3DXVECTOR3 move, D3DXCOLOR col, ENEMYTEX tex, fl
 			pEnemy->posOld = pos;
 			pEnemy->move = move;
 			pEnemy->moveNow = move;
+			pEnemy->rect = rect;
 			pEnemy->col = col;
-			pEnemy->tex = tex;
+			pEnemy->type = type;
 			pEnemy->fWidth = fWidth;
 			pEnemy->fHeight = fHeight;
 			pEnemy->nLife = nLife;
@@ -379,10 +397,10 @@ void SetEnemy(D3DXVECTOR3 pos, D3DXVECTOR3 move, D3DXCOLOR col, ENEMYTEX tex, fl
 			//pEnemy->state = ENEMYSTATE_APPEAR;
 
 			/*** 敵の種類によってテクスチャ座標の切り替えの値を代入 ***/
-			switch (tex)
+			switch (type)
 			{
 			// スライムの場合
-			case ENEMYTEX_SLIME:
+			case ENEMYTYPE_SLIME:
 
 				pEnemy->nTexMaxU = SLIME_ANIM_U;
 				pEnemy->nTexMaxV = SLIME_ANIM_V;

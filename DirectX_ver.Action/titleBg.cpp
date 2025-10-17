@@ -33,7 +33,7 @@ void InitTitleBg(void)
 
 	/*** テクスチャの読み込み ***/
 	D3DXCreateTextureFromFile(pDevice,
-							  "data\\TEXTURE\\BG\\GAME\\StarLight.jpg",
+							  "data\\TEXTURE\\BG\\TITLE\\IzayoiCollecter.jpg",
 							  &g_pTextureTitleBg);
 
 	/*** 頂点バッファの生成 ***/

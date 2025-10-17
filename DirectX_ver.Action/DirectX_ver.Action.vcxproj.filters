@@ -31,12 +31,6 @@
     <Filter Include="ヘッダー ファイル\edit">
       <UniqueIdentifier>{2086ce92-746e-497e-bfb7-505715618680}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\game\object">
-      <UniqueIdentifier>{91823340-6f48-4385-8e74-c8247bea13dc}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ヘッダー ファイル\game\object">
-      <UniqueIdentifier>{17821a05-38e4-4a07-b2b0-14e759776abe}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ソース ファイル\game\character">
       <UniqueIdentifier>{9c523672-d0e6-4b66-8ed7-9e2bddbceb32}</UniqueIdentifier>
     </Filter>
@@ -67,6 +61,18 @@
     <Filter Include="ヘッダー ファイル\result">
       <UniqueIdentifier>{940c3c85-619e-40ca-ba16-99fc0e2307ae}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ソース ファイル\game\stage">
+      <UniqueIdentifier>{bfcf008f-411f-42dc-b213-1e5287450233}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\game\stage\object">
+      <UniqueIdentifier>{91823340-6f48-4385-8e74-c8247bea13dc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\game\stage">
+      <UniqueIdentifier>{44118f6f-33b0-4872-bed0-256c927b4742}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\game\stage\object">
+      <UniqueIdentifier>{17821a05-38e4-4a07-b2b0-14e759776abe}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="input.cpp">
@@ -82,12 +88,12 @@
       <Filter>ソース ファイル\game\character</Filter>
     </ClCompile>
     <ClCompile Include="block.cpp">
-      <Filter>ソース ファイル\game\object</Filter>
+      <Filter>ソース ファイル\game\stage\object</Filter>
     </ClCompile>
     <ClCompile Include="item.cpp">
-      <Filter>ソース ファイル\game\object</Filter>
+      <Filter>ソース ファイル\game\stage\object</Filter>
     </ClCompile>
-    <ClCompile Include="math.cpp">
+    <ClCompile Include="mathUtil.cpp">
       <Filter>ソース ファイル\math</Filter>
     </ClCompile>
     <ClCompile Include="game.cpp">
@@ -100,7 +106,7 @@
       <Filter>ソース ファイル\game\character</Filter>
     </ClCompile>
     <ClCompile Include="GameBg.cpp">
-      <Filter>ソース ファイル\game\object</Filter>
+      <Filter>ソース ファイル\game\stage\object</Filter>
     </ClCompile>
     <ClCompile Include="effect.cpp">
       <Filter>ソース ファイル\game\effect</Filter>
@@ -123,6 +129,15 @@
     <ClCompile Include="resultBg.cpp">
       <Filter>ソース ファイル\result</Filter>
     </ClCompile>
+    <ClCompile Include="titleLogo.cpp">
+      <Filter>ソース ファイル\title</Filter>
+    </ClCompile>
+    <ClCompile Include="stage.cpp">
+      <Filter>ソース ファイル\game\stage</Filter>
+    </ClCompile>
+    <ClCompile Include="exit.cpp">
+      <Filter>ソース ファイル\game\stage\object</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="input.h">
@@ -138,15 +153,15 @@
       <Filter>ヘッダー ファイル\game</Filter>
     </ClInclude>
     <ClInclude Include="block.h">
-      <Filter>ヘッダー ファイル\game\object</Filter>
+      <Filter>ヘッダー ファイル\game\stage\object</Filter>
     </ClInclude>
     <ClInclude Include="player.h">
       <Filter>ヘッダー ファイル\game\character</Filter>
     </ClInclude>
     <ClInclude Include="item.h">
-      <Filter>ヘッダー ファイル\game\object</Filter>
+      <Filter>ヘッダー ファイル\game\stage\object</Filter>
     </ClInclude>
-    <ClInclude Include="math.h">
+    <ClInclude Include="mathUtil.h">
       <Filter>ヘッダー ファイル\math</Filter>
     </ClInclude>
     <ClInclude Include="binload.h">
@@ -156,7 +171,7 @@
       <Filter>ヘッダー ファイル\game\character</Filter>
     </ClInclude>
     <ClInclude Include="GameBg.h">
-      <Filter>ヘッダー ファイル\game\object</Filter>
+      <Filter>ヘッダー ファイル\game\stage\object</Filter>
     </ClInclude>
     <ClInclude Include="effect.h">
       <Filter>ヘッダー ファイル\game\effect</Filter>
@@ -178,6 +193,15 @@
     </ClInclude>
     <ClInclude Include="resultBg.h">
       <Filter>ヘッダー ファイル\result</Filter>
+    </ClInclude>
+    <ClInclude Include="titleLogo.h">
+      <Filter>ヘッダー ファイル\title</Filter>
+    </ClInclude>
+    <ClInclude Include="stage.h">
+      <Filter>ヘッダー ファイル\game\stage</Filter>
+    </ClInclude>
+    <ClInclude Include="exit.h">
+      <Filter>ヘッダー ファイル\game\stage\object</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
