@@ -18,7 +18,7 @@ bool g_bUseGameBg;			// ゲームの背景の使用状況
 //*************************************************************************************************
 //*** グローバル変数 ***
 //*************************************************************************************************
-LPDIRECT3DTEXTURE9		g_pTextureGameBg = NULL;	// テクスチャへのポインタ
+LPDIRECT3DTEXTURE9		g_apTextureGameBg[2] = {};	// テクスチャへのポインタ
 LPDIRECT3DVERTEXBUFFER9 g_pVtxBuffGameBg = NULL;	// 頂点バッファのポインタ
 
 //================================================================================================================
@@ -32,10 +32,13 @@ void InitGameBg(void)
 
 	g_bUseGameBg = false;				// 背景を不使用に
 
-	/*** テクスチャの読み込み ***/
-	D3DXCreateTextureFromFile(pDevice,
-							  "data\\TEXTURE\\BG\\GAME\\StarLight.jpg",
-							  &g_pTextureGameBg);
+	for (int nCntBg = 0; nCntBg < (sizeof g_apTextureGameBg / sizeof(LPDIRECT3DTEXTURE9)); nCntBg++)
+	{
+		/*** テクスチャの読み込み ***/
+		D3DXCreateTextureFromFile(pDevice,
+			"data\\TEXTURE\\BG\\GAME\\StarLight.jpg",
+			&g_apTextureGameBg[nCntBg]);
+	}
 
 	/*** 頂点バッファの生成 ***/
 	pDevice->CreateVertexBuffer(sizeof(VERTEX_2D) * 4,
@@ -82,10 +85,13 @@ void InitGameBg(void)
 void UninitGameBg(void)
 {
 	/*** テクスチャの破棄 ***/
-	if (g_pTextureGameBg != NULL)
+	for (int nCntBg = 0; nCntBg < (sizeof g_apTextureGameBg / sizeof(LPDIRECT3DTEXTURE9)); nCntBg++)
 	{
-		g_pTextureGameBg->Release();
-		g_pTextureGameBg = NULL;
+		if (g_apTextureGameBg[nCntBg] != NULL)
+		{
+			g_apTextureGameBg[nCntBg]->Release();
+			g_apTextureGameBg[nCntBg] = NULL;
+		}
 	}
 
 	/*** 頂点バッファの破棄 ***/
@@ -121,7 +127,7 @@ void DrawGameBg(void)
 	if (g_bUseGameBg)
 	{
 		/*** テクスチャの設定 ***/
-		pDevice->SetTexture(0, g_pTextureGameBg);
+		pDevice->SetTexture(0, g_apTextureGameBg[0]);
 
 		/*** ポリゴンの描画 ***/
 		pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP,		// プリミティブの種類

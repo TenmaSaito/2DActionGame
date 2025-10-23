@@ -29,9 +29,9 @@ bool CollisionBox(RECT rect, D3DXVECTOR3 pos)
 //================================================
 // --- —ñ‹“Œ^‚Ì”ÍˆÍŠm”Fˆ— ---
 //================================================
-HRESULT CheckIndex(int TargetIndexMax, int Index)
+HRESULT CheckIndex(int TargetIndexMax, int Index, int TargetIndexMin)
 {
-	if (Index < 0 || Index >= TargetIndexMax)
+	if (Index < TargetIndexMin || Index >= TargetIndexMax)
 	{
 		return E_FAIL;
 	}

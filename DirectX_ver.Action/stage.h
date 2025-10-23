@@ -23,5 +23,6 @@ void InitStage(void);
 void SetStage(int nStageNo);
 int GetStage(void);
 int GetStageMax(void);
+void ResetStage(bool bIsPlayerReplay);
 
 #endif

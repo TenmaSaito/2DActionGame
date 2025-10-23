@@ -25,6 +25,6 @@ void UninitParticle(void);
 void UpdateParticle(void);
 void DrawParticle(void);
 
-void SetParticle(D3DXVECTOR3 pos, D3DXCOLOR col, int nLife, float fRandMax, float fRandMin, int nCntEfffect, EFFECTTYPE type, RECT rectTarget = RECT{0, 0, 0, 0});
+void SetParticle(D3DXVECTOR3 pos, D3DXCOLOR col, int nLife, float fRandMax, float fRandMin, int nCntEfffect, bool bUseColRand, EFFECTTYPE type, RECT rectTarget = RECT{0, 0, 0, 0});
 
 #endif

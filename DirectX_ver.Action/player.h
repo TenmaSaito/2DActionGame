@@ -16,7 +16,7 @@
 //**********************************************************************************
 //*** マクロ定義 ***
 //**********************************************************************************
-#define PLAYER_SPAWN	D3DXVECTOR3(50.0f + (PLAYER_WIDTH * 0.5f), SCREEN_HEIGHT - PLAYER_HEIGHT, 0.0f)			// プレイヤーの初期スポーン位置
+#define PLAYER_SPAWN	D3DXVECTOR3(100.0f + (PLAYER_WIDTH * 0.5f), SCREEN_HEIGHT - PLAYER_HEIGHT + 100.0f, 0.0f)			// プレイヤーの初期スポーン位置
 
 //**********************************************************************************
 //*** プレイヤーの状態 ***
@@ -26,6 +26,7 @@ typedef enum
 	PLAYERSTATE_NORMAL = 0,		// 通常時
 	PLAYERSTATE_APPEAR,			// 出現、待機時
 	PLAYERSTATE_DEATH,			// 死亡時
+	PLAYERSTATE_LOST,			// 残機なしの死亡時
 	PLAYERSTATE_MAX
 }PLAYERSTATE;
 
@@ -61,5 +62,6 @@ void DrawPlayer(void);
 
 PLAYER *GetPlayer(void);
 void SetPlayerDeath(void);
+void ResetPlayer(bool bUseEffect);
 
 #endif

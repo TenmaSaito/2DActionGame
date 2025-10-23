@@ -43,9 +43,10 @@
 #define D3DXVECTOR3_NULL	D3DXVECTOR3(0.0f,0.0f,0.0f)							// D3DXVECTOR3のNULL
 #define D3DXVECTOR4_NULL	D3DXVECTOR4(0.0f, 0.0f, 0.0f, 0.0f)					// D3DXVECTOR4のNULL
 #define D3DXCOLOR_NULL		D3DXCOLOR(1.0f,1.0f,1.0f,1.0f)						// COLORのNULL
+#define D3DXCOLOR_INV		D3DXCOLOR(1.0f,1.0f,1.0f,0.0f)						// COLORの透明版
 #define STRING_MAX			(1024)												// 文字列の最大文字数
 #define WINDOW_MID			D3DXVECTOR3(SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.5f, 0.0f)	// ウィンドウの中心
-#define ENABLE_LOOP			true												// デバッグ用ENTERループをオンにするか
+#define ENABLE_LOOP			false												// デバッグ用ENTERループをオンにするか
 
 //**********************************************************************************
 //*** 画面モードの種類 ***
@@ -56,6 +57,7 @@ typedef enum
 	MODE_TUTORIAL,			// チュートリアル付きゲーム画面
 	MODE_GAME,				// ゲーム画面
 	MODE_RESULT,			// リザルト画面
+	MODE_RANKING,			// ランキング画面
 	MODE_CREDIT,			// クレジット画面
 	MODE_MAX
 }MODE;
@@ -103,5 +105,7 @@ MODE GetModeExac(void);
 HRESULT GetHandleWindow(HWND *phWnd);
 void SetGameDifficulty(GAMEDIFFICULTY difficulty);
 GAMEDIFFICULTY GetGameDifficulty(void);
+void SetStageExac(int nStage);
+int GetStageExac(void);
 
 #endif

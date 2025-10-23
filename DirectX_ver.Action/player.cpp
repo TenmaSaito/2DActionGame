@@ -1,6 +1,6 @@
 //=================================================================================================
 //
-// DirectXのクレジット背景表示処理 [creditBg.cpp]
+// DirectXのプレイヤー表示処理 [player.cpp]
 // Author : TENMA
 //
 //=================================================================================================
@@ -13,6 +13,9 @@
 #include "enemy.h"
 #include "exit.h"
 #include "particle.h"
+#include "stockNum.h"
+#include "reverse.h"
+#include "explosion.h"
 
 //*************************************************************************************************
 //*** マクロ定義 ***
@@ -56,6 +59,7 @@ LPDIRECT3DVERTEXBUFFER9 g_pVtxBuffPlayer = NULL;	// 頂点バッファのポインタ
 D3DXVECTOR3 g_pos;
 PLAYER g_player;									// プレイヤー構造体
 OR_GRAVITY g_orGravityExac;							// 現在の重力
+bool g_bJumpLastPlayer;								// 過去に着地したか
 
 //=================================================================================================
 // --- プレイヤーの初期化処理 ---
@@ -80,10 +84,11 @@ void InitPlayer(void)
 	g_player.nRight = PLAYER_R;											// 右向きに設定
 	g_player.nCounterAnim = 0;											// アニメーションカウンターを初期化
 	g_player.nPatternAnim = (PLAYER_ANIM_U - 1);						// アニメーションパターンを初期化
-	g_player.gravity.nGravity = WORLD_GRAVITY;								// 重力の値を設定
+	g_player.gravity.nGravity = WORLD_GRAVITY;							// 重力の値を設定
 	g_player.gravity.orGravity = OR_GRAVITY_GRAVITY;					// 重力を設定
 	g_player.pBlock = NULL;												// ポインタを初期化
 	g_orGravityExac = g_player.gravity.orGravity;						// 現在の重力を保存
+	g_bJumpLastPlayer = true;			// 過去の着地状態を初期化
 
 	/*** テクスチャの読み込み ***/
 	D3DXCreateTextureFromFile(pDevice,
@@ -227,6 +232,12 @@ void UpdatePlayer(void)
 		}
 
 		break;
+
+	case PLAYERSTATE_LOST:
+
+		return;
+
+		break;
 	}
 
 	if (g_player.state == PLAYERSTATE_NORMAL)
@@ -268,12 +279,16 @@ void UpdatePlayer(void)
 
 			g_player.nPatternAnim = 0;
 			g_player.nCounterAnim = 0;
+
+			/*** 反転演出開始 ***/
+			SetReverseEffect();
 		}
 
 		/*** 自動ジャンプ ***/
 		if (g_player.bJump == false && g_player.nPatternAnim == (PLAYER_ANIM_U - 1))
 		{
 			g_player.bJump = true;
+			g_bJumpLastPlayer = true;
 			g_player.move.y = -PLAYER_JUMP * (1 + (-2 * g_player.gravity.orGravity));
 			g_player.nPatternAnim = 0;
 			g_player.nCounterAnim = 0;
@@ -336,6 +351,15 @@ void UpdatePlayer(void)
 		true) == true)
 	{
 		g_player.bJump = false;					// 着地状態にする
+		if (g_player.bJump ^ g_bJumpLastPlayer)
+		{
+			SetExplosion(D3DXVECTOR3(g_player.pos.x,
+				g_player.pos.y - (g_player.fHeight * g_player.gravity.orGravity),
+				0.0f), 
+				D3DXCOLOR(0.62f, 0.62f, 0.62f, 1.0f), 100.0f, 100.0f, true);
+			g_bJumpLastPlayer = false;
+		}
+
 		g_player.bGravityInverseTime = false;	// 反転のロックを解除する
 		/*** アニメーション ***/
 		g_player.nCounterAnim++;			// アニメーションカウンターを増加
@@ -355,6 +379,7 @@ void UpdatePlayer(void)
 		if (g_player.gravity.orGravity == OR_GRAVITY_GRAVITY)
 		{
 			g_player.bJump = false;
+			SetParticle(g_player.pos, D3DXCOLOR(0.62f, 0.62f, 0.62f, 1.0f), 3, (D3DX_PI * 0.25f), (D3DX_PI * -0.25f), 5, false, EFFECTTYPE_FADE);
 			if (g_player.nPatternAnim < PLAYER_ANIM_U)
 			{
 				/*** アニメーション ***/
@@ -376,6 +401,7 @@ void UpdatePlayer(void)
 		if (g_player.gravity.orGravity == OR_GRAVITY_ANTI_GRAVITY)
 		{
 			g_player.bJump = false;
+			SetParticle(g_player.pos, D3DXCOLOR(0.62f, 0.62f, 0.62f, 1.0f), 3, (D3DX_PI * 0.25f), (D3DX_PI * -0.25f), 5, false, EFFECTTYPE_FADE);
 			/*** アニメーション ***/
 			if (g_player.nPatternAnim < PLAYER_ANIM_U)
 			{
@@ -391,17 +417,25 @@ void UpdatePlayer(void)
 		g_player.bGravityInverseTime = false;	// 反転のロックを解除する
 	}
 
-	/*** アイテムとの当たり判定 ***/
-	CollisionItem(g_player.pos, g_player.fWidth, g_player.fHeight);
-
-	/*** 敵との当たり判定 ***/
-	if (CollisionEnemy(g_player.pos, g_player.fWidth, g_player.fHeight))
+	/*** プレイヤーが通常状態の時 ***/
+	if (g_player.state == PLAYERSTATE_NORMAL)
 	{
-		SetPlayerDeath();
-	}
+		/*** アイテムとの当たり判定 ***/
+		CollisionItem(g_player.pos, g_player.fWidth, g_player.fHeight);
 
-	/*** 出口との当たり判定 ***/
-	CollisionExit(g_player.pos, g_player.fHeight, g_player.fWidth);
+		/*** 敵との当たり判定 ***/
+		if (CollisionEnemy(g_player.pos, g_player.fWidth, g_player.fHeight))
+		{
+			SetPlayerDeath();
+		}
+
+		/*** 出口との当たり判定 ***/
+		if (CollisionExit(g_player.pos, g_player.fHeight, g_player.fWidth))
+		{
+			g_player.bJump = true;
+			g_player.move.x = 0.0f;
+		}
+	}
 
 	/*** 移動量を更新(減速処理) ***/
 	g_player.move.x += (0.0f - g_player.move.x) * (0.15f * (g_player.nPatternAnim + 1));
@@ -489,11 +523,59 @@ PLAYER* GetPlayer(void)
 //=================================================================================================
 void SetPlayerDeath(void)
 {
+	/*** プレイヤーの状態が通常なら、死亡時処理を行う ***/
+	if (g_player.state == PLAYERSTATE_NORMAL)
+	{
+		/*** 鍵をドロップする ***/
+		SetEnableKey(false);
+
+		/*** 現在のストックにより処理を変更 ***/
+		if (GetStockNum() >= 1)
+		{ // ストックが残っていれば、死亡時処理
+			g_player.move.x = 0.0f;
+			g_player.move.y = 0.0f;
+			g_player.nRight = 0;
+			g_player.gravity.orGravity = OR_GRAVITY_GRAVITY;
+			g_player.state = PLAYERSTATE_DEATH;
+			g_player.nCounterState = c_nCounterStatePlayer[PLAYERSTATE_DEATH];
+			SetParticle(g_player.pos, D3DXCOLOR_NULL, 4, D3DX_PI, -D3DX_PI, 25, true, EFFECTTYPE_TARGET, RECT{ 70, 620, 130, 670 });
+			g_player.pos = PLAYER_SPAWN;
+			g_player.col.a = 0.0f;
+			AddStockNum(-1);
+		}
+		else
+		{ // ストックが尽きれば、ゲームオーバー処理
+			g_player.state = PLAYERSTATE_LOST;
+			SetParticle(g_player.pos, D3DXCOLOR_NULL, 4, D3DX_PI, -D3DX_PI, 25, true, EFFECTTYPE_FADE);
+			g_player.col.a = 0.0f;
+			SetGameState(GAMESTATE_BADEND, 60);
+		}
+	}
+}
+
+//=================================================================================================
+// --- プレイヤーのリセット処理 ---
+//=================================================================================================
+void ResetPlayer(bool bUseEffect)
+{
+	/*** プレイヤーの位置をリセット ***/
 	g_player.move.x = 0.0f;
 	g_player.move.y = 0.0f;
-	g_player.state = PLAYERSTATE_DEATH;
-	g_player.nCounterState = c_nCounterStatePlayer[PLAYERSTATE_DEATH];
-	SetParticle(g_player.pos, D3DXCOLOR_NULL, 4, D3DX_PI, -D3DX_PI, 25, EFFECTTYPE_TARGET, RECT{ 50, 620, 100, 670 });
+	g_player.nRight = 0;
+	g_player.gravity.orGravity = OR_GRAVITY_GRAVITY;
+
+	if (bUseEffect)
+	{
+		SetParticle(g_player.pos, D3DXCOLOR(1.0f, 1.0f, 0.0f, 1.0f), 4, D3DX_PI, -D3DX_PI, 25, false, EFFECTTYPE_TARGET, RECT{ 70, 620, 130, 670 });
+		g_player.state = PLAYERSTATE_DEATH;
+		g_player.nCounterState = c_nCounterStatePlayer[PLAYERSTATE_DEATH];
+		g_player.col.a = 0.0f;
+	}
+	else
+	{
+		g_player.state = PLAYERSTATE_APPEAR;
+		g_player.nCounterState = c_nCounterStatePlayer[PLAYERSTATE_APPEAR];
+	}
+
 	g_player.pos = PLAYER_SPAWN;
-	g_player.col.a = 0.0f;
 }

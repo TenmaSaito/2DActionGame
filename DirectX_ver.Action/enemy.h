@@ -80,5 +80,6 @@ void SetEnemy(D3DXVECTOR3 pos, D3DXVECTOR3 move, D3DXCOLOR col, ENEMYTYPE type, 
 bool CollisionEnemy(D3DXVECTOR3 pos, float fWidth, float fHeight);
 ENEMY *GetEnemy(void);
 int GetTotalEnemy(void);
+void DestroyEnemy(void);
 
 #endif // !_Enemy_H_

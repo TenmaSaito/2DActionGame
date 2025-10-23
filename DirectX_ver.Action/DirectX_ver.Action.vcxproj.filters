@@ -73,6 +73,36 @@
     <Filter Include="ヘッダー ファイル\game\stage\object">
       <UniqueIdentifier>{17821a05-38e4-4a07-b2b0-14e759776abe}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ソース ファイル\game\UI">
+      <UniqueIdentifier>{37367e46-ad10-4049-8c0a-448d26dd23bc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\game\UI">
+      <UniqueIdentifier>{c1de27c3-50f6-4208-b4c1-b2a8f04d79b7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\game\UI\STOCK">
+      <UniqueIdentifier>{48ad7683-5d9f-42d6-9e04-415fc67e44fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\game\UI\STAR">
+      <UniqueIdentifier>{2c708167-5355-42c7-8d4c-e62fca740b83}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\game\UI\STAR">
+      <UniqueIdentifier>{d5e72483-0cc6-44d2-8d7f-75761a0f39f4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\game\UI\STOCK">
+      <UniqueIdentifier>{e2372e6a-68a4-4f68-b45f-0242f01651ed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\game\UI\STAGE">
+      <UniqueIdentifier>{2bc15193-83ca-4b7b-8fb2-a4aecb940de8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\game\UI\STAGE">
+      <UniqueIdentifier>{e7f8964e-2ce4-4371-abcc-534f6e18142c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\ranking">
+      <UniqueIdentifier>{ccdf85cb-2c08-4b66-9253-ea5548d26fd9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\ranking">
+      <UniqueIdentifier>{42ea0a21-8559-4b87-a29e-250f66d73585}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="input.cpp">
@@ -137,6 +167,48 @@
     </ClCompile>
     <ClCompile Include="exit.cpp">
       <Filter>ソース ファイル\game\stage\object</Filter>
+    </ClCompile>
+    <ClCompile Include="ui.cpp">
+      <Filter>ソース ファイル\game\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="pause.cpp">
+      <Filter>ソース ファイル\game</Filter>
+    </ClCompile>
+    <ClCompile Include="ui_star.cpp">
+      <Filter>ソース ファイル\game\UI\STAR</Filter>
+    </ClCompile>
+    <ClCompile Include="ui_stock.cpp">
+      <Filter>ソース ファイル\game\UI\STOCK</Filter>
+    </ClCompile>
+    <ClCompile Include="stockNum.cpp">
+      <Filter>ソース ファイル\game\UI\STOCK</Filter>
+    </ClCompile>
+    <ClCompile Include="starNum.cpp">
+      <Filter>ソース ファイル\game\UI\STAR</Filter>
+    </ClCompile>
+    <ClCompile Include="sound.cpp">
+      <Filter>ソース ファイル\main</Filter>
+    </ClCompile>
+    <ClCompile Include="stageNum.cpp">
+      <Filter>ソース ファイル\game\UI\STAGE</Filter>
+    </ClCompile>
+    <ClCompile Include="ui_stage.cpp">
+      <Filter>ソース ファイル\game\UI\STAGE</Filter>
+    </ClCompile>
+    <ClCompile Include="resultScore.cpp">
+      <Filter>ソース ファイル\result</Filter>
+    </ClCompile>
+    <ClCompile Include="ranking.cpp">
+      <Filter>ソース ファイル\ranking</Filter>
+    </ClCompile>
+    <ClCompile Include="rankingScore.cpp">
+      <Filter>ソース ファイル\ranking</Filter>
+    </ClCompile>
+    <ClCompile Include="reverse.cpp">
+      <Filter>ソース ファイル\game\stage\object</Filter>
+    </ClCompile>
+    <ClCompile Include="explosion.cpp">
+      <Filter>ソース ファイル\game\effect</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -203,5 +275,50 @@
     <ClInclude Include="exit.h">
       <Filter>ヘッダー ファイル\game\stage\object</Filter>
     </ClInclude>
+    <ClInclude Include="ui.h">
+      <Filter>ヘッダー ファイル\game\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="pause.h">
+      <Filter>ヘッダー ファイル\game</Filter>
+    </ClInclude>
+    <ClInclude Include="ui_stock.h">
+      <Filter>ヘッダー ファイル\game\UI\STOCK</Filter>
+    </ClInclude>
+    <ClInclude Include="ui_star.h">
+      <Filter>ヘッダー ファイル\game\UI\STAR</Filter>
+    </ClInclude>
+    <ClInclude Include="stockNum.h">
+      <Filter>ヘッダー ファイル\game\UI\STOCK</Filter>
+    </ClInclude>
+    <ClInclude Include="starNum.h">
+      <Filter>ヘッダー ファイル\game\UI\STAR</Filter>
+    </ClInclude>
+    <ClInclude Include="sound.h">
+      <Filter>ヘッダー ファイル\main</Filter>
+    </ClInclude>
+    <ClInclude Include="stageNum.h">
+      <Filter>ヘッダー ファイル\game\UI\STAGE</Filter>
+    </ClInclude>
+    <ClInclude Include="ui_stage.h">
+      <Filter>ヘッダー ファイル\game\UI\STAGE</Filter>
+    </ClInclude>
+    <ClInclude Include="resultScore.h">
+      <Filter>ヘッダー ファイル\result</Filter>
+    </ClInclude>
+    <ClInclude Include="ranking.h">
+      <Filter>ヘッダー ファイル\ranking</Filter>
+    </ClInclude>
+    <ClInclude Include="rankingScore.h">
+      <Filter>ヘッダー ファイル\ranking</Filter>
+    </ClInclude>
+    <ClInclude Include="reverse.h">
+      <Filter>ヘッダー ファイル\game\stage\object</Filter>
+    </ClInclude>
+    <ClInclude Include="explosion.h">
+      <Filter>ヘッダー ファイル\game\effect</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="cpp.hint" />
   </ItemGroup>
 </Project>

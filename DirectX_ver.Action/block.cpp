@@ -9,6 +9,8 @@
 //**********************************************************************************
 #include "block.h"
 #include "player.h"
+#include "item.h"
+#include "starNum.h"
 
 //*************************************************************************************************
 //*** マクロ定義 ***
@@ -31,13 +33,14 @@ LPDIRECT3DVERTEXBUFFER9 g_pVtxBuffBlock = NULL;					// 頂点バッファのポインタ
 BLOCK g_aBlock[MAX_BLOCK] = {};									// ブロックの情報
 int g_nCheckCollision;					
 
-//**********************************************************************************
+//*************************************************************************************************
 //*** テクスチャ ***
-//**********************************************************************************
+//*************************************************************************************************
 const char *g_aBlockTex[BLOCKTYPE_MAX]
 {
 	"data\\TEXTURE\\BLOCK\\WALL.png",
-	"data\\TEXTURE\\BLOCK\\TRAP.png"
+	"data\\TEXTURE\\BLOCK\\TRAP_.png",
+	"data\\TEXTURE\\BLOCK\\BLACKHOLE0.png"
 };
 
 //================================================================================================================
@@ -58,6 +61,7 @@ void InitBlock(void)
 		g_aBlock[nCntBlock].rect = D3DXVECTOR4(0.0f, 0.0f, 0.0f, 0.0f);
 		g_aBlock[nCntBlock].col = D3DXCOLOR_NULL;
 		g_aBlock[nCntBlock].type = BLOCKTYPE_WALL;
+		g_aBlock[nCntBlock].gravity = OR_GRAVITY_GRAVITY;
 		g_aBlock[nCntBlock].fHeight = 50.0f;
 		g_aBlock[nCntBlock].fWidth = 50.0f;
 		g_aBlock[nCntBlock].bUse = false;
@@ -217,13 +221,21 @@ void UpdateBlock(void)
 			pVtx[3].pos.y = g_aBlock[nCntBlock].pos.y + (g_aBlock[nCntBlock].fHeight);
 			pVtx[3].pos.z = 0.0f;
 
-			if (g_aBlock[nCntBlock].type == BLOCKTYPE_WALL)
+			if (g_aBlock[nCntBlock].gravity == OR_GRAVITY_GRAVITY)
 			{
 				/*** テクスチャ座標の設定 ***/
 				pVtx[0].tex = D3DXVECTOR2(0.0f, 0.0f);
 				pVtx[1].tex = D3DXVECTOR2(1.0f * (g_aBlock[nCntBlock].fWidth / BLOCK_SIZE_X), 0.0f);
 				pVtx[2].tex = D3DXVECTOR2(0.0f, 1.0f * (g_aBlock[nCntBlock].fHeight / BLOCK_SIZE_Y));
 				pVtx[3].tex = D3DXVECTOR2(1.0f * (g_aBlock[nCntBlock].fWidth / BLOCK_SIZE_X), 1.0f * (g_aBlock[nCntBlock].fHeight / BLOCK_SIZE_Y));
+			}
+			else
+			{
+				/*** テクスチャ座標の設定 ***/
+				pVtx[0].tex = D3DXVECTOR2(1.0f * (g_aBlock[nCntBlock].fWidth / BLOCK_SIZE_X), 1.0f * (g_aBlock[nCntBlock].fHeight / BLOCK_SIZE_Y));
+				pVtx[1].tex = D3DXVECTOR2(0.0f, 1.0f * (g_aBlock[nCntBlock].fHeight / BLOCK_SIZE_Y));
+				pVtx[2].tex = D3DXVECTOR2(1.0f * (g_aBlock[nCntBlock].fWidth / BLOCK_SIZE_X), 0.0f);
+				pVtx[3].tex = D3DXVECTOR2(0.0f, 0.0f);
 			}
 		}
 
@@ -383,6 +395,15 @@ bool CollisionBlock(D3DXVECTOR3* pPos, D3DXVECTOR3* pPosOld, D3DXVECTOR3* pMove,
 					SetPlayerDeath();
 					pMove->x = 0.0f;
 					pMove->y = 0.0f;
+				}
+				else if (g_aBlock[nCntBlock].type == BLOCKTYPE_BLACKHOLE && bIsPlayer == true)
+				{
+					if (GetStarNum() > 0)
+					{
+						LostItemToBlackhole(g_aBlock[nCntBlock].pos);
+					}
+
+					continue;
 				}
 
 				if ((pPosOld->y <= g_aBlock[nCntBlock].pos.y))
@@ -635,7 +656,7 @@ bool CollisionBlock(D3DXVECTOR3* pPos, D3DXVECTOR3* pPosOld, D3DXVECTOR3* pMove,
 // fWidth -> 設置するブロックの横幅
 // rect -> 移動する範囲(x :　左端, y : 上端, z : 右端, w : 下端)
 //================================================================================================================
-void SetBlock(D3DXVECTOR3 pos, D3DXVECTOR3 move, D3DXCOLOR col, BLOCKTYPE type, float fWidth, float fHeight, D3DXVECTOR4 rect)
+void SetBlock(D3DXVECTOR3 pos, D3DXVECTOR3 move, D3DXCOLOR col, BLOCKTYPE type, float fWidth, float fHeight, OR_GRAVITY gravity, D3DXVECTOR4 rect)
 {
 	/*** 使用されていないブロックの確認 ***/
 	for (int nCntBlock = 0; nCntBlock < MAX_BLOCK; nCntBlock++)
@@ -646,6 +667,7 @@ void SetBlock(D3DXVECTOR3 pos, D3DXVECTOR3 move, D3DXCOLOR col, BLOCKTYPE type, 
 			g_aBlock[nCntBlock].move = move;
 			g_aBlock[nCntBlock].rect = rect;
 			g_aBlock[nCntBlock].type = type;
+			g_aBlock[nCntBlock].gravity = gravity;
 			g_aBlock[nCntBlock].fWidth = fWidth;
 			g_aBlock[nCntBlock].fHeight = fHeight;
 			g_aBlock[nCntBlock].col = col;
@@ -701,9 +723,24 @@ void SetBlockFromFile(const char* binPath)
 	{
 		if (pBlock->bUse != true)
 		{
-			SetBlock(pBlockLoad->pos, D3DXVECTOR3_NULL, pBlockLoad->col, BLOCKTYPE_WALL, pBlockLoad->fWidth, pBlockLoad->fHeight);
+			SetBlock(pBlockLoad->pos, D3DXVECTOR3_NULL, pBlockLoad->col, BLOCKTYPE_WALL, pBlockLoad->fWidth, pBlockLoad->fHeight, OR_GRAVITY_GRAVITY);
 
 			pBlockLoad++;
+		}
+	}
+}
+
+//================================================================================================================
+// --- ブロックのリセット処理 ---
+//================================================================================================================
+void ResetBlock(void)
+{
+	/*** 全ブロックを未使用状態に ***/
+	for (int nCntBlock = 0; nCntBlock < MAX_BLOCK; nCntBlock++)
+	{
+		if (g_aBlock[nCntBlock].bUse)
+		{
+			g_aBlock[nCntBlock].bUse = false;
 		}
 	}
 }

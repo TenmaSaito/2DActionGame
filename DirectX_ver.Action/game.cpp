@@ -18,6 +18,11 @@
 #include "GameBg.h"
 #include "fade.h"
 #include "stage.h"
+#include "ui.h"
+#include "pause.h"
+#include "stageNum.h"
+#include "reverse.h"
+#include "explosion.h"
 
 //*************************************************************************************************
 //*** マクロ定義 ***
@@ -26,7 +31,6 @@
 //*************************************************************************************************
 //*** プロトタイプ宣言 ***
 //*************************************************************************************************
-void SetGameState(GAMESTATE state, int nCounter);
 
 //*************************************************************************************************
 //*** グローバル変数 ***
@@ -43,6 +47,7 @@ void InitGame(void)
 	/*** 変数の初期化 ***/
 	g_nCounterState = 0;
 	g_gameState = GAMESTATE_NORMAL;
+	g_bPause = false;
 
 	/*** プレイヤーの初期化 ***/
 	InitPlayer();
@@ -70,20 +75,24 @@ void InitGame(void)
 
 	/*** ステージ読み込みの初期化 ***/
 	InitStage();
+
+	/*** UI表示の初期化 ***/
+	InitUi();
 	
-	SetStage(0);
+	/*** ポーズ画面表示の初期化 ***/
+	InitPause();
 
-	/*** ブロックの配置 ***/
-	SetBlock(D3DXVECTOR3(100.0f, 620.0f, 0.0f), D3DXVECTOR3(0.0f, 5.0f, 0.0f), D3DXCOLOR_NULL, BLOCKTYPE_WALL, 50.0f, 50.0f, D3DXVECTOR4(0.0f, 150.0f, 300.0f, 720.0f));
+	/*** 重力反転時演出の初期化 ***/
+	InitReverse();
 
-	SetBlock(D3DXVECTOR3(1000.0f, 620.0f, 0.0f), D3DXVECTOR3_NULL, D3DXCOLOR_NULL, BLOCKTYPE_TRAP, 50.0f, 50.0f);
+	/*** 爆発演出の初期化 ***/
+	InitExplosion();
 
-	/*** ファイルデータからブロックの配置 ***/
-	SetBlockFromFile("data\\bin\\stage_0.bin");
+	/*** ステージの設定 ***/
+	SetStage(GetStageExac());
 
-	SetBlockFromFile("data\\bin\\frame.bin");
-
-	SetEnemy(D3DXVECTOR3(700.0f, 600.0f, 0.0f), D3DXVECTOR3(1.0f, -7.5f, 0.0f), D3DXCOLOR_NULL, ENEMYTYPE_SLIME, 50.0f, 50.0f, 10, OR_GRAVITY_GRAVITY);
+	/*** UIの設定 ***/
+	SetUi();
 
 	/*** ゲーム用背景の有効化 ***/
 	SetEnableGameBg(true);
@@ -115,8 +124,20 @@ void UninitGame(void)
 	/*** 背景の終了 ***/
 	UninitGameBg();
 
+	/*** UIの終了 ***/
+	UninitUi();
+
+	/*** ポーズ画面表示の終了 ***/
+	UninitPause();
+
 	/*** 出口の終了 ***/
 	UninitExit();
+
+	/*** 重力反転時演出の終了 ***/
+	UninitReverse();
+
+	/*** 爆発演出の終了 ***/
+	UninitExplosion();
 }
 
 //================================================================================================================
@@ -124,30 +145,62 @@ void UninitGame(void)
 //================================================================================================================
 void UpdateGame(void)
 {
+	/*** ゲームの状態により処理を変更 ***/
 	switch (g_gameState)
 	{
+	// 何もなし
 	case GAMESTATE_NONE:
 
 		break;
 
+	// 通常状態
 	case GAMESTATE_NORMAL:
 
 		break;
 
+	// ゲームクリア
 	case GAMESTATE_CLEAREND:
 
 		g_nCounterState--;
 		if (g_nCounterState <= 0)
 		{
 			if (GetFade() == FADE_NONE)
-			{
+			{ // リザルト画面へ移行
 				SetFade(MODE_RESULT, FADE_TYPE_NORMAL);
+				FadeSound(SOUND_LABEL_BGM_RESULT);
+			}
+		}
+
+		break;
+
+	// ゲームオーバー
+	case GAMESTATE_BADEND:
+
+		g_nCounterState--;
+		if (g_nCounterState <= 0)
+		{
+			if (GetFade() == FADE_NONE)
+			{ // リザルト画面へ移行
+				SetFade(MODE_RESULT, FADE_TYPE_NORMAL);
+				FadeSound(SOUND_LABEL_BGM_RESULT);
 			}
 		}
 
 		break;
 	}
+	
+	/*** ゲーム状態が通常なら ***/
+	if (g_gameState == GAMESTATE_NORMAL)
+	{
+		/*** ポーズボタンを押したとき ***/
+		if (GetKeyboardTrigger(DIK_P)
+			|| GetJoypadTrigger(JOYKEY_START))
+		{
+			g_bPause = g_bPause ^ true;
+		}
+	}
 
+	/*** ポーズ状態でなければ更新 ***/
 	if (g_bPause == false)
 	{
 		/*** プレイヤーの更新 ***/
@@ -173,7 +226,21 @@ void UpdateGame(void)
 
 		/*** 背景の更新 ***/
 		UpdateGameBg();
+
+		/*** UIの更新 ***/
+		UpdateUi();
+
+		/*** 重力反転時演出の更新 ***/
+		UpdateReverse();
+
+		/*** 爆発演出の更新 ***/
+		UpdateExplosion();
 	}
+	
+	/*** ポーズの更新 ***/
+	UpdatePause();
+	
+
 #if ENABLE_LOOP == true
 	if (GetKeyboardTrigger(DIK_RETURN)
 		&& GetFade() == FADE_NONE)
@@ -191,26 +258,42 @@ void DrawGame(void)
 	/*** 背景の描画 ***/
 	DrawGameBg();
 
-	/*** プレイヤーの描画 ***/
-	DrawPlayer();
+	/*** 出口の描画 ***/
+	DrawExit();
 
 	/*** ブロックの描画 ***/
 	DrawBlock();
 
+	/*** 爆発演出の描画 ***/
+	DrawExplosion();
+
 	/*** アイテムの描画 ***/
 	DrawItem();
-
-	/*** 敵の描画 ***/
-	DrawEnemy();
-
-	/*** 出口の描画 ***/
-	DrawExit();
 
 	/*** エフェクトの描画 ***/
 	DrawEffect();
 
+	/*** プレイヤーの描画 ***/
+	DrawPlayer();
+
+	/*** UIの描画 ***/
+	DrawUi();
+
+	/*** 敵の描画 ***/
+	DrawEnemy();
+
 	/*** パーティクルの描画 ***/
 	DrawParticle();
+
+	/*** 重力反転時演出の描画 ***/
+	DrawReverse();
+
+	/*** ポーズ状態であれば描画 ***/
+	if (g_bPause == true)
+	{
+		/*** ポーズの描画 ***/
+		DrawPause();
+	}
 }
 
 //================================================================================================================
@@ -218,9 +301,30 @@ void DrawGame(void)
 //================================================================================================================
 void SetEndStage(void)
 {
+	int nStage = GetStage();
+
+	nStage++;
+
+	/*** ゲームの状態が通常の時に判定 ***/
 	if (g_gameState == GAMESTATE_NORMAL)
 	{
-		SetGameState(GAMESTATE_CLEAREND, 60);
+		if ((nStage >= GetStageMax()))
+		{
+			/*** ゲームの状態をクリアに設定 ***/
+			SetGameState(GAMESTATE_CLEAREND, 60);
+
+			/*** 現在のステージ番号をリセットする ***/
+			SetStageExac(0);
+		}
+		else
+		{
+			AddStageNum(1);
+
+			ResetStage(false);
+
+			/*** 現在のステージ番号を進める ***/
+			SetStage(nStage);
+		}
 	}
 }
 
@@ -229,7 +333,25 @@ void SetEndStage(void)
 //================================================================================================================
 void SetGameState(GAMESTATE state, int nCounter)
 {
+	/*** ゲーム状態を設定 ***/
 	g_gameState = state;
 
+	/*** その状態の維持時間を設定 ***/
 	g_nCounterState = nCounter;
+}
+
+//================================================================================================================
+// --- ゲーム状態の設定処理 ---
+//================================================================================================================
+void SetEnablePause(bool bPause)
+{
+	g_bPause = bPause;
+}
+
+//================================================================================================================
+// --- ゲーム状態の取得処理 ---
+//================================================================================================================
+bool GetEnablePause(void)
+{
+	return g_bPause;
 }

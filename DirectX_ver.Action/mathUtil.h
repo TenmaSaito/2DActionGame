@@ -20,7 +20,7 @@
 //*** プロトタイプ宣言 ***
 //**********************************************************************************
 bool CollisionBox(RECT rect, D3DXVECTOR3 pos);
-HRESULT CheckIndex(int TargetIndexMax, int Index);
+HRESULT CheckIndex(int TargetIndexMax, int Index, int TargetIndexMin = 0);
 POINT_RECT SetPointRect(D3DXVECTOR3 p1, D3DXVECTOR3 p2, D3DXVECTOR3 p3, D3DXVECTOR3 p4);
 POINT_RECT SetRectToPointRect(RECT rect);
 void HomingPosToPos(D3DXVECTOR3 posTarget, D3DXVECTOR3 *posMover, float fSpeed);

@@ -9,6 +9,7 @@
 //*************************************************************************************************
 #include "stage.h"
 #include "fade.h"
+#include "player.h"
 #include "block.h"
 #include "enemy.h"
 #include "item.h"
@@ -58,7 +59,7 @@ void InitStage(void)
 	FILE *pFile = NULL;			// ファイルポインタ
 	char aStr[MAX_PATH];		// ファイルパス一時保管場所
 	char *PosTrash;				// ゴミ捨て場(コメント消去用変数)
-	const char *pNull = "\0";		// 何もなし
+	const char *pNull = "\0";	// 何もなし
 
 	/*** 変数の初期化 ***/
 	g_nStageMax = 0;
@@ -143,16 +144,17 @@ void InitStage(void)
 				PosTrash = strstr(aStr, "\t");					// タブスペースがないか確認
 			}
 
+			/*** END_SCRIPTか確認 ***/
+			if (strstr(aStr, "END_SCRIPT") != NULL)
+			{
+				break;
+			}
+
 			/*** 現在の番号の文字列を空にしたうえで、修正後のパスを代入 ***/
 			memset(g_aStagePath[g_nStageMax], NULL, sizeof(MAX_PATH));
 			strcat(g_aStagePath[g_nStageMax], aStr);
 
 			g_nStageMax++;									// ステージの総数を1増やす
-		}
-
-		if (strstr(aStr, "END_SCRIPT") != NULL)
-		{
-			break;
 		}
 	}
 
@@ -180,6 +182,9 @@ void SetStage(int nStageNo)
 	/*** ファイルから読み込み開始 ***/
 	pFile = fopen(&g_aStagePath[nStageNo][0], "r");
 	if (pFile == NULL) return;
+
+	SetStageExac(nStageNo);
+	g_nStageNo = nStageNo;
 
 	/*** 読み込み開始の印が来るまで読み込みループ ***/
 	while (1)
@@ -290,7 +295,7 @@ void SetStage(int nStageNo)
 				break;
 			}
 
-			if (strcmp(aStr, "END_SCRIPT") == NULL)
+			if (strstr(aStr, "END_SCRIPT") != NULL)
 			{ // END_SCRIPTが来たらループから抜け出し読み込み終了
 				break;
 			}
@@ -350,16 +355,17 @@ FILETYPE CheckFileType(const char* aStr)
 //=================================================================================================
 void STAGEBlockSetFromFile(FILE *pFile)
 {
-	char aStr[MAX_PATH];					// 文字列保持変数
-	char *pPosTrash;						// ゴミ捨て場(コメント消去用変数)
-	char *pStart;							// 値の開始位置
-	D3DXVECTOR3 pos = D3DXVECTOR3_NULL;		// 位置の格納変数
-	D3DXVECTOR3 move = D3DXVECTOR3_NULL;	// 移動量
-	D3DXCOLOR col = D3DXCOLOR_NULL;			// 色
-	D3DXVECTOR4 rect = D3DXVECTOR4_NULL;	// 移動範囲
-	BLOCKTYPE type = BLOCKTYPE_WALL;		// 種類
-	float fWidth = 0.0f;					// 幅
-	float fHeight = 0.0f;					// 高さ
+	char aStr[MAX_PATH];						// 文字列保持変数
+	char *pPosTrash;							// ゴミ捨て場(コメント消去用変数)
+	char *pStart;								// 値の開始位置
+	D3DXVECTOR3 pos = D3DXVECTOR3_NULL;			// 位置の格納変数
+	D3DXVECTOR3 move = D3DXVECTOR3_NULL;		// 移動量
+	D3DXCOLOR col = D3DXCOLOR_NULL;				// 色
+	D3DXVECTOR4 rect = D3DXVECTOR4_NULL;		// 移動範囲
+	BLOCKTYPE type = BLOCKTYPE_WALL;			// 種類
+	OR_GRAVITY gravity = OR_GRAVITY_GRAVITY;	// ブロックの向き
+	float fWidth = 0.0f;						// 幅
+	float fHeight = 0.0f;						// 高さ
 
 	while (1)
 	{
@@ -428,13 +434,19 @@ void STAGEBlockSetFromFile(FILE *pFile)
 
 				(void)sscanf(pStart + 1, "%f %f %f %f", &rect.x, &rect.y, &rect.z, &rect.w);
 			}
+			else if (strstr(aStr, "GRAVITY") != NULL)
+			{ // 移動範囲
+				pStart = strchr(aStr, '=');
+
+				(void)sscanf(pStart + 1, "%d", &gravity);
+			}
 		}
 
-		if (strcmp(aStr, "END_BLOCKSET") == 0) break;
+		if (strstr(aStr, "END_BLOCKSET") != NULL) break;
 	}
 
 	/*** ブロックの設置 ***/
-	SetBlock(pos, move, col, type, fWidth, fHeight, rect);
+	SetBlock(pos, move, col, type, fWidth, fHeight, gravity, rect);
 }
 
 //=================================================================================================
@@ -515,7 +527,7 @@ void STAGEItemSetFromFile(FILE *pFile)
 			}
 		}
 
-		if (strcmp(aStr, "END_ITEMSET") == 0) break;
+		if (strstr(aStr, "END_ITEMSET") != NULL) break;
 	}
 
 	/*** アイテムの設置 ***/
@@ -569,7 +581,7 @@ void STAGEEnemySetFromFile(FILE *pFile)
 				}
 
 				pPosTrash = strstr(aStr, "\t");						// タブスペースがないか確認
-			}	
+			}
 
 			if (strstr(aStr, "POS") != NULL)
 			{ // 位置の場合
@@ -621,7 +633,7 @@ void STAGEEnemySetFromFile(FILE *pFile)
 			}
 		}
 
-		if (strcmp(aStr, "END_ENEMYSET") == 0) break;
+		if (strstr(aStr, "END_ENEMYSET") != NULL) break;
 	}
 
 	/*** 敵の設置 ***/
@@ -693,9 +705,23 @@ void STAGEExitSetFromFile(FILE* pFile)
 			}
 		}
 
-		if (strcmp(aStr, "END_EXITSET") == 0) break;
+		if (strstr(aStr, "END_EXITSET") != NULL) break;
 	}
 
 	/*** 出口の設置 ***/
 	SetExit(pos, col, gravity);
+}
+
+//=================================================================================================
+// --- ステージのリセット処理 ---
+//=================================================================================================
+void ResetStage(bool bIsPlayerReplay)
+{
+	ResetBlock();
+
+	DestroyItem();
+
+	DestroyEnemy();
+
+	ResetPlayer(bIsPlayerReplay ^ true);
 }

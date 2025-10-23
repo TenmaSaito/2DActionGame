@@ -9,10 +9,11 @@
 //**********************************************************************************
 #include "main.h"
 #include "input.h"
-//#include "sound.h"
+#include "sound.h"
 #include "title.h"
 #include "game.h"
 #include "result.h"
+#include "ranking.h"
 #include "fade.h"
 //#include "credit.h"
 //#include "resource.h"
@@ -50,7 +51,8 @@ HWND g_hWnd = NULL;										// 獲得したウィンドウハンドル
 int g_nCountFPS = 0;									// FPSカウンタ
 bool g_isFullscreen = false;							// フルスクリーンの使用状況
 RECT g_windowRect;										// ウィンドウサイズ
-GAMEDIFFICULTY g_Difficulty = GAMEDIFFICULTY_NORMAL;	// ゲームの難易度
+GAMEDIFFICULTY g_Difficulty = GAMEDIFFICULTY_EASY;		// ゲームの難易度
+int g_nStageExac;										// ステージ番号
 
 //================================================================================================================
 // --- メイン関数 ---
@@ -349,17 +351,21 @@ HRESULT Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 		return E_FAIL;
 	}
 
-	//// サウンドの初期化処理
-	//if (FAILED(InitSound(hWnd)))
-	//{
-	//	return E_FAIL;
-	//}
+	// サウンドの初期化処理
+	if (FAILED(InitSound(hWnd)))
+	{
+		return E_FAIL;
+	}
 
 #ifdef MODE_ON
 
-	InitFade(g_mode);
+	g_nStageExac = 0;
 
+	InitFade(g_mode);
 	SetMode(g_mode);
+
+	/*** タイトルBGMをフェードイン ***/
+	FadeSound(SOUND_LABEL_BGM_TITLE);
 
 #endif // MODE_ON
 
@@ -404,7 +410,7 @@ void Uninit(void)
 	}
 
 	// サウンドの終了処理
-//	UninitSound();
+	UninitSound();
 
 	// Direct3Dデバイスの破棄
 	if (g_pD3DDevice != NULL)
@@ -456,6 +462,11 @@ void Update(void)
 		UpdateResult();
 		break;
 
+	// ランキング画面
+	case MODE_RANKING:
+		UpdateRanking();
+		break;
+
 	// クレジット画面
 	case MODE_CREDIT:
 //		UpdateCredit();
@@ -466,7 +477,7 @@ void Update(void)
 	UpdateFade();
 
 	// サウンドの更新処理
-//	UpdateSound();
+	UpdateSound();
 #endif
 }
 
@@ -500,6 +511,11 @@ void Draw(void)
 		// リザルト画面
 		case MODE_RESULT:
 			DrawResult();
+			break;
+
+		// ランキング画面
+		case MODE_RANKING:
+			DrawRanking();
 			break;
 
 		// クレジット画面
@@ -559,6 +575,11 @@ void SetMode(MODE mode)
 		UninitResult();
 		break;
 
+	// ランキング画面
+	case MODE_RANKING:
+		UninitRanking();
+		break;
+
 	// クレジット画面
 	case MODE_CREDIT:
 //		UninitCredit();
@@ -584,6 +605,11 @@ void SetMode(MODE mode)
 	// リザルト画面
 	case MODE_RESULT:
 		InitResult();
+		break;
+
+	// ランキング画面
+	case MODE_RANKING:
+		InitRanking();
 		break;
 
 	// クレジット画面
@@ -701,4 +727,20 @@ void SetGameDifficulty(GAMEDIFFICULTY difficulty)
 GAMEDIFFICULTY GetGameDifficulty(void)
 {
 	return g_Difficulty;
+}
+
+//================================================
+// --- ゲームの直前のステージ番号保存処理 ---
+//================================================
+void SetStageExac(int nStage)
+{
+	g_nStageExac = nStage;
+}
+
+//================================================
+// --- ゲームの直前のステージ番号取得処理 ---
+//================================================
+int GetStageExac(void)
+{
+	return g_nStageExac;
 }

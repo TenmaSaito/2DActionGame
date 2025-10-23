@@ -149,6 +149,7 @@
     <ClCompile Include="effect.cpp" />
     <ClCompile Include="enemy.cpp" />
     <ClCompile Include="exit.cpp" />
+    <ClCompile Include="explosion.cpp" />
     <ClCompile Include="fade.cpp" />
     <ClCompile Include="game.cpp" />
     <ClCompile Include="GameBg.cpp" />
@@ -157,14 +158,27 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mathUtil.cpp" />
     <ClCompile Include="particle.cpp" />
+    <ClCompile Include="pause.cpp" />
     <ClCompile Include="player.cpp" />
+    <ClCompile Include="ranking.cpp" />
+    <ClCompile Include="rankingScore.cpp" />
     <ClCompile Include="read_binui.cpp" />
     <ClCompile Include="result.cpp" />
     <ClCompile Include="resultBg.cpp" />
+    <ClCompile Include="resultScore.cpp" />
+    <ClCompile Include="reverse.cpp" />
+    <ClCompile Include="sound.cpp" />
     <ClCompile Include="stage.cpp" />
+    <ClCompile Include="ui_stage.cpp" />
+    <ClCompile Include="stageNum.cpp" />
+    <ClCompile Include="starNum.cpp" />
+    <ClCompile Include="stockNum.cpp" />
     <ClCompile Include="title.cpp" />
     <ClCompile Include="titleBg.cpp" />
     <ClCompile Include="titleLogo.cpp" />
+    <ClCompile Include="ui.cpp" />
+    <ClCompile Include="ui_star.cpp" />
+    <ClCompile Include="ui_stock.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="binload.h" />
@@ -172,6 +186,7 @@
     <ClInclude Include="effect.h" />
     <ClInclude Include="enemy.h" />
     <ClInclude Include="exit.h" />
+    <ClInclude Include="explosion.h" />
     <ClInclude Include="fade.h" />
     <ClInclude Include="game.h" />
     <ClInclude Include="GameBg.h" />
@@ -180,14 +195,30 @@
     <ClInclude Include="main.h" />
     <ClInclude Include="mathUtil.h" />
     <ClInclude Include="particle.h" />
+    <ClInclude Include="pause.h" />
     <ClInclude Include="player.h" />
+    <ClInclude Include="ranking.h" />
+    <ClInclude Include="rankingScore.h" />
     <ClInclude Include="read_binui.h" />
     <ClInclude Include="result.h" />
     <ClInclude Include="resultBg.h" />
+    <ClInclude Include="resultScore.h" />
+    <ClInclude Include="reverse.h" />
+    <ClInclude Include="sound.h" />
     <ClInclude Include="stage.h" />
+    <ClInclude Include="ui_stage.h" />
+    <ClInclude Include="starNum.h" />
+    <ClInclude Include="stockNum.h" />
     <ClInclude Include="title.h" />
     <ClInclude Include="titleBg.h" />
     <ClInclude Include="titleLogo.h" />
+    <ClInclude Include="ui.h" />
+    <ClInclude Include="stageNum.h" />
+    <ClInclude Include="ui_star.h" />
+    <ClInclude Include="ui_stock.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="cpp.hint" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

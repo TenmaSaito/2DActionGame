@@ -12,6 +12,9 @@
 //*************************************************************************************************
 //*** マクロ定義 ***
 //*************************************************************************************************
+#define LOGO_WIDTH			(640.0f)		// ロゴの横幅
+#define ANIMATION_TIME_C	(120)			// ロゴのアニメーション時間(CHAR)
+#define ANIMATION_TIME_U	(30)			// ロゴのアニメーション時間(UNDERLINE)
 
 //**********************************************************************************
 //*** ロゴの構造体 ***
@@ -24,6 +27,7 @@ typedef struct
 	float fHeight;			// 高さ
 	LOGOTYPE type;			// 種類
 	int nCounterLogo;		// カウンター
+	bool bDisp;				// 描画しているか
 }LOGO;
 
 //*************************************************************************************************
@@ -31,7 +35,13 @@ typedef struct
 //*************************************************************************************************
 LPDIRECT3DTEXTURE9		g_apTextureTitleLogo[LOGOTYPE_MAX] = {};	// テクスチャへのポインタ
 LPDIRECT3DVERTEXBUFFER9 g_pVtxBuffTitleLogo = NULL;					// 頂点バッファのポインタ
-LOGO g_aLogo[LOGOTYPE_MAX];											// ロゴの情報
+LOGO g_aLogo[LOGOTYPE_MAX];				// ロゴの情報
+int g_nCounterTitleLogo;				// ロゴカウンター
+const LOGO g_aLogoInfo[] =
+{
+	{D3DXVECTOR3(640.0f - (LOGO_WIDTH * 0.5f), 50.0f - ANIMATION_TIME_C, 0.0f), D3DXCOLOR(1.0f,1.0f,1.0f,0.0f), LOGO_WIDTH, 275.0f, LOGOTYPE_CHAR, 0, true},
+	{D3DXVECTOR3(640.0f - (LOGO_WIDTH * 0.5f), 250.0f, 0.0f), D3DXCOLOR(1.0f,1.0f,1.0f,0.0f), LOGO_WIDTH, 50.0f, LOGOTYPE_UNDERLINE, 0, false}
+};
 
 //**********************************************************************************
 //*** テクスチャ ***
@@ -53,6 +63,8 @@ void InitTitleLogo(void)
 
 	for (int nCntTex = 0; nCntTex < (sizeof g_aLogoTex / sizeof(const char*)); nCntTex++)
 	{
+		g_aLogo[nCntTex] = g_aLogoInfo[nCntTex];
+
 		/*** テクスチャの読み込み ***/
 		D3DXCreateTextureFromFile(pDevice,
 			g_aLogoTex[nCntTex],
@@ -67,32 +79,50 @@ void InitTitleLogo(void)
 								&g_pVtxBuffTitleLogo,
 								NULL);
 
+	g_nCounterTitleLogo = 0;
+
 	/*** 頂点バッファの設定 ***/
 	g_pVtxBuffTitleLogo->Lock(0, 0, (void**)&pVtx, 0);
+	
+	for (int nCntLogo = 0; nCntLogo < LOGOTYPE_MAX; nCntLogo++)
+	{
+		/*** 頂点座標の設定の設定 ***/
+		pVtx[0].pos.x = g_aLogo[nCntLogo].pos.x;
+		pVtx[0].pos.y = g_aLogo[nCntLogo].pos.y;
+		pVtx[0].pos.z = 0.0f;
 
-	/*** 頂点座標の設定の設定 ***/
-	pVtx[0].pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-	pVtx[1].pos = D3DXVECTOR3(SCREEN_WIDTH, 0.0f, 0.0f);
-	pVtx[2].pos = D3DXVECTOR3(0.0f, SCREEN_HEIGHT, 0.0f);
-	pVtx[3].pos = D3DXVECTOR3(SCREEN_WIDTH, SCREEN_HEIGHT, 0.0f);
+		pVtx[1].pos.x = g_aLogo[nCntLogo].pos.x + g_aLogo[nCntLogo].fWidth;
+		pVtx[1].pos.y = g_aLogo[nCntLogo].pos.y;
+		pVtx[1].pos.z = 0.0f;
 
-	/*** rhwの設定 ***/
-	pVtx[0].rhw = 1.0f;
-	pVtx[1].rhw = 1.0f;
-	pVtx[2].rhw = 1.0f;
-	pVtx[3].rhw = 1.0f;
+		pVtx[2].pos.x = g_aLogo[nCntLogo].pos.x;
+		pVtx[2].pos.y = g_aLogo[nCntLogo].pos.y + g_aLogo[nCntLogo].fHeight;
+		pVtx[2].pos.z = 0.0f;
 
-	/*** 頂点カラー設定 ***/
-	pVtx[0].col = D3DXCOLOR_NULL;
-	pVtx[1].col = D3DXCOLOR_NULL;
-	pVtx[2].col = D3DXCOLOR_NULL;
-	pVtx[3].col = D3DXCOLOR_NULL;
+		pVtx[3].pos.x = g_aLogo[nCntLogo].pos.x + g_aLogo[nCntLogo].fWidth;
+		pVtx[3].pos.y = g_aLogo[nCntLogo].pos.y + g_aLogo[nCntLogo].fHeight;
+		pVtx[3].pos.z = 0.0f;
 
-	/*** テクスチャ座標の設定 ***/
-	pVtx[0].tex = D3DXVECTOR2(0.0f, 0.0f);
-	pVtx[1].tex = D3DXVECTOR2(1.0f, 0.0f);
-	pVtx[2].tex = D3DXVECTOR2(0.0f, 1.0f);
-	pVtx[3].tex = D3DXVECTOR2(1.0f, 1.0f);
+		/*** rhwの設定 ***/
+		pVtx[0].rhw = 1.0f;
+		pVtx[1].rhw = 1.0f;
+		pVtx[2].rhw = 1.0f;
+		pVtx[3].rhw = 1.0f;
+
+		/*** 頂点カラー設定 ***/
+		pVtx[0].col = g_aLogo[nCntLogo].col;
+		pVtx[1].col = g_aLogo[nCntLogo].col;
+		pVtx[2].col = g_aLogo[nCntLogo].col;
+		pVtx[3].col = g_aLogo[nCntLogo].col;
+
+		/*** テクスチャ座標の設定 ***/
+		pVtx[0].tex = D3DXVECTOR2(0.0f, 0.0f);
+		pVtx[1].tex = D3DXVECTOR2(1.0f, 0.0f);
+		pVtx[2].tex = D3DXVECTOR2(0.0f, 1.0f);
+		pVtx[3].tex = D3DXVECTOR2(1.0f, 1.0f);
+
+		pVtx += 4;
+	}
 
 	/*** 頂点バッファの設定を終了 ***/
 	g_pVtxBuffTitleLogo->Unlock();
@@ -126,7 +156,110 @@ void UninitTitleLogo(void)
 //================================================================================================================
 void UpdateTitleLogo(void)
 {
+	VERTEX_2D* pVtx;					// 頂点情報へのポインタ
+	float fWidth;
 
+	if (GetKeyboardTrigger(DIK_RETURN))
+	{
+		g_aLogo[LOGOTYPE_CHAR].pos.y += 1.0f *(ANIMATION_TIME_C - g_aLogo[LOGOTYPE_CHAR].nCounterLogo);
+		g_aLogo[LOGOTYPE_CHAR].col.a = 1.0f;
+		g_aLogo[LOGOTYPE_UNDERLINE].col.a = 1.0f;
+		g_aLogo[LOGOTYPE_CHAR].nCounterLogo = ANIMATION_TIME_C;
+		g_aLogo[LOGOTYPE_UNDERLINE].nCounterLogo = ANIMATION_TIME_U;
+	}
+
+	if (g_aLogo[LOGOTYPE_CHAR].nCounterLogo < ANIMATION_TIME_C)
+	{
+		g_aLogo[LOGOTYPE_CHAR].nCounterLogo++;
+		g_aLogo[LOGOTYPE_CHAR].col.a += 1.0f / ANIMATION_TIME_C;
+		g_aLogo[LOGOTYPE_CHAR].pos.y += 1.0f;
+		if (g_aLogo[LOGOTYPE_CHAR].nCounterLogo >= ANIMATION_TIME_C)
+		{
+			g_aLogo[LOGOTYPE_CHAR].nCounterLogo = ANIMATION_TIME_C;
+		}
+	}
+	else
+	{
+		g_aLogo[LOGOTYPE_CHAR].nCounterLogo = ANIMATION_TIME_C;
+		g_aLogo[LOGOTYPE_UNDERLINE].bDisp = true;
+		g_aLogo[LOGOTYPE_UNDERLINE].col.a = 1.0f;
+		if (g_nCounterTitleLogo <= ANIMATION_TIME_C)
+		{
+			g_nCounterTitleLogo++;
+		}
+	}
+
+	if (g_aLogo[LOGOTYPE_UNDERLINE].bDisp && g_nCounterTitleLogo >= ANIMATION_TIME_C)
+	{
+		if (g_aLogo[LOGOTYPE_UNDERLINE].nCounterLogo < ANIMATION_TIME_C)
+		{
+			g_aLogo[LOGOTYPE_UNDERLINE].nCounterLogo++;
+			if (g_aLogo[LOGOTYPE_UNDERLINE].nCounterLogo >= ANIMATION_TIME_U)
+			{
+				g_aLogo[LOGOTYPE_UNDERLINE].nCounterLogo = ANIMATION_TIME_U;
+			}
+		}
+		else
+		{
+			g_aLogo[LOGOTYPE_UNDERLINE].nCounterLogo = ANIMATION_TIME_U;
+		}
+	}
+
+	/*** 頂点バッファの設定 ***/
+	g_pVtxBuffTitleLogo->Lock(0, 0, (void**)&pVtx, 0);
+
+	for (int nCntLogo = 0; nCntLogo < LOGOTYPE_MAX; nCntLogo++)
+	{
+		fWidth = g_aLogo[nCntLogo].fWidth;
+		if (nCntLogo == LOGOTYPE_UNDERLINE)
+		{
+			fWidth = fWidth * ((1.0f / ANIMATION_TIME_U) * g_aLogo[LOGOTYPE_UNDERLINE].nCounterLogo);
+		}
+
+		/*** 頂点座標の設定の設定 ***/
+		pVtx[0].pos.x = g_aLogo[nCntLogo].pos.x;
+		pVtx[0].pos.y = g_aLogo[nCntLogo].pos.y;
+		pVtx[0].pos.z = 0.0f;
+
+		pVtx[1].pos.x = g_aLogo[nCntLogo].pos.x + fWidth;
+		pVtx[1].pos.y = g_aLogo[nCntLogo].pos.y;
+		pVtx[1].pos.z = 0.0f;
+
+		pVtx[2].pos.x = g_aLogo[nCntLogo].pos.x;
+		pVtx[2].pos.y = g_aLogo[nCntLogo].pos.y + g_aLogo[nCntLogo].fHeight;
+		pVtx[2].pos.z = 0.0f;
+
+		pVtx[3].pos.x = g_aLogo[nCntLogo].pos.x + fWidth;
+		pVtx[3].pos.y = g_aLogo[nCntLogo].pos.y + g_aLogo[nCntLogo].fHeight;
+		pVtx[3].pos.z = 0.0f;
+
+		/*** 頂点カラー設定 ***/
+		pVtx[0].col = g_aLogo[nCntLogo].col;
+		pVtx[1].col = g_aLogo[nCntLogo].col;
+		pVtx[2].col = g_aLogo[nCntLogo].col;
+		pVtx[3].col = g_aLogo[nCntLogo].col;
+
+		/*** テクスチャ座標の設定 ***/
+		if (nCntLogo == LOGOTYPE_UNDERLINE && g_aLogo[nCntLogo].nCounterLogo <= ANIMATION_TIME_C)
+		{
+			pVtx[0].tex = D3DXVECTOR2(0.0f, 0.0f);
+			pVtx[1].tex = D3DXVECTOR2((1.0f / ANIMATION_TIME_U) * g_aLogo[nCntLogo].nCounterLogo, 0.0f);
+			pVtx[2].tex = D3DXVECTOR2(0.0f, 1.0f);
+			pVtx[3].tex = D3DXVECTOR2((1.0f / ANIMATION_TIME_U) * g_aLogo[nCntLogo].nCounterLogo, 1.0f);
+		}
+		else
+		{
+			pVtx[0].tex = D3DXVECTOR2(0.0f, 0.0f);
+			pVtx[1].tex = D3DXVECTOR2(1.0f, 0.0f);
+			pVtx[2].tex = D3DXVECTOR2(0.0f, 1.0f);
+			pVtx[3].tex = D3DXVECTOR2(1.0f, 1.0f);
+		}
+
+		pVtx += 4;
+	}
+
+	/*** 頂点バッファの設定を終了 ***/
+	g_pVtxBuffTitleLogo->Unlock();
 }
 
 //================================================================================================================

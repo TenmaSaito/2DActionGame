@@ -10,6 +10,8 @@
 #include "result.h"
 #include "fade.h"
 #include "resultBg.h"
+#include "resultScore.h"
+#include "starNum.h"
 
 //*************************************************************************************************
 //*** マクロ定義 ***
@@ -22,19 +24,28 @@
 //*************************************************************************************************
 //*** グローバル変数 ***
 //*************************************************************************************************
+int g_nCounterResult;
 
 //=================================================================================================
 // --- タイトル関連cppファイルの初期化 ---
 //=================================================================================================
 void InitResult(void)
 {
+	g_nCounterResult = 0;
+
 	/*** aの初期化 ***/
 
 	/*** リザルト背景の初期化 ***/
 	InitResultBg();
 
+	/*** リザルトスコアの初期化 ***/
+	InitResultScore();
+
 	/*** リザルト背景の有効化 ***/
 	SetEnableResultBg(true);
+
+	/*** リザルトスコアの設定 ***/
+	SetResultScore(D3DXVECTOR3(1300.0f, 400.0f, 0.0f), GetStarNum());
 }
 
 //=================================================================================================
@@ -43,6 +54,9 @@ void InitResult(void)
 void UninitResult(void)
 {
 	/*** aの終了 ***/
+
+	/*** リザルトスコアの終了 ***/
+	UninitResultScore();
 
 	/*** リザルト背景の終了 ***/
 	UninitResultBg();
@@ -58,13 +72,27 @@ void UpdateResult(void)
 	/*** リザルト背景の更新 ***/
 	UpdateResultBg();
 
-#if ENABLE_LOOP == true
+	/*** リザルトスコアの更新 ***/
+	UpdateResultScore();
+
 	if (GetKeyboardTrigger(DIK_RETURN)
 		&& GetFade() == FADE_NONE)
 	{
-		SetFade(MODE_TITLE, FADE_TYPE_NORMAL, 200);
+		SetFade(MODE_RANKING, FADE_TYPE_NORMAL, 200);
+
+		/*** ゲームBGMをフェードイン ***/
+		FadeSound(SOUND_LABEL_BGM_RESULT);
 	}
-#endif
+
+	if (g_nCounterResult >= 600 && GetFade() == FADE_NONE)
+	{
+		SetFade(MODE_RANKING, FADE_TYPE_NORMAL);
+
+		/*** ゲームBGMをフェードイン ***/
+		FadeSound(SOUND_LABEL_BGM_RESULT);
+	}
+
+	g_nCounterResult++;
 }
 
 //=================================================================================================
@@ -76,4 +104,7 @@ void DrawResult(void)
 
 	/*** リザルト背景の描画 ***/
 	DrawResultBg();
+
+	/*** リザルトスコアの描画 ***/
+	DrawResultScore();
 }

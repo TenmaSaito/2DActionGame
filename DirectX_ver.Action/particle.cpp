@@ -28,6 +28,7 @@ typedef struct
 	int nCntEffect;					// 数
 	int nLife;						// 寿命
 	bool bUse;						// 使用しているかどうか
+	bool bUseColRand;				// 色のランダム性を使うか
 }PARTICLE;
 
 //*************************************************************************************************
@@ -49,6 +50,7 @@ void InitParticle(void)
 		pParticle->fRandMin = 0.0f;
 		pParticle->nLife = 0;
 		pParticle->bUse = false;
+		pParticle->bUseColRand = false;
 	}
 }
 
@@ -95,7 +97,14 @@ void UpdateParticle(void)
 			move.x = sinf(fRot) * fSpeed;
 			move.y = cosf(fRot) * fSpeed;
 			fRadius = (float)(rand() % 50 - 25) + 0.2f;
-			col = GetRandomColor(false);
+			if (pParticle->bUseColRand)
+			{
+				col = GetRandomColor(false);
+			}
+			else
+			{
+				col = pParticle->col;
+			}
 			nLife = rand() % 100;
 
 			SetEffect(pos, move, col, fRadius, nLife, pParticle->type, pParticle->rectTarget);
@@ -120,7 +129,7 @@ void DrawParticle(void)
 //================================================================================================================
 // --- パーティクルの設置 ---
 //================================================================================================================
-void SetParticle(D3DXVECTOR3 pos, D3DXCOLOR col, int nLife, float fRandMax, float fRandMin, int nCntEfffect, EFFECTTYPE type, RECT rectTarget)
+void SetParticle(D3DXVECTOR3 pos, D3DXCOLOR col, int nLife, float fRandMax, float fRandMin, int nCntEfffect, bool bUseColRand, EFFECTTYPE type, RECT rectTarget)
 {	
 	PARTICLE* pParticle = &g_aParticle[0];
 
@@ -139,11 +148,13 @@ void SetParticle(D3DXVECTOR3 pos, D3DXCOLOR col, int nLife, float fRandMax, floa
 			{
 				pParticle->rectTarget = RECT{0, 0, 0, 0};
 			}
+
 			pParticle->nLife = nLife;
 			pParticle->fRandMax = fRandMax;
 			pParticle->fRandMin = fRandMin;
 			pParticle->nCntEffect = nCntEfffect;
 			pParticle->bUse = true;
+			pParticle->bUseColRand = bUseColRand;
 
 			break;
 		}

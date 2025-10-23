@@ -35,7 +35,7 @@ void InitExit(void);
 void UninitExit(void);
 void UpdateExit(void);
 void DrawExit(void);
-void CollisionExit(D3DXVECTOR3 pPos, float fHeight, float fWidth);
+bool CollisionExit(D3DXVECTOR3 pPos, float fHeight, float fWidth);
 
 void SetExit(D3DXVECTOR3 pos, D3DXCOLOR col, OR_GRAVITY gravity);
 

@@ -11,6 +11,7 @@
 //*** インクルードファイル ***
 //**********************************************************************************
 #include "main.h"
+#include "sound.h"
 #include "mathUtil.h"
 #include "input.h"
 #include "binload.h"
@@ -66,6 +67,9 @@ void UpdateGame(void);
 void DrawGame(void);
 
 void SetEndStage(void);
+void SetEnablePause(bool bPause);
+bool GetEnablePause(void);
+void SetGameState(GAMESTATE state, int nCounter);
 
 //**********************************************************************************
 //*** 当たり判定について ***

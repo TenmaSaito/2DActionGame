@@ -10,6 +10,7 @@
 #include "title.h"
 #include "fade.h"
 #include "titleBg.h"
+#include "titleLogo.h"
 
 //*************************************************************************************************
 //*** マクロ定義 ***
@@ -22,16 +23,22 @@
 //*************************************************************************************************
 //*** グローバル変数 ***
 //*************************************************************************************************
+int g_nCounterTitle;
 
 //=================================================================================================
 // --- タイトル関連cppファイルの初期化 ---
 //=================================================================================================
 void InitTitle(void)
 {
+	g_nCounterTitle = 0;
+
 	/*** Aの初期化 ***/
 
 	/*** 背景の初期化 ***/
 	InitTitleBg();
+
+	/*** ロゴの初期化 ***/
+	InitTitleLogo();
 
 	/*** 背景の有効化 ***/
 	SetEnableTitleBg(true);
@@ -49,6 +56,9 @@ void UninitTitle(void)
 
 	/*** 背景の終了 ***/
 	UninitTitleBg();
+
+	/*** ロゴの終了 ***/
+	UninitTitleLogo();
 }
 
 //=================================================================================================
@@ -61,13 +71,30 @@ void UpdateTitle(void)
 	/*** 背景の更新 ***/
 	UpdateTitleBg();
 
-#if ENABLE_LOOP == true
+	/*** ロゴの更新 ***/
+	UpdateTitleLogo();
+
+	/*** 決定ボタンを押したとき ***/
 	if (GetKeyboardTrigger(DIK_RETURN)
 		&& GetFade() == FADE_NONE)
-	{
+	{ // ゲーム画面へフェード
+		/*** 決定音を鳴らす ***/
+		PlaySound(SOUND_LABEL_SE_ENTER);
 		SetFade(MODE_GAME, FADE_TYPE_NORMAL);
+
+		/*** ゲームBGMをフェードイン ***/
+		FadeSound(SOUND_LABEL_BGM_GAME);
 	}
-#endif
+
+	if (g_nCounterTitle >= 600 && GetFade() == FADE_NONE)
+	{
+		SetFade(MODE_RANKING, FADE_TYPE_NORMAL);
+
+		/*** ゲームBGMをフェードイン ***/
+		FadeSound(SOUND_LABEL_BGM_RESULT);
+	}
+
+	g_nCounterTitle++;
 }
 
 //=================================================================================================
@@ -79,4 +106,7 @@ void DrawTitle(void)
 
 	/*** 背景の描画 ***/
 	DrawTitleBg();
+
+	/*** ロゴの描画 ***/
+	DrawTitleLogo();
 }
