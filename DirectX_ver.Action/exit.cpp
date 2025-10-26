@@ -16,6 +16,21 @@
 //*************************************************************************************************
 #define EXIT_SIZE_X	(50.0f)		// 基準の大きさ(X)
 #define EXIT_SIZE_Y	(50.0f)		// 基準の大きさ(Y)
+#define EXIT_ANIM	(15)		// アニメーション速度
+#define EXIT_ANIM_U	(5)			// 出口のアニメーションの数(U)
+
+//*************************************************************************************************
+//*** 出口構造体 ***
+//*************************************************************************************************
+typedef struct
+{
+	D3DXVECTOR3 pos;		// 出口の位置
+	D3DXCOLOR col;			// 出口の色
+	OR_GRAVITY gravity;		// 出口の上下
+	int nPatternAnim;		// アニメーションカウンター
+	int nCounterAnim;		// アニメーションNo
+	bool bUse;				// 出口の使用状態
+}EXIT;
 
 //*************************************************************************************************
 //*** プロトタイプ宣言 ***
@@ -26,10 +41,7 @@
 //*************************************************************************************************
 LPDIRECT3DTEXTURE9		g_pTextureExit = {};		// テクスチャへのポインタ
 LPDIRECT3DVERTEXBUFFER9 g_pVtxBuffExit = NULL;		// 頂点バッファのポインタ			
-D3DXVECTOR3 g_posExit;								// 出口の位置
-D3DXCOLOR g_colExit;								// 出口の色
-OR_GRAVITY g_gravityExit;							// 出口の上下
-bool g_bUseExit;									// 出口の使用状態
+EXIT g_exit;		// 出口の情報
 
 //================================================================================================================
 // --- 出口の初期化 ---
@@ -38,17 +50,20 @@ void InitExit(void)
 {
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();		// デバイスのポインタ,デバイスの取得
 	VERTEX_2D* pVtx = NULL;							// 頂点情報へのポインタ
+	EXIT *pExit = &g_exit;
 	int nCntExit = 0;
 
 	/*** 出口の初期化 ***/
-	g_posExit = D3DXVECTOR3_NULL;
-	g_colExit = D3DXCOLOR_NULL;
-	g_gravityExit = OR_GRAVITY_GRAVITY;
-	g_bUseExit = false;
+	pExit->pos = D3DXVECTOR3_NULL;
+	pExit->col = D3DXCOLOR_NULL;
+	pExit->gravity = OR_GRAVITY_GRAVITY;
+	pExit->nCounterAnim = 0;
+	pExit->nPatternAnim = 0;
+	pExit->bUse = false;
 
 	/*** テクスチャの読み込み ***/
 	D3DXCreateTextureFromFile(pDevice,
-		"data\\TEXTURE\\EXIT\\EXIT.png",
+		"data\\TEXTURE\\EXIT\\EXIT_ANIM.png",
 		&g_pTextureExit);
 
 
@@ -65,20 +80,20 @@ void InitExit(void)
 
 
 	/*** 頂点座標の設定の設定 ***/
-	pVtx[0].pos.x = g_posExit.x;
-	pVtx[0].pos.y = g_posExit.y;
+	pVtx[0].pos.x = pExit->pos.x;
+	pVtx[0].pos.y = pExit->pos.y;
 	pVtx[0].pos.z = 0.0f;
 
-	pVtx[1].pos.x = g_posExit.x + (EXIT_SIZE_X);
-	pVtx[1].pos.y = g_posExit.y;
+	pVtx[1].pos.x = pExit->pos.x + (EXIT_SIZE_X);
+	pVtx[1].pos.y = pExit->pos.y;
 	pVtx[1].pos.z = 0.0f;
 
-	pVtx[2].pos.x = g_posExit.x;
-	pVtx[2].pos.y = g_posExit.y + (EXIT_SIZE_Y);
+	pVtx[2].pos.x = pExit->pos.x;
+	pVtx[2].pos.y = pExit->pos.y + (EXIT_SIZE_Y);
 	pVtx[2].pos.z = 0.0f;
 
-	pVtx[3].pos.x = g_posExit.x + (EXIT_SIZE_X);
-	pVtx[3].pos.y = g_posExit.y + (EXIT_SIZE_Y);
+	pVtx[3].pos.x = pExit->pos.x + (EXIT_SIZE_X);
+	pVtx[3].pos.y = pExit->pos.y + (EXIT_SIZE_Y);
 	pVtx[3].pos.z = 0.0f;
 
 	/*** rhwの設定 ***/
@@ -88,10 +103,10 @@ void InitExit(void)
 	pVtx[3].rhw = 1.0f;
 
 	/*** 頂点カラー設定 ***/
-	pVtx[0].col = D3DXCOLOR_NULL;
-	pVtx[1].col = D3DXCOLOR_NULL;
-	pVtx[2].col = D3DXCOLOR_NULL;
-	pVtx[3].col = D3DXCOLOR_NULL;
+	pVtx[0].col = pExit->col;
+	pVtx[1].col = pExit->col;
+	pVtx[2].col = pExit->col;
+	pVtx[3].col = pExit->col;
 
 	/*** テクスチャ座標の設定 ***/
 	pVtx[0].tex = D3DXVECTOR2(0.0f, 0.0f);
@@ -130,32 +145,59 @@ void UninitExit(void)
 void UpdateExit(void)
 {
 	VERTEX_2D* pVtx;
+	EXIT *pExit = &g_exit;
 
 	/*** 頂点バッファの設定 ***/
 	g_pVtxBuffExit->Lock(0, 0, (void**)&pVtx, 0);
 
 	/*** 頂点座標の設定の設定 ***/
-	pVtx[0].pos.x = g_posExit.x;
-	pVtx[0].pos.y = g_posExit.y;
+	pVtx[0].pos.x = pExit->pos.x;
+	pVtx[0].pos.y = pExit->pos.y;
 	pVtx[0].pos.z = 0.0f;
 
-	pVtx[1].pos.x = g_posExit.x + (EXIT_SIZE_X);
-	pVtx[1].pos.y = g_posExit.y;
+	pVtx[1].pos.x = pExit->pos.x + (EXIT_SIZE_X);
+	pVtx[1].pos.y = pExit->pos.y;
 	pVtx[1].pos.z = 0.0f;
 
-	pVtx[2].pos.x = g_posExit.x;
-	pVtx[2].pos.y = g_posExit.y + (EXIT_SIZE_Y);
+	pVtx[2].pos.x = pExit->pos.x;
+	pVtx[2].pos.y = pExit->pos.y + (EXIT_SIZE_Y);
 	pVtx[2].pos.z = 0.0f;
 
-	pVtx[3].pos.x = g_posExit.x + (EXIT_SIZE_X);
-	pVtx[3].pos.y = g_posExit.y + (EXIT_SIZE_Y);
+	pVtx[3].pos.x = pExit->pos.x + (EXIT_SIZE_X);
+	pVtx[3].pos.y = pExit->pos.y + (EXIT_SIZE_Y);
 	pVtx[3].pos.z = 0.0f;
 
+	if (GetEnableKey() && pExit->nPatternAnim < EXIT_ANIM_U)
+	{
+		pExit->nCounterAnim++;
+		if ((pExit->nCounterAnim % EXIT_ANIM) == 0)
+		{
+			pExit->nPatternAnim++;
+			if (pExit->nPatternAnim >= EXIT_ANIM_U)
+			{
+				pExit->nPatternAnim = EXIT_ANIM_U - 1;
+			}
+		}
+	}
+	
+	if (GetEnableKey() == false && pExit->nPatternAnim > 0)
+	{
+		pExit->nCounterAnim++;
+		if ((pExit->nCounterAnim % EXIT_ANIM) == 0)
+		{
+			pExit->nPatternAnim--;
+			if (pExit->nPatternAnim < 0)
+			{
+				pExit->nPatternAnim = 0;
+			}
+		}
+	}
+
 	/*** テクスチャ座標の設定 ***/
-	pVtx[0].tex = D3DXVECTOR2(0.0f, 0.5f * g_gravityExit);
-	pVtx[1].tex = D3DXVECTOR2(1.0f, 0.5f * g_gravityExit);
-	pVtx[2].tex = D3DXVECTOR2(0.0f, 0.5f + (0.5f * g_gravityExit));
-	pVtx[3].tex = D3DXVECTOR2(1.0f, 0.5f + (0.5f * g_gravityExit));
+	pVtx[0].tex = D3DXVECTOR2((1.0f / EXIT_ANIM_U) * pExit->nPatternAnim, 0.5f * pExit->gravity);
+	pVtx[1].tex = D3DXVECTOR2(((1.0f / EXIT_ANIM_U) * pExit->nPatternAnim) + (1.0f / EXIT_ANIM_U), 0.5f * pExit->gravity);
+	pVtx[2].tex = D3DXVECTOR2((1.0f / EXIT_ANIM_U) * pExit->nPatternAnim, 0.5f + (0.5f * pExit->gravity));
+	pVtx[3].tex = D3DXVECTOR2(((1.0f / EXIT_ANIM_U) * pExit->nPatternAnim) + (1.0f / EXIT_ANIM_U), 0.5f + (0.5f * pExit->gravity));
 
 	/*** 頂点バッファの設定を終了 ***/
 	g_pVtxBuffExit->Unlock();
@@ -193,13 +235,15 @@ void DrawExit(void)
 //================================================================================================================
 bool CollisionExit(D3DXVECTOR3 pos, float fHeight, float fWidth)
 {
-	if (g_bUseExit == true)
+	EXIT *pExit = &g_exit;
+
+	if (pExit->bUse == true)
 	{
 		/*** アイテムの当たり判定を確認 ***/
-		if (pos.x + (fWidth * 0.5f) >= g_posExit.x
-			&& pos.x - (fWidth * 0.5f) <= g_posExit.x + EXIT_SIZE_X
-			&& pos.y >= g_posExit.y
-			&& pos.y - fHeight <= g_posExit.y + EXIT_SIZE_Y)
+		if (pos.x + (fWidth * 0.5f) >= pExit->pos.x
+			&& pos.x - (fWidth * 0.5f) <= pExit->pos.x + EXIT_SIZE_X
+			&& pos.y >= pExit->pos.y
+			&& pos.y - fHeight <= pExit->pos.y + EXIT_SIZE_Y)
 		{
 			if (GetEnableKey())
 			{
@@ -220,15 +264,21 @@ bool CollisionExit(D3DXVECTOR3 pos, float fHeight, float fWidth)
 //================================================================================================================
 void SetExit(D3DXVECTOR3 pos, D3DXCOLOR col, OR_GRAVITY gravity)
 {
+	EXIT *pExit = &g_exit;
+
 	/*** 出口の位置を設定 ***/
-	g_posExit = pos;
+	pExit->pos = pos;
 
 	/*** 出口の色を設定 ***/
-	g_colExit = col;
+	pExit->col = col;
 
 	/*** 出口の向きを設定 ***/
-	g_gravityExit = gravity;
+	pExit->gravity = gravity;
+
+	/*** 出口のアニメーションをリセット ***/
+	pExit->nCounterAnim = 0;
+	pExit->nPatternAnim = 0;
 
 	/*** 出口を設定 ***/
-	g_bUseExit = true;
+	pExit->bUse = true;
 }

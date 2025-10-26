@@ -8,6 +8,8 @@
 //*** インクルードファイル ***
 //**********************************************************************************
 #include "reverse.h"
+#include "player.h"
+#include "effect.h"
 
 //*************************************************************************************************
 //*** マクロ定義 ***
@@ -27,6 +29,7 @@ typedef struct
 	float fLength;			// 半径
 	float fAngle;			// 対角線の角度
 	float fRot;				// 回転角度
+	int nCounter;			// カウンター
 	bool bDisp;				// 描画しているか
 }REVERSE;
 
@@ -51,6 +54,7 @@ void InitReverse(void)
 	g_reverse.fLength = sqrtf(powf(REVERSE_WIDTH, 2) + powf(REVERSE_HEIGHT , 2)) * 0.5f;
 	g_reverse.fAngle = atan2f(REVERSE_WIDTH, REVERSE_HEIGHT);
 	g_reverse.fRot = 0.0f;
+	g_reverse.nCounter = 0;
 	g_reverse.bDisp = false;
 
 	/*** テクスチャの読み込み ***/
@@ -133,13 +137,24 @@ void UninitReverse(void)
 //================================================================================================================
 void UpdateReverse(void)
 {
-	VERTEX_2D* pVtx;					// 頂点情報へのポインタ
+	VERTEX_2D *pVtx;					// 頂点情報へのポインタ
+	PLAYER *pPlayer = GetPlayer();
+	D3DXVECTOR3 effectPos = {};
 
 	/*** 描画しているときにのみ処理を行う ***/
 	if (g_reverse.bDisp == true)
 	{
 		g_reverse.fRot -= FROT_SPD;
 		g_reverse.col.a -= ALPHA_SPD;
+		if ((g_reverse.nCounter % 5) == 0)
+		{
+			effectPos.x = pPlayer->pos.x;
+			effectPos.y = pPlayer->pos.y - (pPlayer->fHeight * 0.5f);
+			SetEffect(effectPos, D3DXVECTOR3_NULL, D3DXCOLOR(1.0f, 1.0f, 0.0f, 1.0f), pPlayer->fWidth * 0.85f, 30, EFFECTTYPE_FADE, RECT{ 0, 0, 0, 0 });
+		}
+
+		g_reverse.nCounter++;
+
 		if (g_reverse.col.a <= 0.1f)
 		{
 			g_reverse.bDisp = false;
@@ -209,4 +224,5 @@ void SetReverseEffect(void)
 {
 	g_reverse.bDisp = true;
 	g_reverse.col.a = 1.0f;
+	g_reverse.nCounter = 0;
 }

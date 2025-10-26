@@ -374,11 +374,11 @@ void DoPauseSwitch(PAUSE_TYPE type)
 	case PAUSE_TYPE_REPLAY:
 
 		/*** 現在のステージを保存する ***/
-		SetStageExac(GetStage());
+		SetStageExac(0);
 
 		/*** ポーズを解除し、ゲームを再開 ***/
 		ResetStage(true);
-		SetStage(GetStageExac());
+		SetStage(GetStage());
 		SetEnablePause(false);
 
 		break;

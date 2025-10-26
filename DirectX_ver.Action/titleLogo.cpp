@@ -8,6 +8,7 @@
 //*** インクルードファイル ***
 //**********************************************************************************
 #include "titleLogo.h"
+#include "pressEnter.h"
 
 //*************************************************************************************************
 //*** マクロ定義 ***
@@ -159,7 +160,7 @@ void UpdateTitleLogo(void)
 	VERTEX_2D* pVtx;					// 頂点情報へのポインタ
 	float fWidth;
 
-	if (GetKeyboardTrigger(DIK_RETURN))
+	if (GetKeyboardTrigger(DIK_RETURN) || GetJoypadTrigger(JOYKEY_A) || GetJoypadTrigger(JOYKEY_START))
 	{
 		g_aLogo[LOGOTYPE_CHAR].pos.y += 1.0f *(ANIMATION_TIME_C - g_aLogo[LOGOTYPE_CHAR].nCounterLogo);
 		g_aLogo[LOGOTYPE_CHAR].col.a = 1.0f;
@@ -197,6 +198,10 @@ void UpdateTitleLogo(void)
 			if (g_aLogo[LOGOTYPE_UNDERLINE].nCounterLogo >= ANIMATION_TIME_U)
 			{
 				g_aLogo[LOGOTYPE_UNDERLINE].nCounterLogo = ANIMATION_TIME_U;
+				if (GetPressEnterEffect() == false)
+				{
+					SetPressEnterEffect(PRESSENTER_POS);
+				}
 			}
 		}
 		else

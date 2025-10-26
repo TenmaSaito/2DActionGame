@@ -18,7 +18,7 @@
 #define NUM_HEIGHT			(55)			// 一桁の縦幅
 #define CHAR_WIDTH			(125)			// 文字列のサイズ(幅)
 #define CHAR_HEIGHT			(50)			// 文字列のサイズ(高さ)
-#define GOAL_SCOREPOS		D3DXVECTOR3(580.0f, 500.0f, 0.0f)		// スコアの最終位置
+#define GOAL_SCOREPOS		D3DXVECTOR3(580.0f, 550.0f, 0.0f)		// スコアの最終位置
 
 //*************************************************************************************************
 //*** プロトタイプ宣言 ***
@@ -140,6 +140,11 @@ void UninitResultScore(void)
 void UpdateResultScore(void)
 {
 	VERTEX_2D* pVtx = NULL;
+
+	if (GetKeyboardTrigger(DIK_RETURN) || GetJoypadTrigger(JOYKEY_A) || GetJoypadTrigger(JOYKEY_START))
+	{
+		g_posResultScore.x = GOAL_SCOREPOS.x;
+	}
 
 	if (g_posResultScore.x <= GOAL_SCOREPOS.x)
 	{

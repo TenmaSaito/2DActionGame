@@ -14,7 +14,7 @@
 //**********************************************************************************
 #define MAX_EFFECT			(12250)		// エフェクトの最大数
 #define ALPHA_DECREASE		(0.03f)		// Alpha値の減少係数
-#define HOMING_COUNT		(60)		// エフェクトが指定位置に移動するまでの時間
+#define HOMING_COUNT		(30)		// エフェクトが指定位置に移動するまでの時間
 
 //**********************************************************************************
 //*** エフェクトの構造体 ***
@@ -172,7 +172,7 @@ void UpdateEffect(void)
 
 				pEffect->pos.x += pEffect->move.x;		// 位置を更新
 				pEffect->pos.y += pEffect->move.y;		// 位置を更新
-				pEffect->nLife -= 1;			// エフェクトの体力を減少させる
+				pEffect->nLife -= 1;					// エフェクトの体力を減少させる
 
 				break;
 
@@ -183,7 +183,7 @@ void UpdateEffect(void)
 						D3DXVECTOR3(pEffect->rectTarget.left, pEffect->rectTarget.top, 0.0f),
 						D3DXVECTOR3(pEffect->rectTarget.right, pEffect->rectTarget.bottom, 0.0f)),
 					&pEffect->pos,
-					pEffect->nCounterState * 0.15f);
+					pEffect->nCounterState * 0.85f);
 
 				pEffect->fRadius -= pEffect->fRadius * 0.0002f;					// 半径を縮小
 				pEffect->col.a -= pEffect->col.a * 0.0003f;						// アルファ値を減少

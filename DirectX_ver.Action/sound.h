@@ -14,7 +14,7 @@
 #define SOUND_SESTART		(SOUND_LABEL_SE_ENTER)		// SE‚ÌŠJnˆÊ’u
 #define SOUND_STANDARD		(0.75f)						// ‰Šú‰¹—Ê
 
-#ifndef _DEBUG
+#ifndef NDEBUG
 #undef SOUND_STANDARD
 #define SOUND_STANDARD		(0.0f)						// ‰Šú‰¹—Ê
 #endif

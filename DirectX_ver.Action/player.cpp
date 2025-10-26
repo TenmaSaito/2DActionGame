@@ -22,7 +22,7 @@
 //*************************************************************************************************
 #define PLAYER_SPD		(0.70f)						// プレイヤーの足の速さ
 #define MOVE_RESIST		(0.15f)						// 減速係数
-#define PLAYER_JUMP		(12.0f)						// プレイヤーの飛び跳ねる力
+#define PLAYER_JUMP		(11.93f)						// プレイヤーの飛び跳ねる力
 #define ACCELE_JUMP		(0.25f)						// ジャンプ中の加速係数
 #define PLAYER_ANIM_U	(5)							// アニメーションする数 U
 #define PLAYER_ANIM_V	(4)							// アニメーションする数 V
@@ -43,8 +43,8 @@
 const int c_nCounterStatePlayer[PLAYERSTATE_MAX] =
 {
 	0,			// 通常状態 (0で固定)
-	120,		// 出現時の持続時間
-	100			// 死亡時の持続時間
+	60,			// 出現時の持続時間
+	30			// 死亡時の持続時間
 };
 
 //**********************************************************************************
@@ -178,6 +178,7 @@ void UninitPlayer(void)
 void UpdatePlayer(void)
 {
 	VERTEX_2D* pVtx;					// 頂点情報へのポインタ
+	XINPUT_STATE* pState = GetJoypadState();
 
 	/*** 位置を保存 ***/
 	g_player.posOld = g_player.pos;
@@ -244,7 +245,7 @@ void UpdatePlayer(void)
 	{
 
 		/*** Aキー または Dキーを押している時 ***/
-		if (GetKeyboardPress(DIK_A))
+		if (GetKeyboardPress(DIK_A) || (GetJoyThumbLXState() == true && pState->Gamepad.sThumbLX <= -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE))
 		{ // Aキーなら
 			g_player.move.x -= PLAYER_SPD;		// 加速度を追加
 
@@ -252,7 +253,7 @@ void UpdatePlayer(void)
 			if (g_player.bJump) g_player.move.x -= PLAYER_SPD * ACCELE_JUMP;	// 加速度追加
 			g_player.nRight = PLAYER_R ^ 1;		// 現在の向きを左向きに設定
 		}
-		else if (GetKeyboardPress(DIK_D))
+		else if (GetKeyboardPress(DIK_D) || (GetJoyThumbLXState() == true && pState->Gamepad.sThumbLX >= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE))
 		{ // Dキーなら
 			g_player.move.x += PLAYER_SPD;		// 加速度を追加
 
@@ -263,7 +264,8 @@ void UpdatePlayer(void)
 
 #ifndef PLAYER_DEBUG
 		/*** スペースを押したとき ***/
-		if (GetKeyboardTrigger(DIK_SPACE) == true
+		if ((GetKeyboardTrigger(DIK_SPACE) == true ||
+			GetJoypadTrigger(JOYKEY_A))
 			&& g_player.bGravityInverseTime == false)
 		{ // 重力を反転
 			g_player.gravity.orGravity = (OR_GRAVITY)((g_player.gravity.orGravity + 1) % 2);

@@ -147,7 +147,7 @@ void SetUi(void)
 	SetUiStock(g_aUiData[0].pos, g_aUiData[0].fWidth, g_aUiData[0].fHeight);
 
 	/*** 残機数表示の設定 ***/
-	SetStockNum(5, g_aUiData[1].pos);
+	SetStockNum(10, g_aUiData[1].pos);
 	
 	/*** スター数情報の設定 ***/
 	SetUiStar(g_aUiData[2].pos, g_aUiData[2].fWidth, g_aUiData[2].fHeight);

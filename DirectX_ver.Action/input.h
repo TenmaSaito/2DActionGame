@@ -82,9 +82,10 @@ void UpdateKeyboard(void);
 bool GetKeyboardPress(int nKey);
 bool GetKeyboardTrigger(int nKey);
 bool GetKeyboardRelease(int nKey);
-bool GetKeyboardRepeat(int nKey);
+bool GetKeyboardRepeat(int nKey, int nCounterRepeat = 6);
 bool GetKeyboardAny(void);
 bool GetKeyboardWASD(void);
+int GetKeyboardPressNumber(void);
 
 //***************************************************
 //*** ジョイパッドのプロトタイプ宣言 ***

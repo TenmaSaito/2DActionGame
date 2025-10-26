@@ -11,6 +11,7 @@
 #include "player.h"
 #include "item.h"
 #include "starNum.h"
+#include "tutorial.h"
 
 //*************************************************************************************************
 //*** マクロ定義 ***
@@ -40,7 +41,10 @@ const char *g_aBlockTex[BLOCKTYPE_MAX]
 {
 	"data\\TEXTURE\\BLOCK\\WALL.png",
 	"data\\TEXTURE\\BLOCK\\TRAP_.png",
-	"data\\TEXTURE\\BLOCK\\BLACKHOLE0.png"
+	"data\\TEXTURE\\BLOCK\\BLACKHOLE0.png",
+	"data\\TEXTURE\\BLOCK\\WALL.png",
+	"data\\TEXTURE\\BLOCK\\WALL.png",
+	"data\\TEXTURE\\BLOCK\\WALL.png",
 };
 
 //================================================================================================================
@@ -221,6 +225,12 @@ void UpdateBlock(void)
 			pVtx[3].pos.y = g_aBlock[nCntBlock].pos.y + (g_aBlock[nCntBlock].fHeight);
 			pVtx[3].pos.z = 0.0f;
 
+			/*** 頂点カラー設定 ***/
+			pVtx[0].col = g_aBlock[nCntBlock].col;
+			pVtx[1].col = g_aBlock[nCntBlock].col;
+			pVtx[2].col = g_aBlock[nCntBlock].col;
+			pVtx[3].col = g_aBlock[nCntBlock].col;
+
 			if (g_aBlock[nCntBlock].gravity == OR_GRAVITY_GRAVITY)
 			{
 				/*** テクスチャ座標の設定 ***/
@@ -390,19 +400,52 @@ bool CollisionBlock(D3DXVECTOR3* pPos, D3DXVECTOR3* pPosOld, D3DXVECTOR3* pMove,
 					}
 				}
 #else
-				if (g_aBlock[nCntBlock].type == BLOCKTYPE_TRAP && bIsPlayer == true)
+				if (bIsPlayer == true)
 				{
-					SetPlayerDeath();
-					pMove->x = 0.0f;
-					pMove->y = 0.0f;
-				}
-				else if (g_aBlock[nCntBlock].type == BLOCKTYPE_BLACKHOLE && bIsPlayer == true)
-				{
-					if (GetStarNum() > 0)
-					{
-						LostItemToBlackhole(g_aBlock[nCntBlock].pos);
-					}
+					if (g_aBlock[nCntBlock].type == BLOCKTYPE_TRAP)
+					{ // トラップブロック
+						SetPlayerDeath();
+						pMove->x = 0.0f;
+						pMove->y = 0.0f;
 
+						break;
+					}
+					else if (g_aBlock[nCntBlock].type == BLOCKTYPE_BLACKHOLE)
+					{ // ブラックホール
+						if (GetStarNum() > 0)
+						{
+							LostItemToBlackhole(g_aBlock[nCntBlock].pos);
+						}
+
+						continue;
+					}
+					else if (g_aBlock[nCntBlock].type == BLOCKTYPE_TUTORIAL_MOVE)
+					{ // チュートリアル(MOVE)ブロック
+						SetEnableTutorial(TUTORIALTYPE_MOVE, true);
+
+						continue;
+					}
+					else if (g_aBlock[nCntBlock].type == BLOCKTYPE_TUTORIAL_GOAL)
+					{ // チュートリアル(GOAL)ブロック
+						SetEnableTutorial(TUTORIALTYPE_GOAL, true);
+
+						continue;
+					}
+					else if (g_aBlock[nCntBlock].type == BLOCKTYPE_TUTORIAL_REVERSE)
+					{ // チュートリアル(REVERSE)ブロック
+						SetEnableTutorial(TUTORIALTYPE_REVERSE, true);
+
+						continue;
+					}
+					else
+					{
+						SetEnableTutorial(TUTORIALTYPE_MOVE, false);
+						SetEnableTutorial(TUTORIALTYPE_GOAL, false);
+						SetEnableTutorial(TUTORIALTYPE_REVERSE, false);
+					}
+				}
+				else if (g_aBlock[nCntBlock].type != BLOCKTYPE_WALL && bIsPlayer == false)
+				{
 					continue;
 				}
 

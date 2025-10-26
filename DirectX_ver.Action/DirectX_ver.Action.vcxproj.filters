@@ -210,6 +210,15 @@
     <ClCompile Include="explosion.cpp">
       <Filter>ソース ファイル\game\effect</Filter>
     </ClCompile>
+    <ClCompile Include="rankingBg.cpp">
+      <Filter>ソース ファイル\ranking</Filter>
+    </ClCompile>
+    <ClCompile Include="tutorial.cpp">
+      <Filter>ソース ファイル\game\stage\object</Filter>
+    </ClCompile>
+    <ClCompile Include="pressEnter.cpp">
+      <Filter>ソース ファイル\title</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="input.h">
@@ -316,6 +325,15 @@
     </ClInclude>
     <ClInclude Include="explosion.h">
       <Filter>ヘッダー ファイル\game\effect</Filter>
+    </ClInclude>
+    <ClInclude Include="rankingBg.h">
+      <Filter>ヘッダー ファイル\ranking</Filter>
+    </ClInclude>
+    <ClInclude Include="tutorial.h">
+      <Filter>ヘッダー ファイル\game\stage\object</Filter>
+    </ClInclude>
+    <ClInclude Include="pressEnter.h">
+      <Filter>ヘッダー ファイル\title</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

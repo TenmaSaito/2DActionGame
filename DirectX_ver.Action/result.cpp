@@ -45,7 +45,7 @@ void InitResult(void)
 	SetEnableResultBg(true);
 
 	/*** リザルトスコアの設定 ***/
-	SetResultScore(D3DXVECTOR3(1300.0f, 400.0f, 0.0f), GetStarNum());
+	SetResultScore(D3DXVECTOR3(1300.0f, 550.0f, 0.0f), GetStarNum());
 }
 
 //=================================================================================================
@@ -75,10 +75,12 @@ void UpdateResult(void)
 	/*** リザルトスコアの更新 ***/
 	UpdateResultScore();
 
-	if (GetKeyboardTrigger(DIK_RETURN)
+	if ((GetKeyboardTrigger(DIK_RETURN)
+		|| GetJoypadTrigger(JOYKEY_A)
+		|| GetJoypadTrigger(JOYKEY_START))
 		&& GetFade() == FADE_NONE)
 	{
-		SetFade(MODE_RANKING, FADE_TYPE_NORMAL, 200);
+		SetFade(MODE_RANKING, FADE_TYPE_NORMAL, 120);
 
 		/*** ゲームBGMをフェードイン ***/
 		FadeSound(SOUND_LABEL_BGM_RESULT);
@@ -86,7 +88,7 @@ void UpdateResult(void)
 
 	if (g_nCounterResult >= 600 && GetFade() == FADE_NONE)
 	{
-		SetFade(MODE_RANKING, FADE_TYPE_NORMAL);
+		SetFade(MODE_RANKING, FADE_TYPE_NORMAL, 120);
 
 		/*** ゲームBGMをフェードイン ***/
 		FadeSound(SOUND_LABEL_BGM_RESULT);

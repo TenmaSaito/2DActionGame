@@ -9,7 +9,7 @@
 //**********************************************************************************
 #include "fade.h"
 #include "input.h"
-/**#include "sound.h"**/
+#include "sound.h"
 
 //*************************************************************************************************
 //*** マクロ定義 ***
@@ -134,10 +134,10 @@ void UpdateFade(void)
 			if ((GetKeyboardTrigger(DIK_RETURN) == true
 				|| GetJoypadTrigger(JOYKEY_A) == true
 				|| GetJoypadTrigger(JOYKEY_START) == true) 
-				&& g_modeNext == MODE_TITLE)
+				&& g_modeNext != MODE_GAME)
 			{
 				g_colorFade.a = 0.0f;		// フェードをスキップ
-				/*SetVolume(SOUND_STANDARD, SETSOUND_MAX);*/
+				SetVolume(SOUND_STANDARD, SETSOUND_MAX);
 			}
 		}
 		else if(g_fade == FADE_OUT)

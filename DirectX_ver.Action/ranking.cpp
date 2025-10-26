@@ -9,7 +9,7 @@
 //*************************************************************************************************
 #include "ranking.h"
 #include "fade.h"
-// #include "resultBg.h"
+#include "rankingBg.h"
 #include "rankingScore.h"
 
 //*************************************************************************************************
@@ -37,8 +37,13 @@ void InitRanking(void)
 	/*** ランキングの初期化 ***/
 	InitRankingScore();
 
+	/*** ランキング背景の初期化 ***/
+	InitRankingBg();
+
 	/*** ランキングの設定 ***/
 	SetRankingScore();
+
+	SetEnableRankingBg(true);
 }
 
 //=================================================================================================
@@ -46,10 +51,15 @@ void InitRanking(void)
 //=================================================================================================
 void UninitRanking(void)
 {
+	SetEnableRankingBg(false);
+
 	/*** aの終了 ***/
 
 	/*** リザルトスコアの終了 ***/
 	UninitRankingScore();
+
+	/*** ランキング背景の終了 ***/
+	UninitRankingBg();
 }
 
 //=================================================================================================
@@ -62,10 +72,15 @@ void UpdateRanking(void)
 	/*** ランキングの更新 ***/
 	UpdateRankingScore();
 
-	if (GetKeyboardTrigger(DIK_RETURN)
+	/*** ランキング背景の更新 ***/
+	UpdateRankingBg();
+
+	if ((GetKeyboardTrigger(DIK_RETURN)
+		|| GetJoypadTrigger(JOYKEY_A)
+		|| GetJoypadTrigger(JOYKEY_START))
 		&& GetFade() == FADE_NONE)
 	{
-		SetFade(MODE_TITLE, FADE_TYPE_NORMAL, 200);
+		SetFade(MODE_TITLE, FADE_TYPE_NORMAL, 120);
 
 		/*** タイトルBGMをフェードイン ***/
 		FadeSound(SOUND_LABEL_BGM_TITLE);
@@ -88,6 +103,9 @@ void UpdateRanking(void)
 void DrawRanking(void)
 {
 	/*** aの描画 ***/
+
+	/*** ランキング背景の描画 ***/
+	DrawRankingBg();
 
 	/*** ランキングの描画 ***/
 	DrawRankingScore();

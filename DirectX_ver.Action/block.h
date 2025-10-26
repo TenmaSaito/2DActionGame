@@ -21,9 +21,12 @@
 //**********************************************************************************
 typedef enum
 {
-	BLOCKTYPE_WALL = 0,		// 壁床ブロック
-	BLOCKTYPE_TRAP,			// トラップブロック
-	BLOCKTYPE_BLACKHOLE,	// ブラックホール
+	BLOCKTYPE_WALL = 0,			// 壁床ブロック
+	BLOCKTYPE_TRAP,				// トラップブロック
+	BLOCKTYPE_BLACKHOLE,		// ブラックホール
+	BLOCKTYPE_TUTORIAL_MOVE,	// チュートリアル表示ブロック
+	BLOCKTYPE_TUTORIAL_GOAL,	// チュートリアル表示ブロック
+	BLOCKTYPE_TUTORIAL_REVERSE,	// チュートリアル表示ブロック
 	BLOCKTYPE_MAX
 }BLOCKTYPE;
 

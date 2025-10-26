@@ -21,7 +21,7 @@
 #define MAX_RANKING			(5)				// 表示する順位の数
 #define FIRSTMOVE_RANKING	(4)				// 最初に右から出て来る順位
 #define MOVE_SPD			D3DXVECTOR3(15.0f,0.0f,0.0f)								// 移動する速さ
-#define GOAL_POS			D3DXVECTOR3(600.0f, 150.0f + (100.0f * (nCntRankingScore + 1)), 0.0f)		// 最終的なスコアの位置
+#define GOAL_POS			D3DXVECTOR3(600.0f, 150.0f + (103.0f * (nCntRankingScore + 1)), 0.0f)		// 最終的なスコアの位置
 #define FILENAME_RANKING_EASY	"data\\bin\\RANKING\\Ranking.bin"					// ランキング保存用ファイル名
 #define FILENAME_RANKING_NORMAL	"data\\bin\\RANKING\\Ranking.bin"					// ランキング保存用ファイル名(NORMAL)
 #define FILENAME_RANKING_HARD	"data\\bin\\RANKING\\Ranking_H.bin"					// ランキング保存用ファイル名(HARD)
@@ -75,7 +75,7 @@ void InitRankingScore(void)
 	// 構造体の初期化
 	for (nCntRankingScore = 0; nCntRankingScore < MAX_RANKING; nCntRankingScore++, pRankingScore++)
 	{
-		pRankingScore->pos = D3DXVECTOR3(1380.0f, 150.0f + (100.0f * (nCntRankingScore + 1)), 0.0f);
+		pRankingScore->pos = D3DXVECTOR3(1380.0f, 150.0f + (103.0f * (nCntRankingScore + 1)), 0.0f);
 		pRankingScore->col = D3DXCOLOR_NULL;
 		pRankingScore->nScore = 0;
 		pRankingScore->nRankingScore = 1;

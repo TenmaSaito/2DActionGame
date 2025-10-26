@@ -352,7 +352,7 @@ void DestroyItem(void)
 	{
 		if (pItem->bUse == true)
 		{
-			if (pItem->bCatched == true)
+			if (pItem->bCatched == true && pItem->type == ITEMTYPE_STAR)
 			{
 				AddStarNum(1);
 			}

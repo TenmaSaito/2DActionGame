@@ -11,6 +11,7 @@
 #include "fade.h"
 #include "titleBg.h"
 #include "titleLogo.h"
+#include "pressEnter.h"
 
 //*************************************************************************************************
 //*** マクロ定義 ***
@@ -40,6 +41,9 @@ void InitTitle(void)
 	/*** ロゴの初期化 ***/
 	InitTitleLogo();
 
+	/*** PressEnter演出の初期化 ***/
+	InitPressEnter();
+
 	/*** 背景の有効化 ***/
 	SetEnableTitleBg(true);
 }
@@ -53,6 +57,9 @@ void UninitTitle(void)
 	SetEnableTitleBg(false);
 
 	/*** Aの終了 ***/
+
+	/*** PressEnter演出の終了 ***/
+	UninitPressEnter();
 
 	/*** 背景の終了 ***/
 	UninitTitleBg();
@@ -74,8 +81,22 @@ void UpdateTitle(void)
 	/*** ロゴの更新 ***/
 	UpdateTitleLogo();
 
+	/*** PressEnter演出の更新 ***/
+	UpdatePressEnter();
+
+	if ((GetKeyboardTrigger(DIK_RETURN)
+		|| GetJoypadTrigger(JOYKEY_A)
+		|| GetJoypadTrigger(JOYKEY_START))
+		&& GetFade() != FADE_NONE
+		&& GetPressEnterEffect() == false)
+	{
+		SetPressEnterEffect(PRESSENTER_POS);
+	}
+
 	/*** 決定ボタンを押したとき ***/
-	if (GetKeyboardTrigger(DIK_RETURN)
+	if ((GetKeyboardTrigger(DIK_RETURN)
+		|| GetJoypadTrigger(JOYKEY_A)
+		|| GetJoypadTrigger(JOYKEY_START))
 		&& GetFade() == FADE_NONE)
 	{ // ゲーム画面へフェード
 		/*** 決定音を鳴らす ***/
@@ -86,7 +107,7 @@ void UpdateTitle(void)
 		FadeSound(SOUND_LABEL_BGM_GAME);
 	}
 
-	if (g_nCounterTitle >= 600 && GetFade() == FADE_NONE)
+	if (g_nCounterTitle >= 1000 && GetFade() == FADE_NONE)
 	{
 		SetFade(MODE_RANKING, FADE_TYPE_NORMAL);
 
@@ -109,4 +130,7 @@ void DrawTitle(void)
 
 	/*** ロゴの描画 ***/
 	DrawTitleLogo();
+
+	/*** PressEnter演出の描画 ***/
+	DrawPressEnter();
 }

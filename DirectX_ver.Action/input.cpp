@@ -180,7 +180,7 @@ bool GetKeyboardRelease(int nKey)
 //================================================================================================================
 // キーボードのリピート情報を取得
 //================================================================================================================
-bool GetKeyboardRepeat(int nKey)
+bool GetKeyboardRepeat(int nKey, int nCounterRepeat)
 {
 	g_nCounterRepeat[nKey]++;
 	if (g_nCounterRepeat[nKey] < 30)
@@ -189,7 +189,14 @@ bool GetKeyboardRepeat(int nKey)
 	}
 	else
 	{
-		return (g_aKeyState[nKey] & 0x80) ? true : false;
+		if (g_nCounterRepeat[nKey] % nCounterRepeat == 0)
+		{
+			return (g_aKeyState[nKey] & 0x80) ? true : false;
+		}
+		else
+		{
+			return false;
+		}
 	}
 }
 
@@ -226,6 +233,29 @@ bool GetKeyboardWASD(void)
 	{
 		return false;
 	}
+}
+
+//================================================================================================================
+// キーボードの基本数字情報(0～9)を取得
+//================================================================================================================
+int GetKeyboardPressNumber(void)
+{
+	for (int nCntKey = DIK_1; nCntKey < DIK_MINUS; nCntKey++)
+	{
+		if (g_aKeyState[nCntKey] & 0x80)
+		{
+			if (nCntKey != DIK_0)
+			{
+				return nCntKey - 1;
+			}
+			else
+			{
+				return 0x00;
+			}
+		}
+	}
+
+	return false;
 }
 
 //================================================================================================================

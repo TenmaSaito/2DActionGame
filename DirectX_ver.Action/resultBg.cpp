@@ -34,7 +34,7 @@ void InitResultBg(void)
 
 	/*** テクスチャの読み込み ***/
 	D3DXCreateTextureFromFile(pDevice,
-							  "data\\TEXTURE\\BG\\RESULT\\MoonAndStars.jpg",
+							  "data\\TEXTURE\\BG\\RESULT\\MoonAndStars.png",
 							  &g_pTextureResultBg);
 
 	/*** 頂点バッファの生成 ***/

@@ -160,7 +160,9 @@
     <ClCompile Include="particle.cpp" />
     <ClCompile Include="pause.cpp" />
     <ClCompile Include="player.cpp" />
+    <ClCompile Include="pressEnter.cpp" />
     <ClCompile Include="ranking.cpp" />
+    <ClCompile Include="rankingBg.cpp" />
     <ClCompile Include="rankingScore.cpp" />
     <ClCompile Include="read_binui.cpp" />
     <ClCompile Include="result.cpp" />
@@ -169,6 +171,7 @@
     <ClCompile Include="reverse.cpp" />
     <ClCompile Include="sound.cpp" />
     <ClCompile Include="stage.cpp" />
+    <ClCompile Include="tutorial.cpp" />
     <ClCompile Include="ui_stage.cpp" />
     <ClCompile Include="stageNum.cpp" />
     <ClCompile Include="starNum.cpp" />
@@ -197,7 +200,9 @@
     <ClInclude Include="particle.h" />
     <ClInclude Include="pause.h" />
     <ClInclude Include="player.h" />
+    <ClInclude Include="pressEnter.h" />
     <ClInclude Include="ranking.h" />
+    <ClInclude Include="rankingBg.h" />
     <ClInclude Include="rankingScore.h" />
     <ClInclude Include="read_binui.h" />
     <ClInclude Include="result.h" />
@@ -206,6 +211,7 @@
     <ClInclude Include="reverse.h" />
     <ClInclude Include="sound.h" />
     <ClInclude Include="stage.h" />
+    <ClInclude Include="tutorial.h" />
     <ClInclude Include="ui_stage.h" />
     <ClInclude Include="starNum.h" />
     <ClInclude Include="stockNum.h" />

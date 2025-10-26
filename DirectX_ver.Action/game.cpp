@@ -23,6 +23,7 @@
 #include "stageNum.h"
 #include "reverse.h"
 #include "explosion.h"
+#include "tutorial.h"
 
 //*************************************************************************************************
 //*** マクロ定義 ***
@@ -45,6 +46,7 @@ GAMESTATE g_gameState = GAMESTATE_NORMAL;
 void InitGame(void)
 {
 	/*** 変数の初期化 ***/
+	int nNumKey = false;
 	g_nCounterState = 0;
 	g_gameState = GAMESTATE_NORMAL;
 	g_bPause = false;
@@ -88,14 +90,41 @@ void InitGame(void)
 	/*** 爆発演出の初期化 ***/
 	InitExplosion();
 
-	/*** ステージの設定 ***/
-	SetStage(GetStageExac());
+	/*** チュートリアルの初期化 ***/
+	InitTutorial();
+
+	if (GetKeyboardPress(DIK_LSHIFT) == false
+		|| ((nNumKey = GetKeyboardPressNumber()) == false) && GetKeyboardPress(DIK_Q) == false)
+	{
+		/*** ステージの設定 ***/
+		SetStage(0);
+	}
+	else
+	{
+		if (GetKeyboardPress(DIK_Q))
+		{
+			nNumKey += 10;
+		}
+
+		if (nNumKey >= GetStageMax())
+		{
+			/*** ステージの設定 ***/
+			nNumKey = GetStageMax() - 1;
+			SetStage(nNumKey);
+		}
+		else
+		{
+			SetStage(nNumKey);
+		}
+	}
 
 	/*** UIの設定 ***/
 	SetUi();
 
 	/*** ゲーム用背景の有効化 ***/
 	SetEnableGameBg(true);
+
+	AddStageNum(nNumKey);
 }
 
 //================================================================================================================
@@ -138,6 +167,9 @@ void UninitGame(void)
 
 	/*** 爆発演出の終了 ***/
 	UninitExplosion();
+
+	/*** チュートリアルの終了 ***/
+	UninitTutorial();
 }
 
 //================================================================================================================
@@ -235,6 +267,9 @@ void UpdateGame(void)
 
 		/*** 爆発演出の更新 ***/
 		UpdateExplosion();
+
+		/*** チュートリアルの更新 ***/
+		UpdateTutorial();
 	}
 	
 	/*** ポーズの更新 ***/
@@ -263,6 +298,9 @@ void DrawGame(void)
 
 	/*** ブロックの描画 ***/
 	DrawBlock();
+
+	/*** チュートリアルの描画 ***/
+	DrawTutorial();
 
 	/*** 爆発演出の描画 ***/
 	DrawExplosion();
