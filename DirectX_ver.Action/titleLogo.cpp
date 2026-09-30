@@ -38,10 +38,12 @@ LPDIRECT3DTEXTURE9		g_apTextureTitleLogo[LOGOTYPE_MAX] = {};	// テクスチャへのポ
 LPDIRECT3DVERTEXBUFFER9 g_pVtxBuffTitleLogo = NULL;					// 頂点バッファのポインタ
 LOGO g_aLogo[LOGOTYPE_MAX];				// ロゴの情報
 int g_nCounterTitleLogo;				// ロゴカウンター
+bool g_bReverseFirstLogo;				// タイトルロゴが反転表示されたか
+bool g_bReverseDFirstLogo;				// 過去にタイトルロゴが反転表示されたか
 const LOGO g_aLogoInfo[] =
 {
-	{D3DXVECTOR3(640.0f - (LOGO_WIDTH * 0.5f), 50.0f - ANIMATION_TIME_C, 0.0f), D3DXCOLOR(1.0f,1.0f,1.0f,0.0f), LOGO_WIDTH, 275.0f, LOGOTYPE_CHAR, 0, true},
-	{D3DXVECTOR3(640.0f - (LOGO_WIDTH * 0.5f), 250.0f, 0.0f), D3DXCOLOR(1.0f,1.0f,1.0f,0.0f), LOGO_WIDTH, 50.0f, LOGOTYPE_UNDERLINE, 0, false}
+	{D3DXVECTOR3(640.0f - (LOGO_WIDTH * 0.5f), 75.0f + ANIMATION_TIME_C, 0.0f), D3DXCOLOR_INV, LOGO_WIDTH, 275.0f, LOGOTYPE_CHAR, 0, true},
+	{D3DXVECTOR3(640.0f - (LOGO_WIDTH * 0.5f), 250.0f, 0.0f), D3DXCOLOR_INV, LOGO_WIDTH, 50.0f, LOGOTYPE_UNDERLINE, 0, false}
 };
 
 //**********************************************************************************
@@ -81,6 +83,8 @@ void InitTitleLogo(void)
 								NULL);
 
 	g_nCounterTitleLogo = 0;
+	g_bReverseFirstLogo = false;
+	g_bReverseDFirstLogo = false;
 
 	/*** 頂点バッファの設定 ***/
 	g_pVtxBuffTitleLogo->Lock(0, 0, (void**)&pVtx, 0);
@@ -162,21 +166,24 @@ void UpdateTitleLogo(void)
 
 	if (GetKeyboardTrigger(DIK_RETURN) || GetJoypadTrigger(JOYKEY_A) || GetJoypadTrigger(JOYKEY_START))
 	{
-		g_aLogo[LOGOTYPE_CHAR].pos.y += 1.0f *(ANIMATION_TIME_C - g_aLogo[LOGOTYPE_CHAR].nCounterLogo);
+		g_aLogo[LOGOTYPE_CHAR].pos.y = 44.0f;
 		g_aLogo[LOGOTYPE_CHAR].col.a = 1.0f;
 		g_aLogo[LOGOTYPE_UNDERLINE].col.a = 1.0f;
 		g_aLogo[LOGOTYPE_CHAR].nCounterLogo = ANIMATION_TIME_C;
 		g_aLogo[LOGOTYPE_UNDERLINE].nCounterLogo = ANIMATION_TIME_U;
+		g_bReverseFirstLogo = true;
+		g_bReverseDFirstLogo = true;
 	}
 
 	if (g_aLogo[LOGOTYPE_CHAR].nCounterLogo < ANIMATION_TIME_C)
 	{
 		g_aLogo[LOGOTYPE_CHAR].nCounterLogo++;
 		g_aLogo[LOGOTYPE_CHAR].col.a += 1.0f / ANIMATION_TIME_C;
-		g_aLogo[LOGOTYPE_CHAR].pos.y += 1.0f;
+		g_aLogo[LOGOTYPE_CHAR].pos.y -= 0.5f;
 		if (g_aLogo[LOGOTYPE_CHAR].nCounterLogo >= ANIMATION_TIME_C)
 		{
 			g_aLogo[LOGOTYPE_CHAR].nCounterLogo = ANIMATION_TIME_C;
+			g_bReverseFirstLogo = true;
 		}
 	}
 	else
@@ -190,10 +197,55 @@ void UpdateTitleLogo(void)
 		}
 	}
 
-	if (g_aLogo[LOGOTYPE_UNDERLINE].bDisp && g_nCounterTitleLogo >= ANIMATION_TIME_C)
+	if (g_bReverseFirstLogo == true)
+	{
+		if (g_bReverseDFirstLogo == true)
+		{
+			if (g_aLogo[LOGOTYPE_CHAR].col.a < 1.0f)
+			{
+				if (g_aLogo[LOGOTYPE_CHAR].pos.y >= (1.0f * (ANIMATION_TIME_C - g_aLogo[LOGOTYPE_CHAR].nCounterLogo)))
+				{
+					g_aLogo[LOGOTYPE_CHAR].nCounterLogo++;
+					g_aLogo[LOGOTYPE_CHAR].pos.y -= 0.45f;
+				}
+				else
+				{
+					printf("");
+				}
+				g_aLogo[LOGOTYPE_CHAR].col.a += 0.01f;
+				if (g_aLogo[LOGOTYPE_CHAR].col.a >= 1.0f)
+				{
+					g_aLogo[LOGOTYPE_CHAR].col.a = 1.0f;
+				}
+			}
+		}
+		else
+		{
+			if (g_aLogo[LOGOTYPE_CHAR].col.a > 0.0f)
+			{
+				if (g_aLogo[LOGOTYPE_CHAR].pos.y >= (1.0f * (ANIMATION_TIME_C - g_aLogo[LOGOTYPE_CHAR].nCounterLogo)))
+				{
+					g_aLogo[LOGOTYPE_CHAR].nCounterLogo++;
+					g_aLogo[LOGOTYPE_CHAR].pos.y -= 0.45f;
+				}
+				g_aLogo[LOGOTYPE_CHAR].col.a -= 0.01f;
+				if (g_aLogo[LOGOTYPE_CHAR].col.a <= 0.0f)
+				{
+					g_aLogo[LOGOTYPE_CHAR].col.a = 0.0f;
+					g_bReverseDFirstLogo = true;
+				}
+			}
+		}
+	}
+
+	if (g_aLogo[LOGOTYPE_UNDERLINE].bDisp && g_nCounterTitleLogo >= ANIMATION_TIME_C && (g_bReverseDFirstLogo == true && g_aLogo[LOGOTYPE_CHAR].col.a == 1.0f))
 	{
 		if (g_aLogo[LOGOTYPE_UNDERLINE].nCounterLogo < ANIMATION_TIME_C)
 		{
+			if (g_aLogo[LOGOTYPE_UNDERLINE].nCounterLogo == 0)
+			{
+				PlaySound(SOUND_LABEL_SE_ENTER);
+			}
 			g_aLogo[LOGOTYPE_UNDERLINE].nCounterLogo++;
 			if (g_aLogo[LOGOTYPE_UNDERLINE].nCounterLogo >= ANIMATION_TIME_U)
 			{
@@ -254,10 +306,20 @@ void UpdateTitleLogo(void)
 		}
 		else
 		{
-			pVtx[0].tex = D3DXVECTOR2(0.0f, 0.0f);
-			pVtx[1].tex = D3DXVECTOR2(1.0f, 0.0f);
-			pVtx[2].tex = D3DXVECTOR2(0.0f, 1.0f);
-			pVtx[3].tex = D3DXVECTOR2(1.0f, 1.0f);
+			if (g_bReverseDFirstLogo == false)
+			{
+				pVtx[3].tex = D3DXVECTOR2(0.0f, 0.0f);
+				pVtx[2].tex = D3DXVECTOR2(1.0f, 0.0f);
+				pVtx[1].tex = D3DXVECTOR2(0.0f, 1.0f);
+				pVtx[0].tex = D3DXVECTOR2(1.0f, 1.0f);
+			}
+			else
+			{
+				pVtx[0].tex = D3DXVECTOR2(0.0f, 0.0f);
+				pVtx[1].tex = D3DXVECTOR2(1.0f, 0.0f);
+				pVtx[2].tex = D3DXVECTOR2(0.0f, 1.0f);
+				pVtx[3].tex = D3DXVECTOR2(1.0f, 1.0f);
+			}
 		}
 
 		pVtx += 4;

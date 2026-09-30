@@ -96,7 +96,7 @@ void UpdateJoypad(void);
 bool GetJoypadPress(JOYKEY Key);
 bool GetJoypadTrigger(JOYKEY Key);
 bool GetJoypadRelease(JOYKEY Key);
-bool GetJoypadRepeat(JOYKEY Key);
+bool GetJoypadRepeat(JOYKEY Key, int nCounterRepeat = REPEAT_COUNT);
 bool GetJoypadAny(void);
 bool GetJoypadWASD(void);
 
@@ -107,7 +107,7 @@ bool GetJoyThumbLYState(void);
 bool GetJoyThumbRXState(void);
 bool GetJoyThumbRYState(void);
 bool GetJoyThumbSlow(JOYTHUMB Thumb);
-bool GetJoyThumbRepeat(JOYTHUMB Thumb);
+bool GetJoyThumbRepeat(JOYTHUMB Thumb, int nCounterRepeat = REPEAT_COUNT);
 bool GetJoyThumbWASD(void);
 
 //***************************************************

@@ -97,7 +97,8 @@ void UpdateTitle(void)
 	if ((GetKeyboardTrigger(DIK_RETURN)
 		|| GetJoypadTrigger(JOYKEY_A)
 		|| GetJoypadTrigger(JOYKEY_START))
-		&& GetFade() == FADE_NONE)
+		&& GetFade() == FADE_NONE
+		&& GetEndPressEnterEffect())
 	{ // ゲーム画面へフェード
 		/*** 決定音を鳴らす ***/
 		PlaySound(SOUND_LABEL_SE_ENTER);

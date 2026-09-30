@@ -211,3 +211,34 @@ float GetPTPLength(D3DXVECTOR3 pos1, D3DXVECTOR3 pos2)
 
 	return fLength;
 }
+
+//==================================================================
+// --- ポリゴンを回転させる処理 ---
+//==================================================================
+void RollPolygon(VERTEX_2D* pVtx, D3DXVECTOR3 pos, float fWidth, float fHeight, float fRot, int nSpeed)
+{
+	float fLength = sqrtf(powf(fWidth, 2.0f) + powf(fHeight, 2.0f));
+	float fAngle = atan2f(fWidth, fHeight);
+
+	/*** 頂点バッファのポインタがNULLの場合、処理を行わずにスキップ ***/
+	if (pVtx == NULL)
+	{
+		return;
+	}
+
+	pVtx[0].pos.x = pos.x + sinf(D3DX_PI + fAngle + fRot) * fLength;
+	pVtx[0].pos.y = pos.y + cosf(D3DX_PI + fAngle + fRot) * fLength;
+	pVtx[0].pos.z = 0.0f;
+
+	pVtx[1].pos.x = pos.x + sinf(D3DX_PI - fAngle + fRot) * fLength;
+	pVtx[1].pos.y = pos.y + cosf(D3DX_PI - fAngle + fRot) * fLength;
+	pVtx[1].pos.z = 0.0f;
+
+	pVtx[2].pos.x = pos.x + sinf(fRot - fAngle) * fLength;
+	pVtx[2].pos.y = pos.y + cosf(fRot - fAngle) * fLength;
+	pVtx[2].pos.z = 0.0f;
+
+	pVtx[3].pos.x = pos.x + sinf(fRot + fAngle) * fLength;
+	pVtx[3].pos.y = pos.y + cosf(fRot + fAngle) * fLength;
+	pVtx[3].pos.z = 0.0f;
+}

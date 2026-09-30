@@ -26,5 +26,6 @@ void DrawPressEnter(void);
 
 void SetPressEnterEffect(D3DXVECTOR3 pos);
 bool GetPressEnterEffect(void);
+bool GetEndPressEnterEffect(void);
 
 #endif

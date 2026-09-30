@@ -24,6 +24,8 @@
 #include "reverse.h"
 #include "explosion.h"
 #include "tutorial.h"
+#include "stockNum.h"
+#include "starNum.h"
 
 //*************************************************************************************************
 //*** マクロ定義 ***
@@ -36,8 +38,9 @@
 //*************************************************************************************************
 //*** グローバル変数 ***
 //*************************************************************************************************
-int g_nCounterState;
-bool g_bPause;
+int g_nCounterState;			// 状態カウンター
+int g_nCounterPlusScore;		// スコア加算カウンター
+bool g_bPause;					// ポーズ状態
 GAMESTATE g_gameState = GAMESTATE_NORMAL;
 
 //================================================================================================================
@@ -48,6 +51,7 @@ void InitGame(void)
 	/*** 変数の初期化 ***/
 	int nNumKey = false;
 	g_nCounterState = 0;
+	g_nCounterPlusScore = 0;
 	g_gameState = GAMESTATE_NORMAL;
 	g_bPause = false;
 
@@ -89,18 +93,20 @@ void InitGame(void)
 
 	/*** 爆発演出の初期化 ***/
 	InitExplosion();
-
+	
 	/*** チュートリアルの初期化 ***/
 	InitTutorial();
 
-	if (GetKeyboardPress(DIK_LSHIFT) == false
-		|| ((nNumKey = GetKeyboardPressNumber()) == false) && GetKeyboardPress(DIK_Q) == false)
+	nNumKey = GetKeyboardPressNumber();
+
+	if (((nNumKey == false) && GetKeyboardPress(DIK_Q) == false))
 	{
 		/*** ステージの設定 ***/
 		SetStage(0);
 	}
 	else
 	{
+
 		if (GetKeyboardPress(DIK_Q))
 		{
 			nNumKey += 10;
@@ -177,6 +183,8 @@ void UninitGame(void)
 //================================================================================================================
 void UpdateGame(void)
 {
+	int nCounterPlusScore = 0;
+
 	/*** ゲームの状態により処理を変更 ***/
 	switch (g_gameState)
 	{
@@ -192,14 +200,27 @@ void UpdateGame(void)
 
 	// ゲームクリア
 	case GAMESTATE_CLEAREND:
-
-		g_nCounterState--;
-		if (g_nCounterState <= 0)
+		
+		if (GetStockNum() > 0)
 		{
-			if (GetFade() == FADE_NONE)
-			{ // リザルト画面へ移行
-				SetFade(MODE_RESULT, FADE_TYPE_NORMAL);
-				FadeSound(SOUND_LABEL_BGM_RESULT);
+			g_nCounterPlusScore++;
+			if (g_nCounterPlusScore % 15 == 0)
+			{
+				PlaySound(SOUND_LABEL_SE_SELECT);
+				AddStockNum(-1);
+				AddStarNum(1);
+			}
+		}
+		else
+		{
+			g_nCounterState--;
+			if (g_nCounterState <= 0)
+			{
+				if (GetFade() == FADE_NONE)
+				{ // リザルト画面へ移行
+					SetFade(MODE_RESULT, FADE_TYPE_NORMAL);
+					FadeSound(SOUND_LABEL_BGM_RESULT);
+				}
 			}
 		}
 
@@ -220,7 +241,7 @@ void UpdateGame(void)
 
 		break;
 	}
-	
+
 	/*** ゲーム状態が通常なら ***/
 	if (g_gameState == GAMESTATE_NORMAL)
 	{
@@ -271,11 +292,10 @@ void UpdateGame(void)
 		/*** チュートリアルの更新 ***/
 		UpdateTutorial();
 	}
-	
+
 	/*** ポーズの更新 ***/
 	UpdatePause();
 	
-
 #if ENABLE_LOOP == true
 	if (GetKeyboardTrigger(DIK_RETURN)
 		&& GetFade() == FADE_NONE)
@@ -340,12 +360,14 @@ void DrawGame(void)
 void SetEndStage(void)
 {
 	int nStage = GetStage();
-
 	nStage++;
 
 	/*** ゲームの状態が通常の時に判定 ***/
 	if (g_gameState == GAMESTATE_NORMAL)
 	{
+		/*** ゴール時効果音 ***/
+		PlaySound(SOUND_LABEL_SE_GOAL);
+
 		if ((nStage >= GetStageMax()))
 		{
 			/*** ゲームの状態をクリアに設定 ***/

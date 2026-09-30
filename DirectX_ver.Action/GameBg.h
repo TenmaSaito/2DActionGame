@@ -25,5 +25,6 @@ void UpdateGameBg(void);
 void DrawGameBg(void);
 
 void SetEnableGameBg(bool bUse);
+void SetBgGravity(OR_GRAVITY gravity);
 
 #endif

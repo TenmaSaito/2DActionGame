@@ -14,6 +14,7 @@
 #include "input.h"
 #include "sound.h"
 #include "read_binui.h"
+#include "mathUtil.h"
 
 //**********************************************************************************
 //*** ƒ}ƒNƒ’è‹` ***

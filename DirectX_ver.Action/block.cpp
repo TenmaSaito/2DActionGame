@@ -40,7 +40,7 @@ int g_nCheckCollision;
 const char *g_aBlockTex[BLOCKTYPE_MAX]
 {
 	"data\\TEXTURE\\BLOCK\\WALL.png",
-	"data\\TEXTURE\\BLOCK\\TRAP_.png",
+	"data\\TEXTURE\\BLOCK\\TRAP.png",
 	"data\\TEXTURE\\BLOCK\\BLACKHOLE0.png",
 	"data\\TEXTURE\\BLOCK\\WALL.png",
 	"data\\TEXTURE\\BLOCK\\WALL.png",

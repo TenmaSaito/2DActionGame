@@ -28,6 +28,14 @@ typedef enum
 	SOUND_LABEL_BGM_GAME,			// ゲーム画面のBGM
 	SOUND_LABEL_BGM_RESULT,			// リザルト画面のBGM
 	SOUND_LABEL_SE_ENTER,			// 決定ボタン
+	SOUND_LABEL_SE_SELECT,			// 選択音
+	SOUND_LABEL_SE_REVERSE,			// 反転効果音
+	SOUND_LABEL_SE_LANDING,			// 着地音
+	SOUND_LABEL_SE_ITEMGET,			// アイテム取得音
+	SOUND_LABEL_SE_DOOROPEN,		// ドアの開錠音
+	SOUND_LABEL_SE_DOORCLOSE,		// ドアの施錠音
+	SOUND_LABEL_SE_DEATH,			// 死亡音
+	SOUND_LABEL_SE_GOAL,			// ゴール時効果音
 	SOUND_LABEL_MAX,
 } SOUND_LABEL;
 

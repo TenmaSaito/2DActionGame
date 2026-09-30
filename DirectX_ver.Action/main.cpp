@@ -15,15 +15,16 @@
 #include "result.h"
 #include "ranking.h"
 #include "fade.h"
+#include "resource.h"
+#include "player.h"
 //#include "credit.h"
-//#include "resource.h"
 #include <crtdbg.h>
 
 //**********************************************************************************
 //*** マクロ定義 ***
 //**********************************************************************************
 #define CLASS_NAME		"WindowClass"				// ウィンドウクラスの名前
-#define WINDOW_NAME		"MapMaker"					// キャプションに表示される名前(提出する前に変えること！！！)
+#define WINDOW_NAME		"十六夜コレクター"			// キャプションに表示される名前(提出する前に変えること！！！)
 #if 1
 #define MODE_ON				// モード設定を有効化
 #endif
@@ -80,12 +81,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hInstancePrev, LPSTR lpCmdLine
 		0,										// 0
 		0,										// 0
 		hInstance,								// インスタンスハンドル
-		NULL,									// タスクバーのアイコン
+		LoadIcon(hInstance,(LPCSTR)IDI_ICON1),	// タスクバーのアイコン
 		LoadCursor(NULL,IDC_ARROW),				// マウスカーソル
 		(HBRUSH)(COLOR_WINDOW + 1),				// クライアント領域の背景色
 		NULL,									// メニューバー
 		CLASS_NAME,								// ウィンドウクラスの名前
-		NULL									// ファイルのアイコン
+		LoadIcon(hInstance,(LPCSTR)IDI_ICON1)	// ファイルのアイコン
 	}; 
 
 	// ウィンドウクラスの登録
@@ -197,8 +198,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hInstancePrev, LPSTR lpCmdLine
 //================================================================================================================
 LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	int nID;
-
 	switch (uMsg)
 	{
 	case WM_DESTROY:		// ウィンドウ破棄のメッセージ
@@ -212,20 +211,16 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		switch (wParam)
 		{
 		case VK_ESCAPE:
-			// 終了確認
-			nID = MessageBox(hWnd, "終了しますか？", "終了確認メッセージ", (MB_YESNO | MB_ICONINFORMATION));
-			if (nID == IDYES)
-			{// もしYESだった場合
-				// ウィンドウを破棄する(WM_DESTROYメッセージを送る)
-				DestroyWindow(hWnd);
-			}
-
+			// ウィンドウを破棄する(WM_DESTROYメッセージを送る)
+			DestroyWindow(hWnd);
 			break;
 
 		case VK_F11:
-			ToggleFullscreen(hWnd);// F11でフルスクリーン
+			// F11でフルスクリーン
+			ToggleFullscreen(hWnd);
 			break;
 		}
+
 		break;
 
 	case WM_CLOSE:		// 閉じるボタン押下のメッセージ
@@ -266,7 +261,7 @@ HRESULT Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 
 	d3dpp.BackBufferWidth = SCREEN_WIDTH;		// ゲームの画面サイズ(横)
 	d3dpp.BackBufferHeight = SCREEN_HEIGHT;		// ゲームの画面サイズ(高さ)
-	d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;		// バックバッファの形式
+	d3dpp.BackBufferFormat = d3ddm.Format;		// バックバッファの形式
 	d3dpp.BackBufferCount = 1;					// バックバッファの数
 	d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;	// ダブルバッファの切り替え(映像信号と同期)
 	d3dpp.EnableAutoDepthStencil = TRUE;		// デプスバッファとステンシルバッファを作成
@@ -664,29 +659,19 @@ void DrawDebug(void)
 	RECT rect = { 0,0,SCREEN_WIDTH,SCREEN_HEIGHT };			// 画面サイズ
 	char aStr[16][256];										// 画面に表示する文字列
 	// 文字列に代入
-	wsprintf(&aStr[0][0], "FPS:%d\n", g_nCountFPS);
-	/*sprintf(&aStr[1][0],
-		"U / O : 高さ変更 (%f) \nN / M : 幅変更 (%f)\njump %d\npos %f %f\nposOld %f %f\nBpos %f %f\n", 
-		GetBlock()->fHeight, 
-		GetBlock()->fWidth, 
-		GetPlayer()->bJump, 
-		GetPlayer()->pos.x, 
-		GetPlayer()->pos.y, 
-		GetPlayer()->posOld.x, 
-		GetPlayer()->posOld.y, 
-		GetBlock()->pos.x, 
-		GetBlock()->pos.y);
+	wsprintf(&aStr[0][0], "FPS:%d\nPause %d\n", g_nCountFPS, GetEnablePause());
+	sprintf(&aStr[1][0], "pos : %f %f\n", GetPlayer()->pos.x, GetPlayer()->pos.y);
 
-	strcat(&aStr[0][0], &aStr[1][0]);*/
+	strcat(aStr[0], aStr[1]);
 
 	// テキストの描画
     g_pFont->DrawText(NULL, &aStr[0][0], -1, &rect, DT_LEFT, D3DCOLOR_RGBA(0, 255, 255, 255));
 }
 
 
-//================================================
+//===============================================================================================================
 // --- ウィンドウフルスクリーン処理 ---
-//================================================
+//===============================================================================================================
 void ToggleFullscreen(HWND hWnd)
 {
 	// 現在のウィンドウスタイルを取得

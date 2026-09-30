@@ -8,7 +8,6 @@
 //*** インクルードファイル ***
 //**********************************************************************************
 #include "resultScore.h"
-#include "input.h"
 
 //*************************************************************************************************
 //*** マクロ定義 ***
@@ -30,6 +29,7 @@
 LPDIRECT3DTEXTURE9		g_pTextureResultScore = {};		// テクスチャへのポインタ
 LPDIRECT3DVERTEXBUFFER9 g_pVtxBuffResultScore = NULL;	// 頂点バッファのポインタ
 D3DXVECTOR3 g_posResultScore;							// スコアを表示する位置
+float g_fRotScore;										// スコアの回転角度(テスト)
 int g_nResultScore;										// スコアの値
 
 //**********************************************************************************
@@ -58,6 +58,7 @@ void InitResultScore(void)
 
 	g_posResultScore = D3DXVECTOR3(1300.0f, 62.5f, 0.0f);		// 位置を初期化
 	g_nResultScore = 0;											// 値を初期化
+	g_fRotScore = 0.0f;
 
 	/*** 頂点バッファの生成 ***/
 	pDevice->CreateVertexBuffer(sizeof(VERTEX_2D) * 4 * NUM_PLACE,
@@ -144,14 +145,20 @@ void UpdateResultScore(void)
 	if (GetKeyboardTrigger(DIK_RETURN) || GetJoypadTrigger(JOYKEY_A) || GetJoypadTrigger(JOYKEY_START))
 	{
 		g_posResultScore.x = GOAL_SCOREPOS.x;
+		g_fRotScore = 0.0;
 	}
 
 	if (g_posResultScore.x <= GOAL_SCOREPOS.x)
 	{
 		g_posResultScore.x = GOAL_SCOREPOS.x;
+		if ((int)(g_fRotScore * 10.0f) % (int)(D3DX_PI * 20.0f) != 0)
+		{
+			g_fRotScore += 0.04f;
+		}
 	}
 	else
 	{
+		g_fRotScore += 0.04f;
 		g_posResultScore.x -= 5.0f;
 	}
 
@@ -161,7 +168,7 @@ void UpdateResultScore(void)
 	for (int nCntResultScore = 0; nCntResultScore < NUM_PLACE; nCntResultScore++)
 	{
 		/*** 頂点座標の設定の設定 ***/
-		pVtx[0].pos.x = g_posResultScore.x + ((NUM_WIDTH * 2) * nCntResultScore) - NUM_WIDTH;
+		/*pVtx[0].pos.x = g_posResultScore.x + ((NUM_WIDTH * 2) * nCntResultScore) - NUM_WIDTH;
 		pVtx[0].pos.y = g_posResultScore.y - NUM_HEIGHT;
 		pVtx[0].pos.z = 0.0f;
 
@@ -175,7 +182,9 @@ void UpdateResultScore(void)
 
 		pVtx[3].pos.x = g_posResultScore.x + ((NUM_WIDTH * 2) * nCntResultScore) + NUM_WIDTH;
 		pVtx[3].pos.y = g_posResultScore.y + NUM_HEIGHT;
-		pVtx[3].pos.z = 0.0f;
+		pVtx[3].pos.z = 0.0f;*/
+
+		RollPolygon(pVtx, D3DXVECTOR3(g_posResultScore.x + ((NUM_WIDTH * 2) * nCntResultScore), g_posResultScore.y, 0.0f), NUM_WIDTH, NUM_HEIGHT, g_fRotScore, 1.0f);
 
 		pVtx += 4;
 	}

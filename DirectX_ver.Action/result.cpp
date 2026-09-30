@@ -81,17 +81,11 @@ void UpdateResult(void)
 		&& GetFade() == FADE_NONE)
 	{
 		SetFade(MODE_RANKING, FADE_TYPE_NORMAL, 120);
-
-		/*** ゲームBGMをフェードイン ***/
-		FadeSound(SOUND_LABEL_BGM_RESULT);
 	}
 
 	if (g_nCounterResult >= 600 && GetFade() == FADE_NONE)
 	{
 		SetFade(MODE_RANKING, FADE_TYPE_NORMAL, 120);
-
-		/*** ゲームBGMをフェードイン ***/
-		FadeSound(SOUND_LABEL_BGM_RESULT);
 	}
 
 	g_nCounterResult++;

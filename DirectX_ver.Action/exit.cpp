@@ -4,20 +4,24 @@
 // Author : TENMA
 //
 //================================================================================================================
-//**********************************************************************************
+//*************************************************************************************************
 //*** インクルードファイル ***
-//**********************************************************************************
+//*************************************************************************************************
 #include "exit.h"
 #include "player.h"
 #include "item.h"
+#include "effect.h"
 
 //*************************************************************************************************
 //*** マクロ定義 ***
 //*************************************************************************************************
-#define EXIT_SIZE_X	(50.0f)		// 基準の大きさ(X)
-#define EXIT_SIZE_Y	(50.0f)		// 基準の大きさ(Y)
-#define EXIT_ANIM	(15)		// アニメーション速度
-#define EXIT_ANIM_U	(5)			// 出口のアニメーションの数(U)
+#define EXIT_SIZE_X		(50.0f)		// 基準の大きさ(X)
+#define EXIT_SIZE_Y		(50.0f)		// 基準の大きさ(Y)
+#define EXIT_ANIM		(15)		// アニメーション速度
+#define EXIT_ANIM_U		(5)			// 出口のアニメーションの数(U)
+#define EXIT_EFFECT		(10)		// 出口への演出
+#define EFFEXT_COUNT	(120)		// 演出のクールダウン
+#define EFFECT_LIFE		(45)		// 演出エフェクトの寿命
 
 //*************************************************************************************************
 //*** 出口構造体 ***
@@ -41,7 +45,8 @@ typedef struct
 //*************************************************************************************************
 LPDIRECT3DTEXTURE9		g_pTextureExit = {};		// テクスチャへのポインタ
 LPDIRECT3DVERTEXBUFFER9 g_pVtxBuffExit = NULL;		// 頂点バッファのポインタ			
-EXIT g_exit;		// 出口の情報
+EXIT g_exit;			// 出口の情報
+int g_nCoutnerExit;		// 汎用カウンター
 
 //================================================================================================================
 // --- 出口の初期化 ---
@@ -60,6 +65,7 @@ void InitExit(void)
 	pExit->nCounterAnim = 0;
 	pExit->nPatternAnim = 0;
 	pExit->bUse = false;
+	g_nCoutnerExit = 0;
 
 	/*** テクスチャの読み込み ***/
 	D3DXCreateTextureFromFile(pDevice,
@@ -77,7 +83,6 @@ void InitExit(void)
 
 	/*** 頂点バッファの設定 ***/
 	g_pVtxBuffExit->Lock(0, 0, (void**)&pVtx, 0);
-
 
 	/*** 頂点座標の設定の設定 ***/
 	pVtx[0].pos.x = pExit->pos.x;
@@ -129,7 +134,6 @@ void UninitExit(void)
 		g_pTextureExit->Release();
 		g_pTextureExit = NULL;
 	}
-	
 
 	/*** 頂点バッファの破棄 ***/
 	if (g_pVtxBuffExit != NULL)
@@ -146,6 +150,74 @@ void UpdateExit(void)
 {
 	VERTEX_2D* pVtx;
 	EXIT *pExit = &g_exit;
+	PLAYER *pPlayer = GetPlayer();
+	D3DXVECTOR3 posExit = pExit->pos;
+	D3DXVECTOR3 posPlayer = pPlayer->pos;
+	D3DXVECTOR3 posMover = {};
+	posPlayer.y -= pPlayer->fHeight * 0.5f;
+	posExit.x += EXIT_SIZE_X * 0.5f;
+	posExit.y += EXIT_SIZE_Y * 0.5f;
+
+	float fLength = GetPTPLength(pPlayer->pos, posExit);
+	float fAngle = GetPosToPos(posExit, pPlayer->pos);
+
+	/*** 鍵を持っているとき ***/
+	if (GetEnableKey())
+	{
+		/*** 出口へのナビを出現 ***/
+		for (int nCntExit = 0; nCntExit < EXIT_EFFECT; nCntExit++)
+		{
+			if ((g_nCoutnerExit - nCntExit) % EFFEXT_COUNT == 0)
+			{
+				posMover.x = posPlayer.x + sinf(fAngle) * ((fLength / EXIT_EFFECT) * nCntExit);
+				posMover.y = posPlayer.y + cosf(fAngle) * ((fLength / EXIT_EFFECT) * nCntExit);
+
+				SetEffect(
+					posMover,
+					D3DXVECTOR3_NULL,
+					D3DXCOLOR(1.0f, 0.5f, 0.0f, 0.85f),
+					pPlayer->fWidth * 0.75f,
+					EFFECT_LIFE,
+					EFFECTTYPE_FADE,
+					RECT{ 0, 0, 0, 0, });
+			}
+		}
+
+		if (pExit->nPatternAnim < EXIT_ANIM_U)
+		{
+			pExit->nCounterAnim++;
+			if ((pExit->nCounterAnim % EXIT_ANIM) == 0)
+			{
+				pExit->nPatternAnim++;
+				if (pExit->nPatternAnim >= EXIT_ANIM_U)
+				{ // 出口を開ける
+					pExit->nPatternAnim = EXIT_ANIM_U - 1;
+				}
+				else if(pExit->nPatternAnim == 1)
+				{
+					PlaySound(SOUND_LABEL_SE_DOOROPEN);
+				}
+			}
+		}
+	}
+
+	/*** 鍵を持っていない且つ、アニメーションが途中の時 ***/
+	if (GetEnableKey() == false && pExit->nPatternAnim > 0)
+	{
+		pExit->nCounterAnim++;
+		if ((pExit->nCounterAnim % EXIT_ANIM) == 0)
+		{ // 出口を閉じる
+			pExit->nPatternAnim--;
+			if (pExit->nPatternAnim < 0)
+			{
+				pExit->nPatternAnim = 0;
+			}
+			else if (pExit->nPatternAnim == (EXIT_ANIM_U - 2))
+			{
+				PlaySound(SOUND_LABEL_SE_DOOROPEN);
+			}
+		}
+	}
 
 	/*** 頂点バッファの設定 ***/
 	g_pVtxBuffExit->Lock(0, 0, (void**)&pVtx, 0);
@@ -167,32 +239,6 @@ void UpdateExit(void)
 	pVtx[3].pos.y = pExit->pos.y + (EXIT_SIZE_Y);
 	pVtx[3].pos.z = 0.0f;
 
-	if (GetEnableKey() && pExit->nPatternAnim < EXIT_ANIM_U)
-	{
-		pExit->nCounterAnim++;
-		if ((pExit->nCounterAnim % EXIT_ANIM) == 0)
-		{
-			pExit->nPatternAnim++;
-			if (pExit->nPatternAnim >= EXIT_ANIM_U)
-			{
-				pExit->nPatternAnim = EXIT_ANIM_U - 1;
-			}
-		}
-	}
-	
-	if (GetEnableKey() == false && pExit->nPatternAnim > 0)
-	{
-		pExit->nCounterAnim++;
-		if ((pExit->nCounterAnim % EXIT_ANIM) == 0)
-		{
-			pExit->nPatternAnim--;
-			if (pExit->nPatternAnim < 0)
-			{
-				pExit->nPatternAnim = 0;
-			}
-		}
-	}
-
 	/*** テクスチャ座標の設定 ***/
 	pVtx[0].tex = D3DXVECTOR2((1.0f / EXIT_ANIM_U) * pExit->nPatternAnim, 0.5f * pExit->gravity);
 	pVtx[1].tex = D3DXVECTOR2(((1.0f / EXIT_ANIM_U) * pExit->nPatternAnim) + (1.0f / EXIT_ANIM_U), 0.5f * pExit->gravity);
@@ -201,6 +247,8 @@ void UpdateExit(void)
 
 	/*** 頂点バッファの設定を終了 ***/
 	g_pVtxBuffExit->Unlock();
+
+	g_nCoutnerExit++;
 }
 
 //================================================================================================================
@@ -278,6 +326,9 @@ void SetExit(D3DXVECTOR3 pos, D3DXCOLOR col, OR_GRAVITY gravity)
 	/*** 出口のアニメーションをリセット ***/
 	pExit->nCounterAnim = 0;
 	pExit->nPatternAnim = 0;
+
+	/*** 汎用カウンターの値をリセット ***/
+	g_nCoutnerExit = 0;
 
 	/*** 出口を設定 ***/
 	pExit->bUse = true;

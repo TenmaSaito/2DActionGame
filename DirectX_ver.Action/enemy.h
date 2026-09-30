@@ -38,6 +38,7 @@ typedef enum
 typedef enum
 {
 	ENEMYTYPE_SLIME = 0,		// ƒXƒ‰ƒCƒ€
+	ENEMYTYPE_SUN,				// ‘¾—z
 	ENEMYTYPE_MAX
 }ENEMYTYPE;
 

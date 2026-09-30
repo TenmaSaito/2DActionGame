@@ -8,6 +8,7 @@
 //*** インクルードファイル ***
 //**********************************************************************************
 #include "input.h"
+#include "mathUtil.h"
 
 //**********************************************************************************
 //*** マクロ定義 ***
@@ -389,7 +390,7 @@ bool GetJoypadRelease(JOYKEY Key)
 //================================================================================================================
 // ジョイパッドのリピート情報を取得
 //================================================================================================================
-bool GetJoypadRepeat(JOYKEY Key)
+bool GetJoypadRepeat(JOYKEY Key, int nCounterRepeat)
 {
 	g_nCounterRepeatJoypad[Key]++;
 	if (g_nCounterRepeatJoypad[Key] <= 30)
@@ -398,7 +399,14 @@ bool GetJoypadRepeat(JOYKEY Key)
 	}
 	else
 	{
-		return (g_joykeyState.Gamepad.wButtons & (0x01 << Key)) ? true : false;
+		if (g_nCounterRepeatJoypad[Key] % nCounterRepeat == 0)
+		{
+			return (g_joykeyState.Gamepad.wButtons & (0x01 << Key)) ? true : false;
+		}
+		else
+		{
+			return false;
+		}
 	}
 }
 
@@ -609,8 +617,13 @@ bool GetJoyThumbSlow(JOYTHUMB Thumb)
 //================================================================================================================
 // ジョイパッドのスティックのリピート処理
 //================================================================================================================
-bool GetJoyThumbRepeat(JOYTHUMB Thumb)
+bool GetJoyThumbRepeat(JOYTHUMB Thumb, int nCounterRepeat)
 {
+	if (FAILED(CheckIndex(JOYTHUMB_MAX, Thumb)))
+	{
+		return false;
+	}
+
 	switch (Thumb)
 	{
 	case JOYTHUMB_LX_UP:
@@ -627,7 +640,10 @@ bool GetJoyThumbRepeat(JOYTHUMB Thumb)
 			}
 			else if (g_nCounterJoyThumbRepeat[Thumb] > REPEAT_TIME)
 			{
-				return true;
+				if (g_nCounterJoyThumbRepeat[Thumb] % nCounterRepeat == 0)
+				{
+					return true;
+				}
 			}
 		}
 
@@ -647,7 +663,10 @@ bool GetJoyThumbRepeat(JOYTHUMB Thumb)
 			}
 			else if (g_nCounterJoyThumbRepeat[Thumb] > REPEAT_TIME)
 			{
-				return true;
+				if (g_nCounterJoyThumbRepeat[Thumb] % nCounterRepeat == 0)
+				{
+					return true;
+				}
 			}
 		}
 
@@ -667,7 +686,10 @@ bool GetJoyThumbRepeat(JOYTHUMB Thumb)
 			}
 			else if (g_nCounterJoyThumbRepeat[Thumb] > REPEAT_TIME)
 			{
-				return true;
+				if (g_nCounterJoyThumbRepeat[Thumb] % nCounterRepeat == 0)
+				{
+					return true;
+				}
 			}
 		}
 
@@ -687,7 +709,10 @@ bool GetJoyThumbRepeat(JOYTHUMB Thumb)
 			}
 			else if (g_nCounterJoyThumbRepeat[Thumb] > REPEAT_TIME)
 			{				
-				return true;
+				if (g_nCounterJoyThumbRepeat[Thumb] % nCounterRepeat == 0)
+				{
+					return true;
+				}
 			}
 		}
 
@@ -707,7 +732,10 @@ bool GetJoyThumbRepeat(JOYTHUMB Thumb)
 			}
 			else if (g_nCounterJoyThumbRepeat[Thumb] > REPEAT_TIME)
 			{
-				return true;
+				if (g_nCounterJoyThumbRepeat[Thumb] % nCounterRepeat == 0)
+				{
+					return true;
+				}
 			}
 		}
 
@@ -727,7 +755,10 @@ bool GetJoyThumbRepeat(JOYTHUMB Thumb)
 			}
 			else if (g_nCounterJoyThumbRepeat[Thumb] > REPEAT_TIME)
 			{
-				return true;
+				if (g_nCounterJoyThumbRepeat[Thumb] % nCounterRepeat == 0)
+				{
+					return true;
+				}
 			}
 		}
 
@@ -747,7 +778,10 @@ bool GetJoyThumbRepeat(JOYTHUMB Thumb)
 			}
 			else if (g_nCounterJoyThumbRepeat[Thumb] > REPEAT_TIME)
 			{
-				return true;
+				if (g_nCounterJoyThumbRepeat[Thumb] % nCounterRepeat == 0)
+				{
+					return true;
+				}
 			}
 		}
 
@@ -767,7 +801,10 @@ bool GetJoyThumbRepeat(JOYTHUMB Thumb)
 			}
 			else if (g_nCounterJoyThumbRepeat[Thumb] > REPEAT_TIME)
 			{
-				return true;
+				if (g_nCounterJoyThumbRepeat[Thumb] % nCounterRepeat == 0)
+				{
+					return true;
+				}
 			}
 		}
 

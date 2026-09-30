@@ -12,9 +12,11 @@
 //*************************************************************************************************
 //*** マクロ定義 ***
 //*************************************************************************************************
-#define ANIMATION_START	(5)			// アニメーションの基準
+#define ANIMATION_START	(30)		// アニメーションの基準
 #define SLIME_ANIM_U	(2)			// スライムのアニメーションの数	(U座標)
 #define SLIME_ANIM_V	(1)			// スライムのアニメーションの数	(V座標)
+#define SUN_ANIM_U		(4)			// 太陽のアニメーション数(U座標)
+#define SUN_ANIM_V		(1)			// 太陽のアニメーション数(V座標)
 
 //*************************************************************************************************
 //*** プロトタイプ宣言 ***
@@ -33,7 +35,8 @@ int g_nCounterEnemy;											// 敵の総数
 //*************************************************************************************************
 const char *g_aEnemyTex[ENEMYTYPE_MAX]
 {
-	"data\\TEXTURE\\ENEMY\\SLIME.png"
+	"data\\TEXTURE\\ENEMY\\SLIME.png",
+	"data\\TEXTURE\\ENEMY\\SUN_ANIMATION.png"
 };
 
 //================================================================================================================
@@ -181,23 +184,26 @@ void UpdateEnemy(void)
 			/*** 位置を保存 ***/
 			pEnemy->posOld = pEnemy->pos;
 
-			/*** ブロックの移動量を加算(乗っている場合) ***/
-			if (pEnemy->pBlock != NULL)
+			if (pEnemy->type == ENEMYTYPE_SLIME)
 			{
-				pEnemy->pos += pEnemy->pBlock->pos - pEnemy->pBlock->posOld;
-			}
+				/*** ブロックの移動量を加算(乗っている場合) ***/
+				if (pEnemy->pBlock != NULL)
+				{
+					pEnemy->pos += pEnemy->pBlock->pos - pEnemy->pBlock->posOld;
+				}
 
-			/*** 重力を適用 ***/
-			pEnemy->moveNow.y += pEnemy->gravity.nGravity * (1 + (-2 * pEnemy->gravity.orGravity));
+				/*** 重力を適用 ***/
+				pEnemy->moveNow.y += pEnemy->gravity.nGravity * (1 + (-2 * pEnemy->gravity.orGravity));
 
-			/*** 重力加速度の上限を設定 ***/
-			if (pEnemy->moveNow.y <= -MAX_GRAVITY && pEnemy->gravity.orGravity == OR_GRAVITY_ANTI_GRAVITY)
-			{ // 上に一定以上の加速度がかかったら、最大値に変更
-				pEnemy->moveNow.y = -MAX_GRAVITY;
-			}
-			else if (pEnemy->moveNow.y >= MAX_GRAVITY)
-			{ // 下に一定以上の加速度がかかったら、最大値に変更
-				pEnemy->moveNow.y = MAX_GRAVITY;
+				/*** 重力加速度の上限を設定 ***/
+				if (pEnemy->moveNow.y <= -MAX_GRAVITY && pEnemy->gravity.orGravity == OR_GRAVITY_ANTI_GRAVITY)
+				{ // 上に一定以上の加速度がかかったら、最大値に変更
+					pEnemy->moveNow.y = -MAX_GRAVITY;
+				}
+				else if (pEnemy->moveNow.y >= MAX_GRAVITY)
+				{ // 下に一定以上の加速度がかかったら、最大値に変更
+					pEnemy->moveNow.y = MAX_GRAVITY;
+				}
 			}
 
 			/*** 位置を更新 ***/
@@ -212,51 +218,27 @@ void UpdateEnemy(void)
 					pEnemy->moveNow.x = pEnemy->move.x * -1;
 					pEnemy->move.x *= -1.0f;
 				}
-			}
-
-			/*** ブロックとの当たり判定 ***/
-			if (CollisionBlock(&pEnemy->pos,
-				&pEnemy->posOld,
-				&pEnemy->moveNow,
-				pEnemy->fHeight,
-				pEnemy->fWidth,
-				&pEnemy->pBlock,
-				pEnemy->gravity.orGravity,
-				false) == true)
-			{
-				pEnemy->bJump = false;					// 着地状態にする
-				/*** アニメーション ***/
-				pEnemy->nCounterAnim++;			// アニメーションカウンターを増加
-				if (pEnemy->nCounterAnim % ANIMATION_START == 0)
-				{ // アニメーションカウンターが一定の値になった時
-					pEnemy->nPatternAnim++;		// アニメーションを進める
-				}
-
-				/*** 衝突時の向き判定 ***/
-				if (pEnemy->moveNow.x == 0.0f)
-				{ /* もしもXの移動量がリセットされていたら、
-					反対方向に設定された移動量分与え、設定された移動量を反対方向へ更新する */
-					pEnemy->moveNow.x = pEnemy->move.x * -1;
-					pEnemy->move.x *= -1.0f;
-				}
-				
-				if (pEnemy->moveNow.y == 0.0f)
+				else if (pEnemy->pos.y + pEnemy->fHeight < pEnemy->rect.y || pEnemy->pos.y > pEnemy->rect.w)
 				{
-					pEnemy->moveNow.y = pEnemy->move.y;
+					pEnemy->moveNow.y = pEnemy->move.y * -1;
+					pEnemy->move.y *= -1.0f;
 				}
 			}
-			else
-			{
-				pEnemy->bJump = true;					// 空中状態にする
-			}
 
-			/*** 敵の位置が画面以下且つ下に重力がかかっていたら ***/
-			if (pEnemy->pos.y >= SCREEN_HEIGHT)
-			{ // 位置を調整し、ジャンプ可能に
-				if (pEnemy->gravity.orGravity == OR_GRAVITY_GRAVITY)
+			if (pEnemy->type == ENEMYTYPE_SLIME)
+			{
+				/*** ブロックとの当たり判定 ***/
+				if (CollisionBlock(&pEnemy->pos,
+					&pEnemy->posOld,
+					&pEnemy->moveNow,
+					pEnemy->fHeight,
+					pEnemy->fWidth,
+					&pEnemy->pBlock,
+					pEnemy->gravity.orGravity,
+					false) == true)
 				{
-					pEnemy->bJump = false;
-					if (pEnemy->nPatternAnim < pEnemy->nTexMaxU)
+					pEnemy->bJump = false;					// 着地状態にする
+					if (pEnemy->type == ENEMYTYPE_SLIME)
 					{
 						/*** アニメーション ***/
 						pEnemy->nCounterAnim++;			// アニメーションカウンターを増加
@@ -265,31 +247,105 @@ void UpdateEnemy(void)
 							pEnemy->nPatternAnim++;		// アニメーションを進める
 						}
 					}
-				}
 
-				pEnemy->pos.y = SCREEN_HEIGHT;
-				pEnemy->moveNow.y = pEnemy->move.y;
-			}
+					/*** 衝突時の向き判定 ***/
+					if (pEnemy->moveNow.x == 0.0f)
+					{ /* もしもXの移動量がリセットされていたら、
+						反対方向に設定された移動量分与え、設定された移動量を反対方向へ更新する */
+						pEnemy->moveNow.x = pEnemy->move.x * -1;
+						pEnemy->move.x *= -1.0f;
+					}
 
-			/*** 敵の位置が画面以上且つ上に重力がかかっていたら ***/
-			if (pEnemy->pos.y - pEnemy->fHeight <= 0)
-			{ // 位置を調整し、ジャンプ可能に
-				if (pEnemy->gravity.orGravity == OR_GRAVITY_ANTI_GRAVITY)
-				{
-					pEnemy->bJump = false;
-					/*** アニメーション ***/
-					if (pEnemy->nPatternAnim < pEnemy->nTexMaxU)
+					if (pEnemy->moveNow.y == 0.0f)
 					{
-						pEnemy->nCounterAnim++;			// アニメーションカウンターを増加
-						if (pEnemy->nCounterAnim % ANIMATION_START == 0)
-						{ // アニメーションカウンターが一定の値になった時
-							pEnemy->nPatternAnim++;		// アニメーションを進める
-						}
+						pEnemy->moveNow.y = pEnemy->move.y;
+					}
+				}
+				else
+				{
+					if (pEnemy->type == ENEMYTYPE_SLIME)
+					{
+						pEnemy->bJump = true;					// 空中状態にする
 					}
 				}
 
-				pEnemy->pos.y = pEnemy->fHeight;
-				pEnemy->moveNow.y = pEnemy->move.y;
+				/*** 敵の位置が画面以下且つ下に重力がかかっていたら ***/
+				if (pEnemy->pos.y >= SCREEN_HEIGHT)
+				{ // 位置を調整し、ジャンプ可能に
+					if (pEnemy->gravity.orGravity == OR_GRAVITY_GRAVITY)
+					{
+						pEnemy->bJump = false;
+						if (pEnemy->type == ENEMYTYPE_SLIME)
+						{
+							if (pEnemy->nPatternAnim < pEnemy->nTexMaxU)
+							{
+								/*** アニメーション ***/
+								pEnemy->nCounterAnim++;			// アニメーションカウンターを増加
+								if (pEnemy->nCounterAnim % ANIMATION_START == 0)
+								{ // アニメーションカウンターが一定の値になった時
+									pEnemy->nPatternAnim++;		// アニメーションを進める
+								}
+							}
+						}
+					}
+
+					pEnemy->pos.y = SCREEN_HEIGHT;
+					pEnemy->moveNow.y = pEnemy->move.y;
+				}
+
+				/*** 敵の位置が画面以上且つ上に重力がかかっていたら ***/
+				if (pEnemy->pos.y - pEnemy->fHeight <= 0)
+				{ // 位置を調整し、ジャンプ可能に
+					if (pEnemy->gravity.orGravity == OR_GRAVITY_ANTI_GRAVITY)
+					{
+						pEnemy->bJump = false;
+						if (pEnemy->type == ENEMYTYPE_SLIME)
+						{
+							/*** アニメーション ***/
+							if (pEnemy->nPatternAnim < pEnemy->nTexMaxU)
+							{
+								pEnemy->nCounterAnim++;			// アニメーションカウンターを増加
+								if (pEnemy->nCounterAnim % ANIMATION_START == 0)
+								{ // アニメーションカウンターが一定の値になった時
+									pEnemy->nPatternAnim++;		// アニメーションを進める
+								}
+							}
+						}
+					}
+
+					pEnemy->pos.y = pEnemy->fHeight;
+					pEnemy->moveNow.y = pEnemy->move.y;
+				}
+			}
+
+			if (pEnemy->type == ENEMYTYPE_SUN)
+			{
+				/*** アニメーション ***/
+				if (pEnemy->bJump != true)
+				{
+					pEnemy->nCounterAnim++;			// アニメーションカウンターを増加
+					if (pEnemy->nCounterAnim % ANIMATION_START == 0)
+					{ // アニメーションカウンターが一定の値になった時
+						pEnemy->nPatternAnim++;		// アニメーションを進める
+						if (pEnemy->nPatternAnim >= pEnemy->nTexMaxU)
+						{
+							pEnemy->bJump = true;
+						}
+					}
+				}
+				else
+				{
+					pEnemy->nCounterAnim++;			// アニメーションカウンターを増加
+					if (pEnemy->nCounterAnim % ANIMATION_START == 0)
+					{ // アニメーションカウンターが一定の値になった時
+						pEnemy->nPatternAnim--;		// アニメーションを進める
+						if (pEnemy->nPatternAnim <= 0)
+						{
+
+							pEnemy->bJump = false;
+						}
+					}
+				}
 			}
 
 			/*** 頂点座標の設定の設定 ***/
@@ -315,18 +371,36 @@ void UpdateEnemy(void)
 			pVtx[2].col = pEnemy->col;
 			pVtx[3].col = pEnemy->col;
 
-			/*** テクスチャ座標の設定 ***/
-			pVtx[0].tex.x = ((1.0f / pEnemy->nTexMaxU) * (pEnemy->nPatternAnim % pEnemy->nTexMaxU));
-			pVtx[0].tex.y = ((1.0f / pEnemy->nTexMaxV) * ((pEnemy->nPatternAnim / pEnemy->nTexMaxU) % pEnemy->nTexMaxV));
+			if (pEnemy->gravity.orGravity == OR_GRAVITY_GRAVITY)
+			{
+				/*** テクスチャ座標の設定 ***/
+				pVtx[0].tex.x = ((1.0f / pEnemy->nTexMaxU) * (pEnemy->nPatternAnim % pEnemy->nTexMaxU));
+				pVtx[0].tex.y = ((1.0f / pEnemy->nTexMaxV) * ((pEnemy->nPatternAnim / pEnemy->nTexMaxU) % pEnemy->nTexMaxV));
 
-			pVtx[1].tex.x = ((1.0f / pEnemy->nTexMaxU) * (pEnemy->nPatternAnim % pEnemy->nTexMaxU)) + (1.0f / pEnemy->nTexMaxU);
-			pVtx[1].tex.y = ((1.0f / pEnemy->nTexMaxV) * ((pEnemy->nPatternAnim / pEnemy->nTexMaxU) % pEnemy->nTexMaxV));
+				pVtx[1].tex.x = ((1.0f / pEnemy->nTexMaxU) * (pEnemy->nPatternAnim % pEnemy->nTexMaxU)) + (1.0f / pEnemy->nTexMaxU);
+				pVtx[1].tex.y = ((1.0f / pEnemy->nTexMaxV) * ((pEnemy->nPatternAnim / pEnemy->nTexMaxU) % pEnemy->nTexMaxV));
 
-			pVtx[2].tex.x = ((1.0f / pEnemy->nTexMaxU) * (pEnemy->nPatternAnim % pEnemy->nTexMaxU));
-			pVtx[2].tex.y = ((1.0f / pEnemy->nTexMaxV) * ((pEnemy->nPatternAnim / pEnemy->nTexMaxU) % pEnemy->nTexMaxV)) + (1.0f / pEnemy->nTexMaxV);
+				pVtx[2].tex.x = ((1.0f / pEnemy->nTexMaxU) * (pEnemy->nPatternAnim % pEnemy->nTexMaxU));
+				pVtx[2].tex.y = ((1.0f / pEnemy->nTexMaxV) * ((pEnemy->nPatternAnim / pEnemy->nTexMaxU) % pEnemy->nTexMaxV)) + (1.0f / pEnemy->nTexMaxV);
 
-			pVtx[3].tex.x = ((1.0f / pEnemy->nTexMaxU) * (pEnemy->nPatternAnim % pEnemy->nTexMaxU)) + (1.0f / pEnemy->nTexMaxU);
-			pVtx[3].tex.y = ((1.0f / pEnemy->nTexMaxV) * ((pEnemy->nPatternAnim / pEnemy->nTexMaxU) % pEnemy->nTexMaxV)) + (1.0f / pEnemy->nTexMaxV);
+				pVtx[3].tex.x = ((1.0f / pEnemy->nTexMaxU) * (pEnemy->nPatternAnim % pEnemy->nTexMaxU)) + (1.0f / pEnemy->nTexMaxU);
+				pVtx[3].tex.y = ((1.0f / pEnemy->nTexMaxV) * ((pEnemy->nPatternAnim / pEnemy->nTexMaxU) % pEnemy->nTexMaxV)) + (1.0f / pEnemy->nTexMaxV);
+			}
+			else
+			{
+				/*** テクスチャ座標の設定 ***/
+				pVtx[3].tex.x = ((1.0f / pEnemy->nTexMaxU) * (pEnemy->nPatternAnim % pEnemy->nTexMaxU));
+				pVtx[3].tex.y = ((1.0f / pEnemy->nTexMaxV) * ((pEnemy->nPatternAnim / pEnemy->nTexMaxU) % pEnemy->nTexMaxV));
+
+				pVtx[2].tex.x = ((1.0f / pEnemy->nTexMaxU) * (pEnemy->nPatternAnim % pEnemy->nTexMaxU)) + (1.0f / pEnemy->nTexMaxU);
+				pVtx[2].tex.y = ((1.0f / pEnemy->nTexMaxV) * ((pEnemy->nPatternAnim / pEnemy->nTexMaxU) % pEnemy->nTexMaxV));
+
+				pVtx[1].tex.x = ((1.0f / pEnemy->nTexMaxU) * (pEnemy->nPatternAnim % pEnemy->nTexMaxU));
+				pVtx[1].tex.y = ((1.0f / pEnemy->nTexMaxV) * ((pEnemy->nPatternAnim / pEnemy->nTexMaxU) % pEnemy->nTexMaxV)) + (1.0f / pEnemy->nTexMaxV);
+
+				pVtx[0].tex.x = ((1.0f / pEnemy->nTexMaxU) * (pEnemy->nPatternAnim % pEnemy->nTexMaxU)) + (1.0f / pEnemy->nTexMaxU);
+				pVtx[0].tex.y = ((1.0f / pEnemy->nTexMaxV) * ((pEnemy->nPatternAnim / pEnemy->nTexMaxU) % pEnemy->nTexMaxV)) + (1.0f / pEnemy->nTexMaxV);
+			}
 		}
 
 		pVtx += 4;
@@ -406,6 +480,14 @@ void SetEnemy(D3DXVECTOR3 pos, D3DXVECTOR3 move, D3DXCOLOR col, ENEMYTYPE type, 
 				pEnemy->nTexMaxV = SLIME_ANIM_V;
 
 				break;
+
+			// 太陽の場合
+			case ENEMYTYPE_SUN:
+
+				pEnemy->nTexMaxU = SUN_ANIM_U;
+				pEnemy->nTexMaxV = SUN_ANIM_V;
+
+				break;				
 			}
 			
 			/*** 頂点座標の設定の設定 ***/

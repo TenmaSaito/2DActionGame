@@ -15,7 +15,7 @@
 #define PRESSENTER_WIDTH	(700.0f)			// 幅
 #define PRESSENTER_HEIGHT	(360.0f)			// 高さ
 #define PRESSENTER_ANIM_V	(6)					// V座標の数
-#define ANIM_COUT			(7)				// アニメーション変化秒数
+#define ANIM_COUT			(15)				// アニメーション変化秒数
 
 //*************************************************************************************************
 //*** PressEnter演出 ***
@@ -36,7 +36,8 @@ typedef struct
 //*************************************************************************************************
 LPDIRECT3DTEXTURE9		g_pTexturePressEnter = NULL;	// テクスチャへのポインタ
 LPDIRECT3DVERTEXBUFFER9 g_pVtxBuffPressEnter = NULL;	// 頂点バッファのポインタ
-PRESSENTER g_reverse;			// 情報
+PRESSENTER g_pressEnter;			// 情報
+bool g_bEndPressEnter;
 
 //================================================================================================================
 // --- PressEnter演出の初期化処理 ---
@@ -47,13 +48,14 @@ void InitPressEnter(void)
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 	VERTEX_2D *pVtx;					// 頂点情報へのポインタ
 
-	g_reverse.pos = WINDOW_MID;
-	g_reverse.col = D3DXCOLOR_INV;
-	g_reverse.fWidth = PRESSENTER_WIDTH;
-	g_reverse.fHeight = PRESSENTER_HEIGHT;
-	g_reverse.nCounterAnim = 0;
-	g_reverse.nPatternAnim = 0;
-	g_reverse.bDisp = false;
+	g_pressEnter.pos = WINDOW_MID;
+	g_pressEnter.col = D3DXCOLOR_INV;
+	g_pressEnter.fWidth = PRESSENTER_WIDTH;
+	g_pressEnter.fHeight = PRESSENTER_HEIGHT;
+	g_pressEnter.nCounterAnim = 0;
+	g_pressEnter.nPatternAnim = 0;
+	g_pressEnter.bDisp = false;
+	g_bEndPressEnter = false;
 
 	/*** テクスチャの読み込み ***/
 	D3DXCreateTextureFromFile(pDevice,
@@ -72,20 +74,20 @@ void InitPressEnter(void)
 	g_pVtxBuffPressEnter->Lock(0, 0, (void**)&pVtx, 0);
 
 	/*** 頂点座標の設定の設定 ***/
-	pVtx[0].pos.x = g_reverse.pos.x;
-	pVtx[0].pos.y = g_reverse.pos.y;
+	pVtx[0].pos.x = g_pressEnter.pos.x;
+	pVtx[0].pos.y = g_pressEnter.pos.y;
 	pVtx[0].pos.z = 0.0f;
 
-	pVtx[1].pos.x = g_reverse.pos.x + g_reverse.fWidth;
-	pVtx[1].pos.y = g_reverse.pos.y;
+	pVtx[1].pos.x = g_pressEnter.pos.x + g_pressEnter.fWidth;
+	pVtx[1].pos.y = g_pressEnter.pos.y;
 	pVtx[1].pos.z = 0.0f;
 
-	pVtx[2].pos.x = g_reverse.pos.x;
-	pVtx[2].pos.y = g_reverse.pos.y + g_reverse.fHeight;
+	pVtx[2].pos.x = g_pressEnter.pos.x;
+	pVtx[2].pos.y = g_pressEnter.pos.y + g_pressEnter.fHeight;
 	pVtx[2].pos.z = 0.0f;
 
-	pVtx[3].pos.x = g_reverse.pos.x + g_reverse.fWidth;
-	pVtx[3].pos.y = g_reverse.pos.y + g_reverse.fHeight;
+	pVtx[3].pos.x = g_pressEnter.pos.x + g_pressEnter.fWidth;
+	pVtx[3].pos.y = g_pressEnter.pos.y + g_pressEnter.fHeight;
 	pVtx[3].pos.z = 0.0f;
 
 	/*** rhwの設定 ***/
@@ -95,16 +97,16 @@ void InitPressEnter(void)
 	pVtx[3].rhw = 1.0f;
 
 	/*** 頂点カラー設定 ***/
-	pVtx[0].col = g_reverse.col;
-	pVtx[1].col = g_reverse.col;
-	pVtx[2].col = g_reverse.col;
-	pVtx[3].col = g_reverse.col;
+	pVtx[0].col = g_pressEnter.col;
+	pVtx[1].col = g_pressEnter.col;
+	pVtx[2].col = g_pressEnter.col;
+	pVtx[3].col = g_pressEnter.col;
 
 	/*** テクスチャ座標の設定 ***/
-	pVtx[0].tex = D3DXVECTOR2(0.0f, (1.0f / PRESSENTER_ANIM_V) * g_reverse.nPatternAnim);
-	pVtx[1].tex = D3DXVECTOR2(1.0f, (1.0f / PRESSENTER_ANIM_V) * g_reverse.nPatternAnim);
-	pVtx[2].tex = D3DXVECTOR2(0.0f, (1.0f / PRESSENTER_ANIM_V) * (g_reverse.nPatternAnim + 1));
-	pVtx[3].tex = D3DXVECTOR2(1.0f, (1.0f / PRESSENTER_ANIM_V) * (g_reverse.nPatternAnim + 1));
+	pVtx[0].tex = D3DXVECTOR2(0.0f, (1.0f / PRESSENTER_ANIM_V) * g_pressEnter.nPatternAnim);
+	pVtx[1].tex = D3DXVECTOR2(1.0f, (1.0f / PRESSENTER_ANIM_V) * g_pressEnter.nPatternAnim);
+	pVtx[2].tex = D3DXVECTOR2(0.0f, (1.0f / PRESSENTER_ANIM_V) * (g_pressEnter.nPatternAnim + 1));
+	pVtx[3].tex = D3DXVECTOR2(1.0f, (1.0f / PRESSENTER_ANIM_V) * (g_pressEnter.nPatternAnim + 1));
 
 	/*** 頂点バッファの設定を終了 ***/
 	g_pVtxBuffPressEnter->Unlock();
@@ -137,54 +139,63 @@ void UpdatePressEnter(void)
 {
 	VERTEX_2D* pVtx;					// 頂点情報へのポインタ
 
-	if (g_reverse.bDisp)
+	if (g_pressEnter.bDisp)
 	{
-		if(g_reverse.col.a <= 1.0f)
+		if (GetKeyboardTrigger(DIK_RETURN)
+			|| GetJoypadTrigger(JOYKEY_A)
+			|| GetJoypadTrigger(JOYKEY_START))
 		{
-			g_reverse.col.a += 0.02f;
-			if (g_reverse.col.a > 1.0f)
+			g_pressEnter.col.a = 1.0f;
+			g_bEndPressEnter = true;
+		}
+
+		if(g_pressEnter.col.a < 1.0f)
+		{
+			g_pressEnter.col.a += 0.02f;
+			if (g_pressEnter.col.a >= 1.0f)
 			{
-				g_reverse.col.a = 1.0f;
+				g_pressEnter.col.a = 1.0f;
+				g_bEndPressEnter = true;
 			}
 		}
 
-		g_reverse.nCounterAnim++;
-		if (g_reverse.nCounterAnim % ANIM_COUT == 0)
+		g_pressEnter.nCounterAnim++;
+		if (g_pressEnter.nCounterAnim % ANIM_COUT == 0)
 		{
-			g_reverse.nPatternAnim++;			
+			g_pressEnter.nPatternAnim++;			
 		}
 
 		/*** 頂点バッファの設定 ***/
 		g_pVtxBuffPressEnter->Lock(0, 0, (void**)&pVtx, 0);
 
 		/*** 頂点座標の設定の設定 ***/
-		pVtx[0].pos.x = g_reverse.pos.x;
-		pVtx[0].pos.y = g_reverse.pos.y;
+		pVtx[0].pos.x = g_pressEnter.pos.x;
+		pVtx[0].pos.y = g_pressEnter.pos.y;
 		pVtx[0].pos.z = 0.0f;
 
-		pVtx[1].pos.x = g_reverse.pos.x + g_reverse.fWidth;
-		pVtx[1].pos.y = g_reverse.pos.y;
+		pVtx[1].pos.x = g_pressEnter.pos.x + g_pressEnter.fWidth;
+		pVtx[1].pos.y = g_pressEnter.pos.y;
 		pVtx[1].pos.z = 0.0f;
 
-		pVtx[2].pos.x = g_reverse.pos.x;
-		pVtx[2].pos.y = g_reverse.pos.y + g_reverse.fHeight;
+		pVtx[2].pos.x = g_pressEnter.pos.x;
+		pVtx[2].pos.y = g_pressEnter.pos.y + g_pressEnter.fHeight;
 		pVtx[2].pos.z = 0.0f;
 
-		pVtx[3].pos.x = g_reverse.pos.x + g_reverse.fWidth;
-		pVtx[3].pos.y = g_reverse.pos.y + g_reverse.fHeight;
+		pVtx[3].pos.x = g_pressEnter.pos.x + g_pressEnter.fWidth;
+		pVtx[3].pos.y = g_pressEnter.pos.y + g_pressEnter.fHeight;
 		pVtx[3].pos.z = 0.0f;
 
 		/*** 頂点カラー設定 ***/
-		pVtx[0].col = g_reverse.col;
-		pVtx[1].col = g_reverse.col;
-		pVtx[2].col = g_reverse.col;
-		pVtx[3].col = g_reverse.col;
+		pVtx[0].col = g_pressEnter.col;
+		pVtx[1].col = g_pressEnter.col;
+		pVtx[2].col = g_pressEnter.col;
+		pVtx[3].col = g_pressEnter.col;
 
 		/*** テクスチャ座標の設定 ***/
-		pVtx[0].tex = D3DXVECTOR2(0.0f, (1.0f / PRESSENTER_ANIM_V) * (g_reverse.nPatternAnim % PRESSENTER_ANIM_V));
-		pVtx[1].tex = D3DXVECTOR2(1.0f, (1.0f / PRESSENTER_ANIM_V) * (g_reverse.nPatternAnim % PRESSENTER_ANIM_V));
-		pVtx[2].tex = D3DXVECTOR2(0.0f, (1.0f / PRESSENTER_ANIM_V) * ((g_reverse.nPatternAnim % PRESSENTER_ANIM_V) + 1));
-		pVtx[3].tex = D3DXVECTOR2(1.0f, (1.0f / PRESSENTER_ANIM_V) * ((g_reverse.nPatternAnim % PRESSENTER_ANIM_V) + 1));
+		pVtx[0].tex = D3DXVECTOR2(0.0f, (1.0f / PRESSENTER_ANIM_V) * (g_pressEnter.nPatternAnim % PRESSENTER_ANIM_V));
+		pVtx[1].tex = D3DXVECTOR2(1.0f, (1.0f / PRESSENTER_ANIM_V) * (g_pressEnter.nPatternAnim % PRESSENTER_ANIM_V));
+		pVtx[2].tex = D3DXVECTOR2(0.0f, (1.0f / PRESSENTER_ANIM_V) * ((g_pressEnter.nPatternAnim % PRESSENTER_ANIM_V) + 1));
+		pVtx[3].tex = D3DXVECTOR2(1.0f, (1.0f / PRESSENTER_ANIM_V) * ((g_pressEnter.nPatternAnim % PRESSENTER_ANIM_V) + 1));
 
 		/*** 頂点バッファの設定を終了 ***/
 		g_pVtxBuffPressEnter->Unlock();
@@ -205,7 +216,7 @@ void DrawPressEnter(void)
 	/*** 頂点フォーマットの設定 ***/
 	pDevice->SetFVF(FVF_VERTEX_2D);
 
-	if (g_reverse.bDisp)
+	if (g_pressEnter.bDisp)
 	{
 		/*** テクスチャの設定 ***/
 		pDevice->SetTexture(0, g_pTexturePressEnter);
@@ -222,9 +233,9 @@ void DrawPressEnter(void)
 //================================================================================================================
 void SetPressEnterEffect(D3DXVECTOR3 pos)
 {
-	g_reverse.pos = pos;
-	g_reverse.col.a = 0.0f;
-	g_reverse.bDisp = true;
+	g_pressEnter.pos = pos;
+	g_pressEnter.col.a = 0.0f;
+	g_pressEnter.bDisp = true;
 }
 
 //================================================================================================================
@@ -232,5 +243,13 @@ void SetPressEnterEffect(D3DXVECTOR3 pos)
 //================================================================================================================
 bool GetPressEnterEffect(void)
 {
-	return g_reverse.bDisp;
+	return g_pressEnter.bDisp;
+}
+
+//================================================================================================================
+// --- PressEnter演出の取得処理 ---
+//================================================================================================================
+bool GetEndPressEnterEffect(void)
+{
+	return g_bEndPressEnter;
 }

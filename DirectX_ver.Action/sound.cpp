@@ -47,6 +47,14 @@ SOUNDINFO g_aSoundInfo[SOUND_LABEL_MAX] =
 	{"data/BGM/BGM_GAME.wav", -1},					// ゲーム画面のBGM
 	{"data/BGM/BGM_RESULT.wav", -1},				// 結果画面のBGM
 	{"data/SE/SE_ENTER.wav", 0},					// 決定ボタン音
+	{"data/SE/SE_SELECT.wav", 0},					// 選択音
+	{"data/SE/SE_REVERSE.wav", 0},					// 反転効果音
+	{"data/SE/SE_LANDING.wav", 0},					// 着地音
+	{"data/SE/SE_ITEMGET.wav", 0},					// アイテム取得音
+	{"data/SE/SE_DOOROPEN.wav", 0},					// ドアの開錠音
+	{"data/SE/SE_DOORCLOSE.wav", 0},				// ドアの施錠音
+	{"data/SE/SE_DEATH.wav", 0},					// 死亡音
+	{"data/SE/SE_GOAL.wav", 0},						// ゴール時効果音
 };
 
 //=============================================================================

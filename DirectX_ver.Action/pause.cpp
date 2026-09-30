@@ -53,6 +53,7 @@ LPDIRECT3DVERTEXBUFFER9 g_pVtxBuffPause = NULL;						// 頂点バッファのポインタ
 PAUSE_ICON g_aPauseIcon[PAUSE_TYPE_MAX];		// ポーズアイコン
 PAUSE_TYPE g_CurrentPauseType;					// 現在のポーズの種類
 bool g_bShowPause;								// 描画状態
+bool g_bSkipStart;								// STARTボタンの持続入力によるポーズスキップ阻止変数
 const D3DXVECTOR3 g_aIconPos[] =				// 各ポーズアイコンの位置
 {
 	D3DXVECTOR3(0.0f,0.0f,0.0f),				// 位置は原点
@@ -99,6 +100,7 @@ void InitPause(void)
 	g_CurrentPauseType = PAUSE_TYPE_CONTINUE;
 	g_aPauseIcon[g_CurrentPauseType].bUse = true;
 	g_bShowPause = true;
+	g_bSkipStart = false;
 
 	/*** 頂点バッファの生成 ***/
 	pDevice->CreateVertexBuffer(sizeof(VERTEX_2D) * 4 * (PAUSE_TYPE_MAX + 1),		// ポーズアイコンの種類 + 黒い背景
@@ -234,9 +236,12 @@ void UpdatePause(void)
 		{
 			/*** 右入力をしたとき ***/
 			if (GetKeyboardRepeat(DIK_D)
-				|| GetJoypadRepeat(JOYKEY_RIGHT)
-				|| GetJoyThumbRepeat(JOYTHUMB_LX_UP))
+				|| GetJoypadRepeat(JOYKEY_RIGHT, 20)
+				|| GetJoyThumbRepeat(JOYTHUMB_LX_UP, 20))
 			{
+				/*** 選択音 ***/
+				PlaySound(SOUND_LABEL_SE_SELECT);
+
 				nPauseType = g_CurrentPauseType;			// 現在のポーズアイコンを取得しint変更し値の変更を許可
 				nPauseType++;								// 値をインクリメント
 				/*** インデックスの範囲を確認 ***/
@@ -249,9 +254,12 @@ void UpdatePause(void)
 			}
 			/*** 左入力をしたとき ***/
 			else if (GetKeyboardRepeat(DIK_A)
-				|| GetJoypadRepeat(JOYKEY_LEFT)
-				|| GetJoyThumbRepeat(JOYTHUMB_LX_DOWN))
+				|| GetJoypadRepeat(JOYKEY_LEFT, 20)
+				|| GetJoyThumbRepeat(JOYTHUMB_LX_DOWN, 20))
 			{
+				/*** 選択音 ***/
+				PlaySound(SOUND_LABEL_SE_SELECT);
+
 				nPauseType = g_CurrentPauseType;				// 現在のポーズアイコンを取得しint変更し値の変更を許可
 				nPauseType--;									// 値をデクリメント
 				/*** インデックスの範囲を確認 ***/
@@ -265,9 +273,11 @@ void UpdatePause(void)
 
 			/*** 決定ボタンを押したとき ***/
 			if (GetKeyboardTrigger(DIK_RETURN)
-				|| GetJoypadTrigger(JOYKEY_A)
-				|| GetJoypadTrigger(JOYKEY_START))
+				|| GetJoypadTrigger(JOYKEY_A))
 			{
+				/*** 決定音 ***/
+				PlaySound(SOUND_LABEL_SE_ENTER);
+
 				/*** 現在のポーズタイプによる処理を実行 ***/
 				DoPauseSwitch(g_CurrentPauseType);
 			}
@@ -359,6 +369,8 @@ void DrawPause(void)
 //================================================================================================================
 void DoPauseSwitch(PAUSE_TYPE type)
 {
+	g_bSkipStart = false;
+
 	/*** ポーズアイコンの種類によって処理を変更 ***/
 	switch (type)
 	{
@@ -367,6 +379,7 @@ void DoPauseSwitch(PAUSE_TYPE type)
 		
 		/*** ポーズを解除し、ゲームを再開 ***/
 		SetEnablePause(false);
+		g_CurrentPauseType = PAUSE_TYPE_CONTINUE;
 
 		break;
 
@@ -380,6 +393,7 @@ void DoPauseSwitch(PAUSE_TYPE type)
 		ResetStage(true);
 		SetStage(GetStage());
 		SetEnablePause(false);
+		g_CurrentPauseType = PAUSE_TYPE_CONTINUE;
 
 		break;
 
@@ -391,6 +405,8 @@ void DoPauseSwitch(PAUSE_TYPE type)
 
 		/*** タイトル画面へ戻る ***/
 		SetFade(MODE_TITLE, FADE_TYPE_NORMAL);
+		FadeSound(SOUND_LABEL_BGM_TITLE);
+		g_CurrentPauseType = PAUSE_TYPE_CONTINUE;
 
 		break;
 

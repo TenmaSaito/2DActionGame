@@ -36,7 +36,8 @@ typedef struct
 	D3DXVECTOR3 pos;						// スコア表示の位置
 	D3DXCOLOR col;							// 色
 	int nScore;								// スコアの値
-	int nRankingScore;							// 順位
+	int nRankingScore;						// 順位
+	float fRot;								// 回転角度
 	bool bAdd;								// 追加されたスコアか
 	bool bUse;								// 使われているか
 	bool bMove;								// 画面内に入ってくるか
@@ -79,6 +80,7 @@ void InitRankingScore(void)
 		pRankingScore->col = D3DXCOLOR_NULL;
 		pRankingScore->nScore = 0;
 		pRankingScore->nRankingScore = 1;
+		pRankingScore->fRot = 0.0f;
 		pRankingScore->bAdd = false;
 		pRankingScore->bUse = false;
 	}
@@ -234,6 +236,7 @@ void UpdateRankingScore(void)
 		for (int nCntRankingScore = 0; nCntRankingScore < MAX_RANKING; nCntRankingScore++, pRankingScore++)
 		{
 			pRankingScore->pos = GOAL_POS;
+			pRankingScore->fRot = 0.0f;
 		}
 
 		g_nCurrentMoveRankingScore = -1;
@@ -252,6 +255,17 @@ void UpdateRankingScore(void)
 			{
 				pRankingScore->pos.x = GOAL_POS.x;
 				g_nCurrentMoveRankingScore--;
+			}
+			else
+			{
+				pRankingScore->fRot += 0.04f;
+			}
+		}
+		else
+		{
+			if ((int)(pRankingScore->fRot * 10.0f) % (int)(D3DX_PI * 20.0f) != 0)
+			{
+				pRankingScore->fRot += 0.04f;
 			}
 		}
 
@@ -293,6 +307,8 @@ void UpdateRankingScore(void)
 			pVtx[3].pos.x = pRankingScore->pos.x + ((NUM_WIDTH * 2) * nCntCol) + NUM_WIDTH;
 			pVtx[3].pos.y = pRankingScore->pos.y + NUM_HEIGHT;
 			pVtx[3].pos.z = 0.0f;
+
+			RollPolygon(pVtx, D3DXVECTOR3(pRankingScore->pos.x + ((NUM_WIDTH * 2) * nCntCol), pRankingScore->pos.y, 0.0f), NUM_WIDTH, NUM_HEIGHT, pRankingScore->fRot, 1.0f);
 
 			/*** 頂点カラー設定 ***/
 			pVtx[0].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, pRankingScore->col.a);

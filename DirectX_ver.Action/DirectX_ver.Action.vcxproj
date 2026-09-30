@@ -205,6 +205,7 @@
     <ClInclude Include="rankingBg.h" />
     <ClInclude Include="rankingScore.h" />
     <ClInclude Include="read_binui.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="result.h" />
     <ClInclude Include="resultBg.h" />
     <ClInclude Include="resultScore.h" />
@@ -225,6 +226,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="DirectX_ver.Action.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="data\TEXTURE\ICON\ICON.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

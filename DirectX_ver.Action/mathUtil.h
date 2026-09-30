@@ -29,5 +29,6 @@ float RepairRot(float fRot);
 D3DXVECTOR3 GetPosBetweenPos(D3DXVECTOR3 pos1, D3DXVECTOR3 pos2);
 D3DXCOLOR GetRandomColor(bool bUseAlphaRand);
 float GetPTPLength(D3DXVECTOR3 pos1, D3DXVECTOR3 pos2);
+void RollPolygon(VERTEX_2D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHeight, float fRot, int nSpeed);
 
 #endif

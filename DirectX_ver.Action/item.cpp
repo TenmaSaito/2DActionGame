@@ -18,7 +18,8 @@
 #define MAX_ITEM		(64)								// ブロックの最大数
 #define ITEM_ANIM_U		(8)									// アニメーションする数 U
 #define ITEM_ANIM_V		(1)									// アニメーションする数 V
-#define ITEM_KEYANIM_U	(1)									// 鍵のアニメーションする数 U
+#define ITEM_KEYANIM_U	(5)									// 鍵のアニメーションする数 U
+#define ITEM_KEYANIM_V	(2)									// 鍵のアニメーションする数 V
 #define ANIMATION_START	(15)								// アニメーションを更新する基準
 #define ITEMLOST_COOLDOWN	(120)							// アイテムロストのクールダウン
 
@@ -75,7 +76,7 @@ ITEMINFO g_aItemInfo[] =
 const char *g_aItemTex[ITEMTYPE_MAX] =
 {
 	"data\\TEXTURE\\ITEM\\STAR_ANIM.png",
-	"data\\TEXTURE\\ITEM\\ITEM_KEY.png"
+	"data\\TEXTURE\\ITEM\\KEY_REVERSE_ANIMATION.png"
 };
 
 //================================================================================================================
@@ -122,12 +123,6 @@ void InitItem(void)
 		D3DPOOL_MANAGED,
 		&g_pVtxBuffItem,
 		NULL);
-
-	///*** アイテムの設置 ***/
-	//for (int nCntItem = 0; nCntItem < (sizeof g_aItemInfo / sizeof(ITEMINFO)); nCntItem++)
-	//{
-	//	SetItem(g_aItemInfo[nCntItem].type, g_aItemInfo[nCntItem].pos, g_aItemInfo[nCntItem].col, g_aItemInfo[nCntItem].gravity.orGravity);
-	//}
 
 	/*** 頂点バッファの設定 ***/
 	g_pVtxBuffItem->Lock(0, 0, (void**)&pVtx, 0);
@@ -251,11 +246,22 @@ void UpdateItem(void)
 			pVtx[2].col = pItem->col;
 			pVtx[3].col = pItem->col;
 
-			/*** テクスチャ座標の設定 ***/
-			pVtx[0].tex = D3DXVECTOR2((1.0f / pItem->nTexU) * pItem->nPatternAnim, 0.0f);
-			pVtx[1].tex = D3DXVECTOR2((1.0f / pItem->nTexU) * pItem->nPatternAnim + (1.0f / pItem->nTexU), 0.0f);
-			pVtx[2].tex = D3DXVECTOR2((1.0f / pItem->nTexU) * pItem->nPatternAnim, 1.0f);
-			pVtx[3].tex = D3DXVECTOR2((1.0f / pItem->nTexU) * pItem->nPatternAnim + (1.0f / pItem->nTexU), 1.0f);
+			if (pItem->type == ITEMTYPE_STAR)
+			{
+				/*** テクスチャ座標の設定 ***/
+				pVtx[0].tex = D3DXVECTOR2((1.0f / pItem->nTexU) * pItem->nPatternAnim, 0.0f);
+				pVtx[1].tex = D3DXVECTOR2((1.0f / pItem->nTexU) * pItem->nPatternAnim + (1.0f / pItem->nTexU), 0.0f);
+				pVtx[2].tex = D3DXVECTOR2((1.0f / pItem->nTexU) * pItem->nPatternAnim, 1.0f);
+				pVtx[3].tex = D3DXVECTOR2((1.0f / pItem->nTexU) * pItem->nPatternAnim + (1.0f / pItem->nTexU), 1.0f);
+			}
+			else
+			{
+				/*** テクスチャ座標の設定 ***/
+				pVtx[0].tex = D3DXVECTOR2((1.0f / pItem->nTexU) * pItem->nPatternAnim, (1.0f / pItem->nTexV) * pItem->gravity.orGravity);
+				pVtx[1].tex = D3DXVECTOR2((1.0f / pItem->nTexU) * pItem->nPatternAnim + (1.0f / pItem->nTexU), (1.0f / pItem->nTexV) * pItem->gravity.orGravity);
+				pVtx[2].tex = D3DXVECTOR2((1.0f / pItem->nTexU) * pItem->nPatternAnim, (1.0f / pItem->nTexV) * (pItem->gravity.orGravity + 1));
+				pVtx[3].tex = D3DXVECTOR2((1.0f / pItem->nTexU) * pItem->nPatternAnim + (1.0f / pItem->nTexU), (1.0f / pItem->nTexV) * (pItem->gravity.orGravity + 1));
+			}
 		}
 
 		pVtx += 4;				// 頂点データのポインタを4つ分進める
@@ -318,7 +324,7 @@ void SetItem(ITEMTYPE type, D3DXVECTOR3 pos, D3DXCOLOR col, OR_GRAVITY gravity, 
 			if (type == ITEMTYPE_KEY)
 			{
 				pItem->nTexU = ITEM_KEYANIM_U;
-				pItem->nTexV = ITEM_ANIM_V;
+				pItem->nTexV = ITEM_KEYANIM_V;
 				pItem->posGoal = pos;
 			}
 			else
@@ -381,6 +387,9 @@ void CollisionItem(D3DXVECTOR3 pos, float fWidth, float fHeight)
 				&& pos.y >= pItem->pos.y - pItem->fHeight
 				&& pos.y - fHeight <= pItem->pos.y)
 			{
+				/*** アイテム取得音 ***/
+				PlaySound(SOUND_LABEL_SE_ITEMGET);
+
 				ItemActivity(ACTIVE_COLLISION, pItem);
 			}
 		}
@@ -443,6 +452,7 @@ void ItemActivity(ACTIVE active, ITEM *pItem)
 				else
 				{
 					HomingPosToPos(ITEM_GOAL_POS, &pItem->pos, pItem->nCounterAnim * 0.025f);
+					SetParticle(pItem->pos, GetRandomColor(true), 1, D3DX_PI, -D3DX_PI, 1, false, EFFECTTYPE_FADE);
 					if (CollisionBox(ITEM_CLEAR_RECT, pItem->pos))
 					{
 						AddStarNum(1);
@@ -461,7 +471,7 @@ void ItemActivity(ACTIVE active, ITEM *pItem)
 					pItem->nAlphaItem *= -1;
 				}
 
-				pItem->nCounterAnim++;
+				/*pItem->nCounterAnim++;
 				if (pItem->nCounterAnim % ANIMATION_START == 0)
 				{
 					pItem->nPatternAnim++;
@@ -469,11 +479,25 @@ void ItemActivity(ACTIVE active, ITEM *pItem)
 					{
 						pItem->nPatternAnim = 0;
 					}
-				}
+				}*/
 
 				if (pItem->bCatched == true)
 				{
 					/*** プレイヤーを追尾 ***/
+					if (pItem->nPatternAnim < ITEM_KEYANIM_U && (pItem->gravity.orGravity != pPlayer->gravity.orGravity))
+					{
+						pItem->nCounterAnim++;
+						if (pItem->nCounterAnim % 5 == 0)
+						{ // アニメーションカウンターが一定の値になった時
+							pItem->nPatternAnim++;		// アニメーションを進める
+							if (pItem->nPatternAnim >= ITEM_KEYANIM_U)
+							{
+								pItem->nPatternAnim = 0;
+								pItem->gravity.orGravity = pPlayer->gravity.orGravity;
+							}
+						}
+					}
+
 					HomingPosToPos(D3DXVECTOR3(pPlayer->pos.x, pPlayer->pos.y - pPlayer->fHeight + 5.0f, 0.0f), &pItem->pos, GetPTPLength(pPlayer->pos, pItem->pos) * 0.04f);
 				}
 				else
@@ -496,6 +520,7 @@ void ItemActivity(ACTIVE active, ITEM *pItem)
 					{
 						/*** 元の位置に戻り次第運動開始 ***/
 						pItem->pos.y += 1.0f * pItem->nAlphaItem;
+						SetParticle(pItem->pos, GetRandomColor(true), 1, D3DX_PI, -D3DX_PI, 1, false, EFFECTTYPE_FADE);
 					}
 				}
 
@@ -562,6 +587,7 @@ void ItemActivity(ACTIVE active, ITEM *pItem)
 
 			pItem->bCatched = true;
 			pItem->nCounterAnim = 0;
+			SetParticle(pItem->pos, D3DXCOLOR(1.0f, 0.5f, 0.7f, 1.0f), 3, D3DX_PI, -D3DX_PI, 6, false, EFFECTTYPE_FADE);
 
 			break;
 		}
